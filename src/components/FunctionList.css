@@ -1,0 +1,92 @@
+.function-list {
+  width: 300px;
+  background-color: #252526;
+  border-right: 1px solid #3c3c3c;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.search-container {
+  padding: 10px;
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: #3c3c3c;
+  border: 1px solid #5a5a5a;
+  border-radius: 4px;
+  color: #d4d4d4;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #007acc;
+}
+
+.search-input::placeholder {
+  color: #858585;
+}
+
+.function-items {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.empty-state {
+  padding: 20px;
+  text-align: center;
+  color: #858585;
+  font-size: 14px;
+}
+
+.function-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #2d2d30;
+  transition: background-color 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.function-item:hover {
+  background-color: #2a2d2e;
+}
+
+.function-item.selected {
+  background-color: #094771;
+}
+
+.function-name {
+  color: #dcdcaa;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.function-address {
+  color: #858585;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+}
+
+.function-items::-webkit-scrollbar {
+  width: 10px;
+}
+
+.function-items::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.function-items::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 5px;
+}
+
+.function-items::-webkit-scrollbar-thumb:hover {
+  background: #4e4e4e;
+}
