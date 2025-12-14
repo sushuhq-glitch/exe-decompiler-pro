@@ -18,10 +18,16 @@ export function analyzeExecutable(data) {
   // Only scan if data has sufficient length
   const scanLength = Math.max(0, data.length - PATTERN_BUFFER_SIZE);
   for (let i = 0; i < scanLength; i++) {
-    // Check for function prologue patterns
-    if (matchesPattern(data, i, prologuePatterns[0]) || 
-        matchesPattern(data, i, prologuePatterns[1])) {
-      
+    // Check for function prologue patterns - test each pattern until one matches
+    let matched = false;
+    for (const pattern of prologuePatterns) {
+      if (matchesPattern(data, i, pattern)) {
+        matched = true;
+        break;
+      }
+    }
+    
+    if (matched) {
       const address = `0x${(0x400000 + i).toString(16).toUpperCase()}`;
       const name = `sub_${address.slice(2)}`;
       
