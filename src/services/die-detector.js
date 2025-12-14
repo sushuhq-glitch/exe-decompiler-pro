@@ -648,14 +648,14 @@ function searchPattern(data, pattern) {
   return false;
 }
 
-// Module-level TextEncoder for efficiency
-const textEncoder = new TextEncoder();
+// Module-level TextEncoder instance for efficiency
+const TEXT_ENCODER = new TextEncoder();
 
 /**
  * Helper: Search for string
  */
 function searchString(data, str) {
-  const pattern = textEncoder.encode(str);
+  const pattern = TEXT_ENCODER.encode(str);
   return searchPattern(data, Array.from(pattern));
 }
 

@@ -5,10 +5,14 @@ import './StringViewer.css';
  * Professional String Viewer Component
  * Displays extracted strings with advanced filtering and export capabilities
  */
+// Constants
+const MAX_DISPLAY_LENGTH = 80;
+const MIN_STRING_LENGTH = 4;
+
 function StringViewer({ fileData, peData, onJumpToHex }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all'); // 'all', 'ascii', 'unicode', 'base64'
-  const [minLength, setMinLength] = useState(4);
+  const [minLength, setMinLength] = useState(MIN_STRING_LENGTH);
   const [sortBy, setSortBy] = useState('address'); // 'address', 'length', 'type'
   const [selectedString, setSelectedString] = useState(null);
 
@@ -357,7 +361,7 @@ function StringViewer({ fileData, peData, onJumpToHex }) {
                   <td className="section-cell">{str.section}</td>
                   <td className="length-cell">{str.length}</td>
                   <td className="value-cell" title={str.value}>
-                    {str.value.length > 80 ? str.value.substring(0, 80) + '...' : str.value}
+                    {str.value.length > MAX_DISPLAY_LENGTH ? str.value.substring(0, MAX_DISPLAY_LENGTH) + '...' : str.value}
                     {str.decodedValue && (
                       <div className="decoded-value" title={str.decodedValue}>
                         Decoded: {str.decodedValue.substring(0, 40)}...
