@@ -11,11 +11,12 @@ export function analyzeExecutable(data) {
     [0x55, 0x48, 0x89, 0xE5], // push rbp; mov rbp, rsp (x64)
   ];
   
-  // Reserve bytes for pattern matching and extracting code context
-  const RESERVED_BYTES = 10;
+  // Reserve buffer size for safe pattern matching and code extraction
+  const PATTERN_BUFFER_SIZE = 10;
+  const CODE_CONTEXT_SIZE = 50; // bytes of context to extract for pseudo code generation
   
   // Only scan if data has sufficient length
-  const scanLength = Math.max(0, data.length - RESERVED_BYTES);
+  const scanLength = Math.max(0, data.length - PATTERN_BUFFER_SIZE);
   for (let i = 0; i < scanLength; i++) {
     // Check for function prologue patterns
     if (matchesPattern(data, i, prologuePatterns[0]) || 
@@ -24,10 +25,14 @@ export function analyzeExecutable(data) {
       const address = `0x${(0x400000 + i).toString(16).toUpperCase()}`;
       const name = `sub_${address.slice(2)}`;
       
+      // Extract code context, ensuring we don't exceed array bounds
+      const endIndex = Math.min(i + CODE_CONTEXT_SIZE, data.length);
+      const codeBytes = data.slice(i, endIndex);
+      
       functions.push({
         name: name,
         address: address,
-        code: generatePseudoCode(name, address, data.slice(i, i + 50))
+        code: generatePseudoCode(name, address, codeBytes)
       });
     }
   }
