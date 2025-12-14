@@ -107,7 +107,7 @@ function SearchPanel({ fileData, peData, onResultClick }) {
     const mask = [];
     
     for (let i = 0; i < hexQuery.length; i += 2) {
-      const byte = hexQuery.substr(i, 2);
+      const byte = hexQuery.substring(i, i + 2);
       
       if (useWildcards && (byte === '??' || byte === '**')) {
         pattern.push(0);
