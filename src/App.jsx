@@ -8,6 +8,8 @@ import { parsePE, extractStrings } from './services/pe-parser';
 import { disassemble } from './services/disassembler';
 import { detectPatterns } from './services/patterns';
 import { decompileFunction } from './services/decompiler-core';
+import { decompileToGo } from './services/go-decompiler-complete';
+import { saveToDesktop } from './utils/desktop-saver';
 import './App.css';
 
 /**
@@ -106,6 +108,47 @@ function App() {
     } catch (error) {
       console.error('Error exporting:', error);
       setStatusMessage('Export failed: ' + error.message);
+    }
+  };
+  
+  /**
+   * Handle Go decompilation - generates complete main.go file
+   */
+  const handleGoDecompile = async () => {
+    try {
+      if (!fileData || !peData || !patterns) {
+        setStatusMessage('Please open a file first');
+        return;
+      }
+      
+      setIsAnalyzing(true);
+      setStatusMessage('Decompiling to Go... This may take a moment...');
+      
+      // Convert fileData array to Uint8Array
+      const uint8Data = new Uint8Array(fileData);
+      
+      // Decompile to complete Go source
+      const goSourceCode = decompileToGo(uint8Data, peData, patterns);
+      
+      setStatusMessage('Saving to Desktop/main.go...');
+      
+      // Save to Desktop
+      const savedPath = await saveToDesktop(goSourceCode);
+      
+      setStatusMessage(`✅ Successfully decompiled! Saved to: ${savedPath}`);
+      setIsAnalyzing(false);
+      
+      // Show success notification
+      setTimeout(() => {
+        if (statusMessage.includes('Successfully decompiled')) {
+          setStatusMessage('Ready');
+        }
+      }, 5000);
+      
+    } catch (error) {
+      console.error('Error decompiling to Go:', error);
+      setStatusMessage('❌ Go decompilation failed: ' + error.message);
+      setIsAnalyzing(false);
     }
   };
   
@@ -229,6 +272,22 @@ function App() {
         />
         
         <div className="center-panel">
+          {/* Large Go Decompile Button */}
+          {fileData && (
+            <div className="decompile-action">
+              <button
+                className="decompile-btn"
+                onClick={handleGoDecompile}
+                disabled={isAnalyzing}
+              >
+                🚀 DECOMPILE .EXE TO GO
+              </button>
+              <div className="decompile-info">
+                Generates complete main.go file with 1000-5000 lines • Saves to Desktop
+              </div>
+            </div>
+          )}
+          
           <div className="view-selector">
             <button
               className={`view-btn ${activeView === 'code' ? 'active' : ''}`}

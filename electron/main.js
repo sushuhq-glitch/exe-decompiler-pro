@@ -65,6 +65,24 @@ ipcMain.handle('save-file-dialog', async (event, content, defaultName) => {
   return false;
 });
 
+// Get Desktop path
+ipcMain.handle('get-desktop-path', async () => {
+  const desktopPath = path.join(app.getPath('home'), 'Desktop');
+  return desktopPath;
+});
+
+// Save to Desktop
+ipcMain.handle('save-to-desktop', async (event, content, filename) => {
+  try {
+    const desktopPath = path.join(app.getPath('home'), 'Desktop');
+    const filePath = path.join(desktopPath, filename);
+    fs.writeFileSync(filePath, content, 'utf8');
+    return filePath;
+  } catch (error) {
+    throw new Error(`Failed to save to desktop: ${error.message}`);
+  }
+});
+
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
