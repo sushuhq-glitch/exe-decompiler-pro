@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import { getDemoFileData } from '../services/demo-data';
 import './FilePicker.css';
 
 /**
@@ -36,14 +37,26 @@ function FilePicker({ onFileSelected, onBack }) {
   }, []);
 
   const handleFileInput = async () => {
-    const result = await window.electronAPI.openFile();
-    if (result) {
-      setSelectedFile({
-        name: result.name,
-        data: result.data,
-        path: result.path
-      });
+    // Check if running in Electron
+    if (window.electronAPI && window.electronAPI.openFile) {
+      const result = await window.electronAPI.openFile();
+      if (result) {
+        setSelectedFile({
+          name: result.name,
+          data: result.data,
+          path: result.path
+        });
+      }
+    } else {
+      // Demo mode for web testing
+      const demoData = getDemoFileData();
+      setSelectedFile(demoData);
     }
+  };
+
+  const handleDemoFile = () => {
+    const demoData = getDemoFileData();
+    setSelectedFile(demoData);
   };
 
   const handleContinue = () => {
@@ -89,6 +102,9 @@ function FilePicker({ onFileSelected, onBack }) {
               <p className="drop-subtext">or</p>
               <button className="browse-btn" onClick={handleFileInput}>
                 Browse Files
+              </button>
+              <button className="browse-btn" onClick={handleDemoFile} style={{ marginTop: '10px', background: 'linear-gradient(135deg, #4caf50 0%, #45a049 100%)' }}>
+                Use Demo File
               </button>
             </>
           ) : (

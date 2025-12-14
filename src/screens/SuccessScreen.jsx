@@ -110,22 +110,22 @@ function SuccessScreen({ onNewDecompile, outputPath, fileName, stats }) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
         >
-          <button
+          <motion.button
             className="open-folder-btn"
             onClick={openFolder}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             📂 Open Folder
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             className="new-decompile-btn"
             onClick={onNewDecompile}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             ⚡ Decompile Another
-          </button>
+          </motion.button>
         </motion.div>
 
         <motion.div

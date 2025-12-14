@@ -49,11 +49,22 @@ function AppNew() {
       // Save to Desktop
       if (results.success) {
         const projectName = `DecompiledProject_${selectedFile.name.replace(/\.(exe|dll)$/i, '')}`;
-        const saveResult = await window.electronAPI.saveToDesktop(projectName, results.files);
         
-        if (saveResult.success) {
+        // Check if running in Electron
+        if (window.electronAPI && window.electronAPI.saveToDesktop) {
+          const saveResult = await window.electronAPI.saveToDesktop(projectName, results.files);
+          
+          if (saveResult.success) {
+            setDecompileResults({
+              outputPath: saveResult.path,
+              fileName: selectedFile.name,
+              stats: results.stats
+            });
+          }
+        } else {
+          // Demo mode - just set results without saving
           setDecompileResults({
-            outputPath: saveResult.path,
+            outputPath: `/Desktop/${projectName}`,
             fileName: selectedFile.name,
             stats: results.stats
           });
