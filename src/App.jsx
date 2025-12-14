@@ -27,6 +27,8 @@ function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeView, setActiveView] = useState('code'); // 'code', 'hex', 'analysis'
   const [statusMessage, setStatusMessage] = useState('Ready');
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [analysisStage, setAnalysisStage] = useState('');
   
   /**
    * Handle file opening and analysis
@@ -34,11 +36,15 @@ function App() {
   const handleOpenFile = async () => {
     try {
       setIsAnalyzing(true);
+      setAnalysisProgress(0);
+      setAnalysisStage('Loading file...');
       setStatusMessage('Loading file...');
       
       const result = await window.electronAPI.openFile();
       if (!result) {
         setIsAnalyzing(false);
+        setAnalysisProgress(0);
+        setAnalysisStage('');
         setStatusMessage('Ready');
         return;
       }
@@ -46,31 +52,52 @@ function App() {
       setFileName(result.name);
       setFileData(result.data);
       setFileSize(result.data.length);
-      setStatusMessage('Parsing PE headers...');
       
       // Parse PE structure
+      setAnalysisStage('Parsing PE structure...');
+      setAnalysisProgress(25);
+      setStatusMessage('Parsing PE headers...');
+      
       const parsedPE = parsePE(result.data);
+      console.log('PE Data:', parsedPE); // DEBUG
       setPeData(parsedPE);
       
-      if (!parsedPE.isValid) {
-        setStatusMessage('Error: Invalid PE file');
+      if (!parsedPE || !parsedPE.isValid) {
+        setStatusMessage('❌ Failed to parse PE structure');
         setIsAnalyzing(false);
+        setAnalysisProgress(0);
+        setAnalysisStage('');
         return;
       }
       
+      // Detect patterns and functions
+      setAnalysisStage('Detecting patterns...');
+      setAnalysisProgress(50);
       setStatusMessage('Detecting patterns...');
       
-      // Detect patterns and functions
       const detectedPatterns = detectPatterns(result.data, parsedPE);
+      console.log('Patterns:', detectedPatterns); // DEBUG
       setPatterns(detectedPatterns);
       
-      setStatusMessage(`Analysis complete. Found ${detectedPatterns.functions.length} functions.`);
+      if (!detectedPatterns || !detectedPatterns.functions) {
+        setStatusMessage('❌ Failed to detect patterns');
+        setIsAnalyzing(false);
+        setAnalysisProgress(0);
+        setAnalysisStage('');
+        return;
+      }
+      
+      setAnalysisProgress(100);
+      setAnalysisStage('Ready');
+      setStatusMessage(`✅ Analysis complete! Found ${detectedPatterns.functions.length} functions.`);
       setIsAnalyzing(false);
       
     } catch (error) {
       console.error('Error opening file:', error);
-      setStatusMessage('Error: ' + error.message);
+      setStatusMessage('❌ Error: ' + error.message);
       setIsAnalyzing(false);
+      setAnalysisProgress(0);
+      setAnalysisStage('');
     }
   };
   
@@ -116,8 +143,16 @@ function App() {
    */
   const handleGoDecompile = async () => {
     try {
-      if (!fileData || !peData || !patterns) {
-        setStatusMessage('Please open a file first');
+      if (!fileData) {
+        setStatusMessage('❌ No file loaded');
+        return;
+      }
+      if (!peData) {
+        setStatusMessage('❌ PE structure not analyzed - try reopening file');
+        return;
+      }
+      if (!patterns) {
+        setStatusMessage('❌ Patterns not detected - file may be packed/encrypted');
         return;
       }
       
@@ -275,16 +310,30 @@ function App() {
           {/* Large Go Decompile Button */}
           {fileData && (
             <div className="decompile-action">
-              <button
-                className="decompile-btn"
-                onClick={handleGoDecompile}
-                disabled={isAnalyzing}
-              >
-                🚀 DECOMPILE .EXE TO GO
-              </button>
-              <div className="decompile-info">
-                Generates complete main.go file with 1000-5000 lines • Saves to Desktop
-              </div>
+              {analysisProgress < 100 ? (
+                <>
+                  <div className="analyzing-indicator">
+                    <div className="spinner"></div>
+                    <div className="analyzing-text">{analysisStage} {analysisProgress}%</div>
+                  </div>
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${analysisProgress}%` }}></div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="decompile-btn"
+                    onClick={handleGoDecompile}
+                    disabled={isAnalyzing}
+                  >
+                    🚀 DECOMPILE .EXE TO GO
+                  </button>
+                  <div className="decompile-info">
+                    Generates complete main.go file with 1000-5000 lines • Saves to Desktop
+                  </div>
+                </>
+              )}
             </div>
           )}
           
