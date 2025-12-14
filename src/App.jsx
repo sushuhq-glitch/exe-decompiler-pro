@@ -8,6 +8,8 @@ import { parsePE, extractStrings } from './services/pe-parser';
 import { disassemble } from './services/disassembler';
 import { detectPatterns } from './services/patterns';
 import { decompileFunction } from './services/decompiler-core';
+import { decompileToPython, generatePythonProject } from './services/decompiler-python';
+import { decompileToGo, generateGoProject } from './services/decompiler-go';
 import './App.css';
 
 /**
@@ -25,6 +27,8 @@ function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeView, setActiveView] = useState('code'); // 'code', 'hex', 'analysis'
   const [statusMessage, setStatusMessage] = useState('Ready');
+  const [isDecompiling, setIsDecompiling] = useState(false);
+  const [decompileProgress, setDecompileProgress] = useState(0);
   
   /**
    * Handle file opening and analysis
@@ -81,6 +85,119 @@ function App() {
     setStatusMessage(`Selected function: ${func.name}`);
   };
   
+  /**
+   * Handle full EXE decompilation to Desktop
+   */
+  const handleDecompileExe = async () => {
+    if (!fileData || !peData || !patterns) {
+      setStatusMessage('Please load a file first');
+      return;
+    }
+
+    try {
+      setIsDecompiling(true);
+      setDecompileProgress(0);
+      setStatusMessage('Starting decompilation...');
+
+      // Show language selection dialog
+      const language = await window.electronAPI.showDialog({
+        type: 'question',
+        title: 'Select Target Language',
+        message: 'Choose decompilation target language:',
+        buttons: ['C', 'Python', 'Go', 'C++'],
+        defaultId: 0
+      });
+
+      const langNames = ['C', 'Python', 'Go', 'C++'];
+      const selectedLang = langNames[language.response || 0];
+
+      setStatusMessage(`Decompiling to ${selectedLang}...`);
+      setDecompileProgress(10);
+
+      // Get all functions
+      const functions = patterns?.functions || [];
+      if (functions.length === 0) {
+        setStatusMessage('No functions found to decompile');
+        setIsDecompiling(false);
+        return;
+      }
+
+      setDecompileProgress(20);
+      setStatusMessage(`Decompiling ${functions.length} functions...`);
+
+      // Decompile based on language choice
+      let projectCode = '';
+      let fileExt = '.c';
+      
+      if (selectedLang === 'Python') {
+        fileExt = '.py';
+        projectCode = generatePythonProject(functions, peData, fileName.replace('.exe', ''));
+        setDecompileProgress(60);
+      } else if (selectedLang === 'Go') {
+        fileExt = '.go';
+        projectCode = generateGoProject(functions, peData, fileName.replace('.exe', ''));
+        setDecompileProgress(60);
+      } else if (selectedLang === 'C' || selectedLang === 'C++') {
+        fileExt = selectedLang === 'C++' ? '.cpp' : '.c';
+        // Generate C/C++ code for all functions
+        let code = `// Decompiled to ${selectedLang}\n`;
+        code += `// File: ${fileName}\n`;
+        code += `// Functions: ${functions.length}\n\n`;
+        
+        if (selectedLang === 'C++') {
+          code += `#include <iostream>\n#include <cstdint>\n\n`;
+        } else {
+          code += `#include <stdio.h>\n#include <stdint.h>\n\n`;
+        }
+
+        for (let i = 0; i < functions.length; i++) {
+          const func = functions[i];
+          const decompiled = decompileFunction(func.instructions || [], peData, func);
+          code += decompiled.code + '\n\n';
+          
+          // Update progress
+          setDecompileProgress(60 + (i / functions.length) * 30);
+        }
+        
+        projectCode = code;
+      }
+
+      setDecompileProgress(90);
+      setStatusMessage('Saving to Desktop...');
+
+      // Get Desktop path and save
+      const desktopPath = await window.electronAPI.getDesktopPath();
+      const projectName = fileName.replace('.exe', '');
+      const projectFolder = `${desktopPath}/DecompiledProject_${projectName}`;
+      
+      // Save the decompiled file
+      await window.electronAPI.saveToDesktop({
+        folder: projectFolder,
+        fileName: `main${fileExt}`,
+        content: projectCode
+      });
+
+      setDecompileProgress(100);
+      setStatusMessage(`Decompilation complete! Saved to ${projectFolder}`);
+      setIsDecompiling(false);
+
+      // Show success message
+      await window.electronAPI.showDialog({
+        type: 'info',
+        title: 'Decompilation Complete',
+        message: `Successfully decompiled ${functions.length} functions to ${selectedLang}`,
+        detail: `Project saved to:\n${projectFolder}`,
+        buttons: ['OK']
+      });
+
+    } catch (error) {
+      console.error('Decompilation error:', error);
+      setStatusMessage('Decompilation failed: ' + error.message);
+      setIsDecompiling(false);
+      setDecompileProgress(0);
+    }
+  };
+
   /**
    * Handle export to file
    */
@@ -214,7 +331,9 @@ function App() {
         fileName={fileName}
         onOpenFile={handleOpenFile}
         onExport={handleExport}
+        onDecompileExe={handleDecompileExe}
         isAnalyzing={isAnalyzing}
+        isDecompiling={isDecompiling}
       />
       
       <div className="main-layout">
@@ -273,7 +392,10 @@ function App() {
       </div>
       
       <div className="status-bar">
-        <span className="status-message">{statusMessage}</span>
+        <span className="status-message">
+          {statusMessage}
+          {isDecompiling && ` - ${decompileProgress}%`}
+        </span>
         {fileSize > 0 && (
           <span className="status-info">
             Size: {(fileSize / 1024).toFixed(2)} KB

@@ -2,76 +2,86 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  background-color: #252526;
-  border-bottom: 1px solid #3c3c3c;
-  height: 50px;
+  padding: 8px 16px;
+  /* IDA Pro toolbar color */
+  background-color: #2D2D30;
+  border-bottom: 1px solid #3F3F46;
+  height: 48px;
 }
 
 .toolbar-left {
   display: flex;
   align-items: center;
   gap: 20px;
+  flex: 1;
+}
+
+.toolbar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0;
 }
 
 .app-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #e0e0e0;
+  font-size: 14px;
+  font-weight: normal;
+  color: #CCCCCC;
   margin: 0;
+  font-family: 'Consolas', 'Courier New', monospace;
+  letter-spacing: 0.5px;
 }
 
 .file-name {
-  font-size: 14px;
-  color: #858585;
-  font-style: italic;
+  font-size: 12px;
+  color: #888888;
+  font-style: normal;
+  font-family: 'Consolas', 'Courier New', monospace;
 }
 
 .analyzing-indicator {
-  font-size: 13px;
-  color: #4fc3f7;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  font-size: 12px;
+  color: #007ACC;
+  font-family: 'Consolas', 'Courier New', monospace;
 }
 
 .toolbar-right {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
+  padding: 6px 14px;
+  border: 1px solid #555555;
+  border-radius: 0;
+  font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 500;
+  transition: none;
+  font-weight: normal;
+  font-family: 'Consolas', 'Courier New', monospace;
 }
 
 .btn-primary {
-  background-color: #0e639c;
-  color: white;
+  background-color: #3E3E42;
+  color: #CCCCCC;
 }
 
 .btn-primary:hover {
-  background-color: #1177bb;
+  background-color: #505053;
 }
 
 .btn-secondary {
-  background-color: #3c3c3c;
-  color: #cccccc;
+  background-color: #3E3E42;
+  color: #CCCCCC;
 }
 
 .btn-secondary:hover {
-  background-color: #505050;
+  background-color: #505053;
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }

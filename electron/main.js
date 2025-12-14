@@ -65,6 +65,35 @@ ipcMain.handle('save-file-dialog', async (event, content, defaultName) => {
   return false;
 });
 
+// Get Desktop path
+ipcMain.handle('get-desktop-path', async () => {
+  return app.getPath('desktop');
+});
+
+// Save to Desktop
+ipcMain.handle('save-to-desktop', async (event, { folder, fileName, content }) => {
+  try {
+    // Create folder if it doesn't exist
+    if (!fs.existsSync(folder)) {
+      fs.mkdirSync(folder, { recursive: true });
+    }
+    
+    // Write file
+    const filePath = path.join(folder, fileName);
+    fs.writeFileSync(filePath, content, 'utf8');
+    
+    return { success: true, path: filePath };
+  } catch (error) {
+    console.error('Error saving to desktop:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// Show dialog (for language selection, etc.)
+ipcMain.handle('show-dialog', async (event, options) => {
+  return await dialog.showMessageBox(mainWindow, options);
+});
+
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
