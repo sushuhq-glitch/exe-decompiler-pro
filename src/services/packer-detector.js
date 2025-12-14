@@ -3,6 +3,12 @@
  * Identifies UPX, Themida, VMProtect, ASPack, PECompact, etc.
  */
 
+// Detection thresholds
+const UNUSUAL_SECTION_COUNT_THRESHOLD = 10;
+const HIGH_ENTROPY_THRESHOLD = 7.0;
+const MEDIUM_ENTROPY_THRESHOLD = 6.5;
+const MIN_IMPORTS_THRESHOLD = 10;
+
 /**
  * Detect packer/protector
  * @param {Object} peData - Parsed PE data
@@ -267,7 +273,8 @@ function analyzeSections(peData, results) {
     !standardSections.some(std => s.name.toLowerCase().startsWith(std))
   );
 
-  if (unusualSections.length > 3) {
+  const UNUSUAL_SECTION_THRESHOLD = 3;
+  if (unusualSections.length > UNUSUAL_SECTION_THRESHOLD) {
     results.indicators.push(`${unusualSections.length} non-standard section names`);
   }
 

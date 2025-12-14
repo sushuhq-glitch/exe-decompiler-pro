@@ -260,7 +260,7 @@ function cleanOperand(op) {
   // Remove brackets for memory access
   if (op.startsWith('[') && op.endsWith(']')) {
     const inner = op.slice(1, -1);
-    return `*(DWORD*)&${inner}`;
+    return `*(DWORD*)(${inner})`;
   }
   
   // Convert hex to C format

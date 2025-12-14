@@ -406,7 +406,7 @@ function findBase64Strings(strings) {
   for (const str of strings) {
     if (base64Regex.test(str.value)) {
       try {
-        // Try to decode
+        // Try to decode - atob throws DOMException for invalid Base64
         const decoded = atob(str.value);
         if (decoded && decoded.length >= MIN_STRING_LENGTH) {
           // Check if decoded string is printable
@@ -431,7 +431,12 @@ function findBase64Strings(strings) {
           }
         }
       } catch (e) {
-        // Not valid Base64
+        // Not valid Base64 - atob throws DOMException for malformed input
+        if (e instanceof DOMException || e.name === 'InvalidCharacterError') {
+          // Expected error for invalid Base64
+        } else {
+          console.error('Unexpected error decoding Base64:', e);
+        }
       }
     }
   }

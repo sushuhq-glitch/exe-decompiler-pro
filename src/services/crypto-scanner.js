@@ -214,17 +214,20 @@ function checkRSA(data, results) {
   }
 
   // Large prime patterns (RSA uses large primes)
-  // This is a simplified check
+  // Optimized: Sample every 256 bytes instead of every 4 bytes to avoid performance issues
   let largePrimes = 0;
-  for (let i = 0; i < data.length - 4; i += 4) {
+  const SAMPLE_INTERVAL = 256;
+  const MAX_PRIMES_TO_CHECK = 100;
+  
+  for (let i = 0; i < data.length - 4 && largePrimes < MAX_PRIMES_TO_CHECK; i += SAMPLE_INTERVAL) {
     const val = data[i] | (data[i+1] << 8) | (data[i+2] << 16) | (data[i+3] << 24);
-    if (isProbablePrime(val) && val > 1000000) {
+    if (val > 1000000 && isProbablePrime(val)) {
       largePrimes++;
     }
   }
 
   if (largePrimes > 5) {
-    results.patterns.push(`${largePrimes} large prime numbers detected`);
+    results.patterns.push(`${largePrimes} large prime numbers detected (sampled)`);
   }
 }
 

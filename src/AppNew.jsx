@@ -305,7 +305,7 @@ function AppNew() {
               </tr>
             </thead>
             <tbody>
-              {displayStrings.slice(0, 500).map((str, idx) => (
+              {displayStrings.slice(0, Math.min(500, displayStrings.length)).map((str, idx) => (
                 <tr key={idx} className="fade-in">
                   <td className="text-accent">{str.address}</td>
                   <td>
