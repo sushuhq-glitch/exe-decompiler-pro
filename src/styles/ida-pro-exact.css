@@ -1,0 +1,755 @@
+/**
+ * ============================================================================
+ * IDA PRO EXACT CSS - REPLICA OF IDA PRO DARK THEME
+ * ============================================================================
+ * 
+ * This stylesheet replicates the EXACT IDA Pro interface styling.
+ * Not inspired by - EXACT colors, EXACT layout, EXACT fonts.
+ * 
+ * IDA Pro Colors (Dark Theme):
+ * - Background:      #191919
+ * - Panels:          #2D2D30
+ * - Toolbar:         #2D2D30
+ * - Borders:         #3E3E42
+ * - Text:            #CCCCCC
+ * - Text Dim:        #858585
+ * - Accent:          #007ACC
+ * - Selection:       #264F78
+ * - Hover:           #3E3E42
+ * 
+ * Features:
+ * - Consolas 11px font
+ * - Flat design (no gradients, no shadows, no animations)
+ * - 3-panel resizable layout
+ * - Exact IDA Pro tab system
+ * - Status bar
+ * - Toolbar
+ * 
+ * @author IDA Pro Interface Replicator
+ * @version 1.0.0
+ */
+
+/* ============================================================================
+ * CSS VARIABLES - EXACT IDA PRO COLORS
+ * ============================================================================ */
+
+:root {
+  /* Primary Colors */
+  --ida-bg:           #191919;
+  --ida-panel:        #2D2D30;
+  --ida-toolbar:      #2D2D30;
+  --ida-border:       #3E3E42;
+  
+  /* Text Colors */
+  --ida-text:         #CCCCCC;
+  --ida-text-dim:     #858585;
+  --ida-text-bright:  #FFFFFF;
+  
+  /* Accent Colors */
+  --ida-accent:       #007ACC;
+  --ida-selection:    #264F78;
+  --ida-hover:        #3E3E42;
+  --ida-active:       #007ACC;
+  
+  /* Status Colors */
+  --ida-error:        #F48771;
+  --ida-warning:      #CCA700;
+  --ida-success:      #89D185;
+  
+  /* Syntax Highlighting (IDA Pro style) */
+  --ida-mnemonic:     #569CD6;  /* Instructions */
+  --ida-register:     #B8D7A3;  /* Registers */
+  --ida-number:       #B5CEA8;  /* Numbers */
+  --ida-string:       #CE9178;  /* Strings */
+  --ida-comment:      #6A9955;  /* Comments */
+  --ida-label:        #DCDCAA;  /* Labels */
+  --ida-address:      #858585;  /* Addresses */
+  
+  /* Fonts */
+  --ida-font:         'Consolas', 'Courier New', monospace;
+  --ida-font-size:    11px;
+}
+
+/* ============================================================================
+ * GLOBAL STYLES
+ * ============================================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--ida-font);
+  font-size: var(--ida-font-size);
+  color: var(--ida-text);
+  background: var(--ida-bg);
+}
+
+/* Disable selection highlighting except for text content */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.ida-disassembly-content,
+.ida-hex-content,
+.ida-list-content {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
+/* ============================================================================
+ * MAIN APPLICATION CONTAINER
+ * ============================================================================ */
+
+.ida-app {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--ida-bg);
+  overflow: hidden;
+}
+
+/* ============================================================================
+ * MENU BAR
+ * ============================================================================ */
+
+.ida-menu-bar {
+  height: 22px;
+  background: var(--ida-panel);
+  border-bottom: 1px solid var(--ida-border);
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.ida-menu-item {
+  padding: 2px 12px;
+  cursor: pointer;
+  color: var(--ida-text);
+  font-size: 11px;
+  height: 20px;
+  line-height: 16px;
+  border-radius: 0;
+  transition: none;
+}
+
+.ida-menu-item:hover {
+  background: var(--ida-hover);
+}
+
+.ida-menu-item:active {
+  background: var(--ida-selection);
+}
+
+/* ============================================================================
+ * TOOLBAR
+ * ============================================================================ */
+
+.ida-toolbar {
+  height: 32px;
+  background: var(--ida-toolbar);
+  border-bottom: 1px solid var(--ida-border);
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.ida-toolbar-btn {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ida-text);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  transition: none;
+  padding: 0;
+}
+
+.ida-toolbar-btn:hover:not(:disabled) {
+  background: var(--ida-hover);
+  border-color: var(--ida-border);
+}
+
+.ida-toolbar-btn:active:not(:disabled) {
+  background: var(--ida-selection);
+}
+
+.ida-toolbar-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.ida-toolbar-separator {
+  width: 1px;
+  height: 24px;
+  background: var(--ida-border);
+  margin: 0 4px;
+}
+
+.ida-toolbar-text {
+  color: var(--ida-text-dim);
+  font-size: 11px;
+  margin-left: 8px;
+}
+
+/* ============================================================================
+ * MAIN PANEL LAYOUT (3-PANEL)
+ * ============================================================================ */
+
+.ida-main-panel {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  background: var(--ida-bg);
+}
+
+.ida-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--ida-panel);
+  border: 1px solid var(--ida-border);
+  margin: 2px;
+  overflow: hidden;
+}
+
+.ida-functions-panel {
+  min-width: 150px;
+  max-width: 500px;
+}
+
+.ida-disassembly-panel {
+  flex: 1;
+  min-width: 300px;
+}
+
+.ida-hex-panel {
+  min-width: 200px;
+  max-width: 600px;
+}
+
+.ida-panel-header {
+  height: 20px;
+  background: var(--ida-panel);
+  border-bottom: 1px solid var(--ida-border);
+  color: var(--ida-text-dim);
+  font-size: 11px;
+  font-weight: normal;
+  padding: 0 8px;
+  line-height: 20px;
+  flex-shrink: 0;
+}
+
+.ida-panel-content {
+  flex: 1;
+  overflow: auto;
+  background: var(--ida-bg);
+  font-family: var(--ida-font);
+  font-size: var(--ida-font-size);
+}
+
+/* Scrollbar styling */
+.ida-panel-content::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+.ida-panel-content::-webkit-scrollbar-track {
+  background: var(--ida-bg);
+}
+
+.ida-panel-content::-webkit-scrollbar-thumb {
+  background: var(--ida-hover);
+  border: 1px solid var(--ida-border);
+}
+
+.ida-panel-content::-webkit-scrollbar-thumb:hover {
+  background: var(--ida-border);
+}
+
+/* ============================================================================
+ * RESIZERS
+ * ============================================================================ */
+
+.ida-resizer {
+  width: 4px;
+  background: var(--ida-bg);
+  cursor: col-resize;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.ida-resizer:hover {
+  background: var(--ida-accent);
+}
+
+.ida-resizer:active {
+  background: var(--ida-accent);
+}
+
+/* ============================================================================
+ * FUNCTIONS PANEL
+ * ============================================================================ */
+
+.ida-function-list {
+  padding: 0;
+}
+
+.ida-function-item {
+  display: flex;
+  padding: 2px 8px;
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+  font-size: 11px;
+  line-height: 16px;
+  gap: 8px;
+}
+
+.ida-function-item:hover {
+  background: var(--ida-hover);
+}
+
+.ida-function-item.selected {
+  background: var(--ida-selection);
+  color: var(--ida-text-bright);
+}
+
+.ida-function-address {
+  color: var(--ida-address);
+  font-family: var(--ida-font);
+  min-width: 70px;
+}
+
+.ida-function-name {
+  color: var(--ida-text);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ida-function-item.selected .ida-function-name {
+  color: var(--ida-text-bright);
+}
+
+/* ============================================================================
+ * DISASSEMBLY VIEW
+ * ============================================================================ */
+
+.ida-disassembly-content {
+  padding: 4px 0;
+  font-family: var(--ida-font);
+  line-height: 16px;
+}
+
+.ida-disasm-line {
+  display: flex;
+  padding: 0 8px;
+  font-size: 11px;
+  white-space: pre;
+  font-family: var(--ida-font);
+}
+
+.ida-disasm-line:hover {
+  background: var(--ida-hover);
+}
+
+.ida-disasm-address {
+  color: var(--ida-address);
+  min-width: 90px;
+  margin-right: 12px;
+}
+
+.ida-disasm-bytes {
+  color: var(--ida-text-dim);
+  min-width: 160px;
+  margin-right: 12px;
+}
+
+.ida-disasm-mnemonic {
+  color: var(--ida-mnemonic);
+  min-width: 80px;
+  font-weight: bold;
+}
+
+.ida-disasm-operands {
+  color: var(--ida-text);
+}
+
+/* ============================================================================
+ * HEX DUMP VIEW
+ * ============================================================================ */
+
+.ida-hex-content {
+  padding: 4px 0;
+  font-family: var(--ida-font);
+  line-height: 16px;
+}
+
+.ida-hex-line {
+  display: flex;
+  padding: 0 8px;
+  font-size: 11px;
+  white-space: pre;
+  font-family: var(--ida-font);
+  gap: 16px;
+}
+
+.ida-hex-line:hover {
+  background: var(--ida-hover);
+}
+
+.ida-hex-line.highlighted {
+  background: var(--ida-selection);
+}
+
+.ida-hex-address {
+  color: var(--ida-address);
+  min-width: 90px;
+}
+
+.ida-hex-bytes {
+  color: var(--ida-text);
+  font-family: var(--ida-font);
+}
+
+.ida-hex-ascii {
+  color: var(--ida-text-dim);
+  font-family: var(--ida-font);
+}
+
+/* ============================================================================
+ * STRINGS PANEL
+ * ============================================================================ */
+
+.ida-strings-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.ida-strings-header {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  gap: 8px;
+  background: var(--ida-panel);
+  border-bottom: 1px solid var(--ida-border);
+  flex-shrink: 0;
+}
+
+.ida-strings-search {
+  flex: 1;
+  background: var(--ida-bg);
+  border: 1px solid var(--ida-border);
+  color: var(--ida-text);
+  padding: 4px 8px;
+  font-family: var(--ida-font);
+  font-size: 11px;
+  outline: none;
+}
+
+.ida-strings-search:focus {
+  border-color: var(--ida-accent);
+}
+
+.ida-strings-export-btn {
+  background: var(--ida-hover);
+  border: 1px solid var(--ida-border);
+  color: var(--ida-text);
+  padding: 4px 12px;
+  font-family: var(--ida-font);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.ida-strings-export-btn:hover {
+  background: var(--ida-selection);
+}
+
+.ida-strings-table {
+  flex: 1;
+  overflow: auto;
+}
+
+.ida-strings-table-header {
+  display: flex;
+  background: var(--ida-panel);
+  border-bottom: 1px solid var(--ida-border);
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: normal;
+  color: var(--ida-text-dim);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.ida-strings-col-address {
+  width: 100px;
+  min-width: 100px;
+}
+
+.ida-strings-col-type {
+  width: 80px;
+  min-width: 80px;
+}
+
+.ida-strings-col-length {
+  width: 80px;
+  min-width: 80px;
+}
+
+.ida-strings-col-value {
+  flex: 1;
+}
+
+.ida-strings-row {
+  display: flex;
+  padding: 2px 8px;
+  font-size: 11px;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+}
+
+.ida-strings-row:hover {
+  background: var(--ida-hover);
+}
+
+.ida-strings-row.selected {
+  background: var(--ida-selection);
+}
+
+.ida-string-address {
+  width: 100px;
+  min-width: 100px;
+  color: var(--ida-address);
+}
+
+.ida-string-type {
+  width: 80px;
+  min-width: 80px;
+  color: var(--ida-text-dim);
+}
+
+.ida-string-length {
+  width: 80px;
+  min-width: 80px;
+  color: var(--ida-text-dim);
+  text-align: right;
+  padding-right: 8px;
+}
+
+.ida-string-value {
+  flex: 1;
+  color: var(--ida-string);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================================
+ * IMPORTS/EXPORTS VIEW
+ * ============================================================================ */
+
+.ida-list-content {
+  padding: 4px 0;
+}
+
+.ida-list-item {
+  display: flex;
+  padding: 2px 8px;
+  font-size: 11px;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.ida-list-item:hover {
+  background: var(--ida-hover);
+}
+
+.ida-import-dll {
+  color: var(--ida-text-dim);
+  min-width: 150px;
+}
+
+.ida-import-function {
+  color: var(--ida-text);
+}
+
+.ida-export-address {
+  color: var(--ida-address);
+  min-width: 100px;
+}
+
+.ida-export-name {
+  color: var(--ida-text);
+}
+
+/* ============================================================================
+ * ANALYSIS VIEW
+ * ============================================================================ */
+
+.ida-analysis-content {
+  padding: 16px;
+  color: var(--ida-text);
+}
+
+.ida-analysis-content h3 {
+  font-size: 13px;
+  color: var(--ida-text-bright);
+  margin-bottom: 12px;
+  font-weight: normal;
+}
+
+.ida-analysis-content h4 {
+  font-size: 11px;
+  color: var(--ida-text-dim);
+  margin-bottom: 8px;
+  margin-top: 16px;
+  font-weight: normal;
+}
+
+.ida-analysis-content p {
+  font-size: 11px;
+  margin: 4px 0;
+  color: var(--ida-text);
+}
+
+.ida-analysis-section {
+  margin-bottom: 16px;
+}
+
+/* ============================================================================
+ * TAB BAR
+ * ============================================================================ */
+
+.ida-tab-bar {
+  height: 28px;
+  background: var(--ida-panel);
+  border-top: 1px solid var(--ida-border);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 4px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.ida-tab {
+  padding: 4px 16px;
+  background: var(--ida-bg);
+  border: 1px solid var(--ida-border);
+  border-bottom: none;
+  color: var(--ida-text-dim);
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 0;
+  transition: none;
+  height: 24px;
+  line-height: 15px;
+}
+
+.ida-tab:hover {
+  color: var(--ida-text);
+  background: var(--ida-hover);
+}
+
+.ida-tab.active {
+  background: var(--ida-panel);
+  color: var(--ida-text-bright);
+  border-color: var(--ida-accent);
+  border-bottom: 2px solid var(--ida-accent);
+  height: 26px;
+}
+
+/* ============================================================================
+ * STATUS BAR
+ * ============================================================================ */
+
+.ida-status-bar {
+  height: 22px;
+  background: var(--ida-panel);
+  border-top: 1px solid var(--ida-border);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.ida-status-message {
+  color: var(--ida-text);
+  font-size: 11px;
+  flex: 1;
+}
+
+.ida-status-spinner {
+  color: var(--ida-accent);
+  font-size: 11px;
+  animation: none;
+}
+
+/* ============================================================================
+ * EMPTY STATES
+ * ============================================================================ */
+
+.ida-empty-message {
+  padding: 32px;
+  text-align: center;
+  color: var(--ida-text-dim);
+  font-size: 11px;
+}
+
+/* ============================================================================
+ * UTILITY CLASSES
+ * ============================================================================ */
+
+.ida-hidden {
+  display: none !important;
+}
+
+.ida-disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * NO ANIMATIONS - FLAT DESIGN ONLY
+ * ============================================================================ */
+
+* {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* ============================================================================
+ * RESPONSIVE (MINIMAL)
+ * ============================================================================ */
+
+@media (max-width: 1024px) {
+  .ida-hex-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .ida-functions-panel {
+    width: 200px !important;
+  }
+}
