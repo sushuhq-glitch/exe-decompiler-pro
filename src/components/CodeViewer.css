@@ -1,0 +1,5 @@
+.code-viewer {
+  flex: 1;
+  background-color: #1e1e1e;
+  overflow: hidden;
+}
