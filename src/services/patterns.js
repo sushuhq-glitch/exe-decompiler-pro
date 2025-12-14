@@ -156,7 +156,7 @@ export function detectPatterns(code, peData) {
   const textSection = peData.sections.find(s => s.name === '.text' || s.type === 'code');
   const codeStart = textSection ? textSection.pointerToRawData : 0;
   const codeSize = textSection ? textSection.sizeOfRawData : Math.min(data.length, 100000);
-  const imageBase = peData.imageBase || 0x400000;
+  const imageBase = Number(peData.imageBase) || 0x400000;
   
   // Detect functions
   const functions = detectFunctions(data, codeStart, codeSize, imageBase, peData.architecture);
@@ -200,7 +200,7 @@ function detectFunctions(data, start, size, imageBase, arch = 'x86') {
     for (const prologue of FUNCTION_PROLOGUES) {
       if (matchesPattern(data, i, prologue.pattern)) {
         // Found a potential function
-        const address = imageBase + i;
+        const address = Number(imageBase) + i;
         const addressHex = `0x${address.toString(16).toUpperCase()}`;
         
         // Try to find function end
@@ -367,8 +367,8 @@ function extractStrings(data, peData) {
         }
         currentString += String.fromCharCode(byte);
       } else if (byte === 0 && currentString.length >= minLength) {
-        const rva = section.virtualAddress + (startOffset - start);
-        const address = peData.imageBase + rva;
+        const rva = Number(section.virtualAddress) + (startOffset - start);
+        const address = Number(peData.imageBase) + rva;
         
         strings.push({
           value: currentString,
@@ -407,8 +407,8 @@ function extractStrings(data, peData) {
         }
         currentString += String.fromCharCode(byte1);
       } else if (byte1 === 0 && byte2 === 0 && currentString.length >= minLength) {
-        const rva = section.virtualAddress + (startOffset - start);
-        const address = peData.imageBase + rva;
+        const rva = Number(section.virtualAddress) + (startOffset - start);
+        const address = Number(peData.imageBase) + rva;
         
         strings.push({
           value: currentString,
@@ -512,6 +512,7 @@ function categorizeAPI(dll, funcName) {
 function findStringReferences(data, codeStart, codeSize, strings, imageBase) {
   const refs = [];
   const end = Math.min(codeStart + codeSize, data.length);
+  const imageBaseNum = Number(imageBase);
   
   // Create a map of string addresses for quick lookup
   const stringMap = new Map();
@@ -529,7 +530,7 @@ function findStringReferences(data, codeStart, codeSize, strings, imageBase) {
       const imm32 = readUInt32LE(data, i + 1);
       if (stringMap.has(imm32)) {
         refs.push({
-          codeAddress: `0x${(imageBase + i).toString(16).toUpperCase()}`,
+          codeAddress: `0x${(imageBaseNum + i).toString(16).toUpperCase()}`,
           stringAddress: `0x${imm32.toString(16).toUpperCase()}`,
           string: stringMap.get(imm32).value,
           type: 'push'
@@ -542,7 +543,7 @@ function findStringReferences(data, codeStart, codeSize, strings, imageBase) {
       const imm32 = readUInt32LE(data, i + 1);
       if (stringMap.has(imm32)) {
         refs.push({
-          codeAddress: `0x${(imageBase + i).toString(16).toUpperCase()}`,
+          codeAddress: `0x${(imageBaseNum + i).toString(16).toUpperCase()}`,
           stringAddress: `0x${imm32.toString(16).toUpperCase()}`,
           string: stringMap.get(imm32).value,
           type: 'mov'

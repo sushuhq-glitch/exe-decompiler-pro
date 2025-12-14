@@ -38,7 +38,7 @@ export function disassemble(bytes, baseAddress = 0x400000, arch = 'x86', maxInst
   
   while (offset < data.length && instructions.length < maxInstructions) {
     try {
-      const instruction = disassembleInstruction(data, offset, baseAddress + offset, arch);
+      const instruction = disassembleInstruction(data, offset, Number(baseAddress) + offset, arch);
       if (!instruction) {
         // Skip invalid byte
         offset++;
@@ -713,6 +713,7 @@ export function disassembleFunction(bytes, startOffset, baseAddress, arch = 'x86
   const instructions = [];
   const visited = new Set();
   const queue = [startOffset];
+  const baseAddressNum = Number(baseAddress);
   
   while (queue.length > 0 && instructions.length < 1000) {
     const offset = queue.shift();
@@ -723,7 +724,7 @@ export function disassembleFunction(bytes, startOffset, baseAddress, arch = 'x86
     
     visited.add(offset);
     
-    const inst = disassembleInstruction(bytes, offset, baseAddress + offset, arch);
+    const inst = disassembleInstruction(bytes, offset, baseAddressNum + offset, arch);
     if (!inst) continue;
     
     instructions.push(inst);
@@ -738,8 +739,8 @@ export function disassembleFunction(bytes, startOffset, baseAddress, arch = 'x86
     queue.push(offset + inst.size);
     
     // Add branch target if it's a jump or call
-    if (inst.target && inst.target >= baseAddress && inst.target < baseAddress + bytes.length) {
-      const targetOffset = inst.target - baseAddress;
+    if (inst.target && inst.target >= baseAddressNum && inst.target < baseAddressNum + bytes.length) {
+      const targetOffset = inst.target - baseAddressNum;
       if (targetOffset >= startOffset && targetOffset < startOffset + maxSize) {
         queue.push(targetOffset);
       }
