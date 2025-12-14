@@ -4589,29 +4589,6 @@ function assembleCompleteGoSource(ctx) {
   return generateGoSourceCode(ctx);
 }
 
-// Export all decompilation utilities
-export {
-  decompileToGo,
-  analyzeBinaryStructure,
-  analyzeGoSpecificPatterns,
-  detectFrameworks,
-  detectGoRuntimePatterns,
-  reconstructStructs,
-  reconstructConstants,
-  reconstructGlobals,
-  reconstructFunctions,
-  reconstructMain,
-  generateGoSourceCode,
-  assembleCompleteGoSource,
-  HTTP_PATTERNS,
-  DATABASE_PATTERNS,
-  CONCURRENCY_PATTERNS,
-  CRYPTO_PATTERNS
-};
-
-// Default export
-export default decompileToGo;
-
 /*
  * Additional comprehensive patterns for complete decompilation coverage
  * This section ensures we have extensive coverage of all Go patterns
