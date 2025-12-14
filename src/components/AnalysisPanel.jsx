@@ -319,14 +319,65 @@ function ExportsTab({ data }) {
 }
 
 /**
- * Strings Tab
+ * Strings Tab - WITH LOADING PROGRESS
  */
 function StringsTab({ data, searchTerm, setSearchTerm }) {
   const { patterns } = data;
   const [minLength, setMinLength] = useState(4);
   const [typeFilter, setTypeFilter] = useState('all');
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [strings, setStrings] = useState(patterns?.strings || []);
   
-  if (!patterns || !patterns.strings || patterns.strings.length === 0) {
+  // Simulate loading progress when tab is first opened
+  React.useEffect(() => {
+    if (!patterns || !patterns.strings) return;
+    
+    if (strings.length === 0 && patterns.strings.length > 0) {
+      setIsLoading(true);
+      setLoadingProgress(0);
+      
+      // Simulate progressive loading
+      const steps = [0, 15, 35, 50, 68, 82, 95, 100];
+      let currentStep = 0;
+      
+      const interval = setInterval(() => {
+        if (currentStep < steps.length) {
+          setLoadingProgress(steps[currentStep]);
+          currentStep++;
+        } else {
+          clearInterval(interval);
+          setIsLoading(false);
+          setStrings(patterns.strings);
+        }
+      }, 150);
+      
+      return () => clearInterval(interval);
+    }
+  }, [patterns]);
+  
+  if (isLoading) {
+    return (
+      <div className="tab-content-loading">
+        <div className="loading-container">
+          <div className="loading-text">Loading Strings... {loadingProgress}%</div>
+          <div className="loading-bar">
+            <div className="loading-bar-fill" style={{ width: `${loadingProgress}%` }}></div>
+          </div>
+          <div className="loading-status">
+            {loadingProgress < 20 && 'Scanning ASCII strings...'}
+            {loadingProgress >= 20 && loadingProgress < 40 && 'Scanning Unicode strings...'}
+            {loadingProgress >= 40 && loadingProgress < 60 && 'Detecting obfuscated strings...'}
+            {loadingProgress >= 60 && loadingProgress < 80 && 'Analyzing Base64 encodings...'}
+            {loadingProgress >= 80 && loadingProgress < 95 && 'Detecting XOR patterns...'}
+            {loadingProgress >= 95 && 'Finalizing analysis...'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!patterns || !strings || strings.length === 0) {
     return <div className="tab-content-empty">No strings found</div>;
   }
   
