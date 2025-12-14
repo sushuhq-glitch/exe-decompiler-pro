@@ -79,7 +79,7 @@ function App() {
       console.log('Patterns:', detectedPatterns); // DEBUG
       setPatterns(detectedPatterns);
       
-      if (!detectedPatterns) {
+      if (!detectedPatterns || !detectedPatterns.functions) {
         setStatusMessage('❌ Failed to detect patterns');
         setIsAnalyzing(false);
         setAnalysisProgress(0);
