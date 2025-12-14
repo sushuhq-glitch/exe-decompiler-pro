@@ -1,20 +1,8 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Import design system - Beautiful Modern Theme */
+@import './styles/design-system.css';
+@import './styles/animations.css';
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #1e1e1e;
-  color: #d4d4d4;
-  overflow: hidden;
-}
-
+/* Override with custom styles if needed */
 code {
   font-family: 'Fira Code', 'Courier New', monospace;
 }
