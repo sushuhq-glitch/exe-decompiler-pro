@@ -27,6 +27,17 @@
   font-style: italic;
 }
 
+.analyzing-indicator {
+  font-size: 13px;
+  color: #4fc3f7;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
 .toolbar-right {
   display: flex;
   gap: 10px;
@@ -58,4 +69,9 @@
 
 .btn-secondary:hover {
   background-color: #505050;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
