@@ -323,7 +323,12 @@ function analyzeAPICallsDetailed(peData) {
   
   for (const dll of peData.imports) {
     const dllName = dll.dll;
-    const dllMapping = API_MAPPING[dllName.toUpperCase()];
+    // Try exact match first, then case-insensitive
+    let dllMapping = API_MAPPING[dllName];
+    if (!dllMapping) {
+      // Try uppercase version
+      dllMapping = API_MAPPING[dllName.toUpperCase()];
+    }
     
     if (!dllMapping) {
       continue;
