@@ -11,7 +11,9 @@ export function analyzeExecutable(data) {
     [0x55, 0x48, 0x89, 0xE5], // push rbp; mov rbp, rsp (x64)
   ];
   
-  for (let i = 0; i < data.length - 10; i++) {
+  // Only scan if data has sufficient length
+  const scanLength = Math.max(0, data.length - 10);
+  for (let i = 0; i < scanLength; i++) {
     // Check for function prologue patterns
     if (matchesPattern(data, i, prologuePatterns[0]) || 
         matchesPattern(data, i, prologuePatterns[1])) {
