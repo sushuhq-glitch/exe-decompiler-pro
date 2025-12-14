@@ -1,6 +1,7 @@
-const { app, BrowserWindow, dialog, ipcMain } = require('electron');
+const { app, BrowserWindow, dialog, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
 let mainWindow;
 
@@ -63,6 +64,50 @@ ipcMain.handle('save-file-dialog', async (event, content, defaultName) => {
     return true;
   }
   return false;
+});
+
+// Get desktop path
+ipcMain.handle('get-desktop-path', async () => {
+  return path.join(os.homedir(), 'Desktop');
+});
+
+// Create project on desktop
+ipcMain.handle('create-project', async (event, projectPath, structure) => {
+  try {
+    // Create main folder
+    if (!fs.existsSync(projectPath)) {
+      fs.mkdirSync(projectPath, { recursive: true });
+    }
+
+    // Create subfolders
+    if (structure.folders) {
+      for (const folder of structure.folders) {
+        const folderPath = path.join(projectPath, folder);
+        if (!fs.existsSync(folderPath)) {
+          fs.mkdirSync(folderPath, { recursive: true });
+        }
+      }
+    }
+
+    // Create files
+    if (structure.files) {
+      for (const file of structure.files) {
+        const filePath = path.join(projectPath, file.path);
+        fs.writeFileSync(filePath, file.content, 'utf8');
+      }
+    }
+
+    return projectPath;
+  } catch (error) {
+    console.error('Error creating project:', error);
+    throw error;
+  }
+});
+
+// Open desktop folder
+ipcMain.handle('open-desktop-folder', async () => {
+  const desktopPath = path.join(os.homedir(), 'Desktop');
+  shell.openPath(desktopPath);
 });
 
 app.whenReady().then(createWindow);

@@ -5,6 +5,9 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld(
   'electronAPI', {
     openFile: () => ipcRenderer.invoke('open-file-dialog'),
-    saveFile: (content, defaultName) => ipcRenderer.invoke('save-file-dialog', content, defaultName)
+    saveFile: (content, defaultName) => ipcRenderer.invoke('save-file-dialog', content, defaultName),
+    getDesktopPath: () => ipcRenderer.invoke('get-desktop-path'),
+    createProject: (projectPath, structure) => ipcRenderer.invoke('create-project', projectPath, structure),
+    openDesktopFolder: () => ipcRenderer.invoke('open-desktop-folder')
   }
 );
