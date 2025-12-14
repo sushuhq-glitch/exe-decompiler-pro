@@ -117,7 +117,7 @@ function HexViewer({ data, highlights = [], onSelect }) {
       // Hex search
       const hex = searchTerm.slice(2).replace(/\s/g, '');
       for (let i = 0; i < hex.length; i += 2) {
-        searchBytes.push(parseInt(hex.substr(i, 2), 16));
+        searchBytes.push(parseInt(hex.slice(i, i + 2), 16));
       }
     } else {
       // Text search

@@ -654,8 +654,11 @@ function generateCCode(funcName, signature, stackFrame, structuredCode) {
     code += `${indentStr}${stmt.code}\n`;
   }
   
-  // Add return if not present
-  if (!code.includes('return')) {
+  // Add return if not present in the structured code
+  const hasReturn = structuredCode.some(stmt => 
+    stmt.code && typeof stmt.code === 'string' && /^\s*return\s/.test(stmt.code)
+  );
+  if (!hasReturn) {
     code += '    \n    return 0;\n';
   }
   

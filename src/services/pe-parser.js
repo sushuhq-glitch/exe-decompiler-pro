@@ -434,8 +434,9 @@ function parseImportFunctions(data, thunkRVA, sections, is64Bit) {
     
     currentOffset += thunkSize;
     
-    // Safety limit
-    if (functions.length > 10000) {
+    // Safety limit to prevent excessive memory usage
+    const MAX_IMPORT_FUNCTIONS = 10000;
+    if (functions.length > MAX_IMPORT_FUNCTIONS) {
       break;
     }
   }
