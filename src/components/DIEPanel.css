@@ -1,0 +1,388 @@
+/* Professional DIE Panel Styles */
+
+.die-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #252526;
+  border-bottom: 1px solid #3e3e42;
+}
+
+.panel-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #cccccc;
+}
+
+.refresh-btn {
+  padding: 6px 12px;
+  background: #0e639c;
+  border: none;
+  border-radius: 3px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #1177bb;
+}
+
+.refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.loading-state,
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #858585;
+  font-style: italic;
+}
+
+/* Overview Section */
+.overview-section {
+  margin-bottom: 16px;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.overview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: #2d2d30;
+  border-radius: 4px;
+  border: 1px solid #3e3e42;
+}
+
+.item-label {
+  font-size: 11px;
+  color: #858585;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.item-value {
+  font-size: 14px;
+  color: #d4d4d4;
+  font-weight: 500;
+}
+
+.item-value.warning {
+  color: #d7ba7d;
+}
+
+.item-value.entropy-high {
+  color: #f48771;
+}
+
+.item-value.entropy-medium {
+  color: #d7ba7d;
+}
+
+.item-value.entropy-low {
+  color: #b5cea8;
+}
+
+/* DIE Sections */
+.die-section {
+  margin-bottom: 12px;
+  background: #252526;
+  border-radius: 4px;
+  border: 1px solid #3e3e42;
+  overflow: hidden;
+}
+
+.die-section.packer-section {
+  border-color: #d7ba7d;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #2d2d30;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.section-header:hover {
+  background: #323234;
+}
+
+.section-icon {
+  color: #858585;
+  font-size: 10px;
+  width: 12px;
+}
+
+.section-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: #cccccc;
+}
+
+.section-badge {
+  padding: 2px 8px;
+  background: #0e639c;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.section-badge.warning {
+  background: #d7ba7d;
+  color: #1e1e1e;
+}
+
+.section-content {
+  padding: 12px 16px;
+}
+
+/* Detection Items */
+.detection-item {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: #2d2d30;
+  border-radius: 3px;
+  border-left: 3px solid #0e639c;
+}
+
+.detection-item:last-child {
+  margin-bottom: 0;
+}
+
+.detection-item.warning {
+  border-left-color: #d7ba7d;
+}
+
+.detection-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.detection-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d4d4d4;
+}
+
+.detection-version {
+  padding: 2px 6px;
+  background: #3e3e42;
+  border-radius: 3px;
+  font-size: 11px;
+  color: #9cdcfe;
+}
+
+.detection-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+}
+
+.confidence-badge {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.confidence-badge.confidence-high {
+  background: #2d7d46;
+  color: #ffffff;
+}
+
+.confidence-badge.confidence-medium {
+  background: #7d5d2d;
+  color: #ffffff;
+}
+
+.confidence-badge.confidence-low {
+  background: #7d2d2d;
+  color: #ffffff;
+}
+
+.detection-source {
+  color: #858585;
+}
+
+/* Protection Items */
+.protection-item {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: #2d2d30;
+  border-radius: 3px;
+}
+
+.protection-item:last-child {
+  margin-bottom: 0;
+}
+
+.protection-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.protection-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #d4d4d4;
+}
+
+.protection-status {
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.protection-status.enabled {
+  background: #2d7d46;
+  color: #ffffff;
+}
+
+.protection-status.disabled {
+  background: #7d2d2d;
+  color: #ffffff;
+}
+
+.protection-description {
+  font-size: 11px;
+  color: #858585;
+}
+
+/* Libraries Grid */
+.libraries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 8px;
+}
+
+.library-item {
+  padding: 8px 10px;
+  background: #2d2d30;
+  border-radius: 3px;
+  border-left: 3px solid #3e3e42;
+}
+
+.library-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #d4d4d4;
+  margin-bottom: 4px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.library-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+}
+
+.library-category {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.library-category.category-system {
+  background: #3e3e42;
+  color: #d4d4d4;
+}
+
+.library-category.category-graphics {
+  background: #2d4a7d;
+  color: #ffffff;
+}
+
+.library-category.category-network {
+  background: #2d7d46;
+  color: #ffffff;
+}
+
+.library-category.category-cryptography {
+  background: #7d2d4a;
+  color: #ffffff;
+}
+
+.library-category.category-runtime {
+  background: #7d5d2d;
+  color: #ffffff;
+}
+
+.library-category.category-ui {
+  background: #4a2d7d;
+  color: #ffffff;
+}
+
+.library-count {
+  color: #858585;
+}
+
+.libraries-more {
+  margin-top: 12px;
+  padding: 8px;
+  text-align: center;
+  color: #858585;
+  font-size: 11px;
+  font-style: italic;
+}
+
+/* Scrollbar */
+.panel-body::-webkit-scrollbar {
+  width: 12px;
+}
+
+.panel-body::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.panel-body::-webkit-scrollbar-thumb {
+  background: #424242;
+  border-radius: 6px;
+}
+
+.panel-body::-webkit-scrollbar-thumb:hover {
+  background: #4e4e4e;
+}

@@ -74,7 +74,7 @@ function FunctionList({ functions, selectedFunction, onFunctionClick, searchTerm
         title={`${func.name}\nAddress: ${func.address}\nSize: ${func.size || 'N/A'} bytes`}
       >
         <div className="function-item-main">
-          <span className="function-icon">{type === 'imported' ? '📥' : (type === 'exported' ? '📤' : '⚙️')}</span>
+          <span className="function-icon">{type === 'imported' ? 'I' : (type === 'exported' ? 'E' : 'F')}</span>
           <span className="function-name">{func.name}</span>
         </div>
         <div className="function-item-meta">
@@ -108,7 +108,7 @@ function FunctionList({ functions, selectedFunction, onFunctionClick, searchTerm
         <input
           type="text"
           className="search-input"
-          placeholder="🔍 Search functions..."
+          placeholder="Search functions..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
         />
