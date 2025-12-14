@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { getDemoFileData } from '../services/demo-data';
+import ErrorNotification from '../components/ErrorNotification';
 import './FilePicker.css';
 
 /**
@@ -10,6 +11,7 @@ import './FilePicker.css';
 function FilePicker({ onFileSelected, onBack }) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
@@ -31,7 +33,7 @@ function FilePicker({ onFileSelected, onBack }) {
       if (file.name.endsWith('.exe') || file.name.endsWith('.dll')) {
         setSelectedFile(file);
       } else {
-        alert('Please select a .exe or .dll file');
+        setError('Please select a .exe or .dll file');
       }
     }
   }, []);
@@ -67,6 +69,7 @@ function FilePicker({ onFileSelected, onBack }) {
 
   return (
     <div className="file-picker">
+      <ErrorNotification message={error} onClose={() => setError(null)} />
       <motion.div
         className="file-picker-content"
         initial={{ opacity: 0, y: 30 }}

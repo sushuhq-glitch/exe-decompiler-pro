@@ -6,6 +6,7 @@ import FilePicker from './screens/FilePicker';
 import LanguageSelector from './screens/LanguageSelector';
 import ProgressScreen from './screens/ProgressScreen';
 import SuccessScreen from './screens/SuccessScreen';
+import ErrorNotification from './components/ErrorNotification';
 import { autoDecompile } from './services/auto-decompiler';
 
 /**
@@ -17,6 +18,7 @@ function AppNew() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState('c');
   const [decompileResults, setDecompileResults] = useState(null);
+  const [error, setError] = useState(null);
 
   // Screen transitions
   const handleSplashComplete = () => {
@@ -72,7 +74,7 @@ function AppNew() {
       }
     } catch (error) {
       console.error('Decompilation error:', error);
-      alert('Decompilation failed: ' + error.message);
+      setError('Decompilation failed: ' + error.message);
       setScreen('dashboard');
     }
   };
@@ -98,6 +100,7 @@ function AppNew() {
 
   return (
     <div className="app-new">
+      <ErrorNotification message={error} onClose={() => setError(null)} />
       <AnimatePresence mode="wait">
         {screen === 'splash' && (
           <motion.div

@@ -9,6 +9,11 @@ import { detectPatterns } from './patterns';
 import { disassemble } from './disassembler';
 import { decompileFunction } from './decompiler-core';
 
+// Configuration constants
+const MAX_INDIVIDUAL_FUNCTION_FILES = 50;
+const MAX_STRINGS_IN_OUTPUT = 500;
+const MAX_IMPORTS_PER_DLL = 100;
+
 /**
  * Main auto decompilation function
  * @param {Object} fileData - File data with name and buffer
@@ -142,9 +147,23 @@ function convertToLanguage(cCode, language) {
 function convertToPython(cCode) {
   let pyCode = cCode;
   
-  // Replace function signatures
-  pyCode = pyCode.replace(/int __cdecl (\w+)\((.*?)\) \{/g, 'def $1($2):');
-  pyCode = pyCode.replace(/void __cdecl (\w+)\((.*?)\) \{/g, 'def $1($2):');
+  // Helper to convert C parameters to Python-style
+  const convertParams = (params) => {
+    if (!params || params.trim() === '') return '';
+    return params.split(',').map(p => {
+      // Extract just the variable name from "int varname"
+      const match = p.trim().match(/\w+\s+(\w+)$/);
+      return match ? match[1] : p.trim();
+    }).join(', ');
+  };
+  
+  // Replace function signatures with parameter conversion
+  pyCode = pyCode.replace(/int __cdecl (\w+)\((.*?)\) \{/g, (match, funcName, params) => {
+    return `def ${funcName}(${convertParams(params)}):`;
+  });
+  pyCode = pyCode.replace(/void __cdecl (\w+)\((.*?)\) \{/g, (match, funcName, params) => {
+    return `def ${funcName}(${convertParams(params)}):`;
+  });
   
   // Replace int declarations
   pyCode = pyCode.replace(/\s+int (\w+);/g, '\n    $1 = 0  # int');
@@ -210,7 +229,7 @@ function generateOutputFiles(fileName, peData, strings, functions, language) {
   files[`main${ext}`] = generateMainFile(functions, language);
   
   // Individual function files in functions/ directory
-  for (let i = 0; i < Math.min(functions.length, 50); i++) {
+  for (let i = 0; i < Math.min(functions.length, MAX_INDIVIDUAL_FUNCTION_FILES); i++) {
     const func = functions[i];
     files[`functions/${func.name}${ext}`] = func.decompiledCode || func.code || '// Empty function';
   }
@@ -272,7 +291,7 @@ function generateMainFile(functions, language) {
 function generateStringsFile(strings) {
   let content = '# Extracted Strings\n\n';
   
-  for (const str of strings.slice(0, 500)) {
+  for (const str of strings.slice(0, MAX_STRINGS_IN_OUTPUT)) {
     content += `[0x${str.offset.toString(16).toUpperCase()}] ${str.value}\n`;
   }
   
@@ -288,7 +307,7 @@ function generateImportsFile(peData) {
   if (peData.imports) {
     for (const dll of peData.imports) {
       content += `\n## ${dll.dll}\n`;
-      for (const func of dll.functions.slice(0, 100)) {
+      for (const func of dll.functions.slice(0, MAX_IMPORTS_PER_DLL)) {
         if (!func.isOrdinal) {
           content += `  - ${func.name}\n`;
         } else {
