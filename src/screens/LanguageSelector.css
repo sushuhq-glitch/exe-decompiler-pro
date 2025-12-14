@@ -1,0 +1,127 @@
+.language-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 40px;
+}
+
+.language-selector-content {
+  max-width: 1000px;
+  width: 100%;
+  position: relative;
+}
+
+.language-selector-content h2 {
+  font-size: 42px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 50px 0;
+  text-align: center;
+}
+
+.languages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+  margin-bottom: 50px;
+}
+
+.language-card {
+  padding: 40px 30px;
+  border-radius: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.language-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.language-card:hover::before {
+  opacity: 1;
+}
+
+.language-card.selected {
+  border-width: 3px;
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);
+}
+
+.lang-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  transition: all 0.3s ease;
+}
+
+.language-card:hover .lang-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.language-card h3 {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 10px 0;
+}
+
+.language-card p {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.check-mark {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.5);
+}
+
+.continue-btn {
+  width: 100%;
+  padding: 20px;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+.continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 50px rgba(102, 126, 234, 0.6);
+}
