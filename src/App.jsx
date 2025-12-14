@@ -7,6 +7,8 @@ import AnalysisPanel from './components/AnalysisPanel';
 import StringViewer from './components/StringViewer';
 import DIEPanel from './components/DIEPanel';
 import SearchPanel from './components/SearchPanel';
+import CFGViewer from './components/CFGViewer';
+import ImportsExportsViewer from './components/ImportsExportsViewer';
 import { parsePE, extractStrings } from './services/pe-parser';
 import { disassemble } from './services/disassembler';
 import { detectPatterns } from './services/patterns';
@@ -29,7 +31,7 @@ function App() {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [activeView, setActiveView] = useState('code'); // 'code', 'hex', 'analysis', 'strings', 'die', 'search'
+  const [activeView, setActiveView] = useState('code'); // 'code', 'hex', 'analysis', 'strings', 'die', 'search', 'cfg', 'imports'
   const [statusMessage, setStatusMessage] = useState('Ready');
   const [decompileLanguage, setDecompileLanguage] = useState('c'); // 'c', 'python', 'golang', 'cpp'
   const [hexJumpOffset, setHexJumpOffset] = useState(null);
@@ -291,6 +293,19 @@ function App() {
             >
               Search
             </button>
+            <button
+              className={`view-btn ${activeView === 'cfg' ? 'active' : ''}`}
+              onClick={() => setActiveView('cfg')}
+              disabled={!selectedFunction}
+            >
+              CFG
+            </button>
+            <button
+              className={`view-btn ${activeView === 'imports' ? 'active' : ''}`}
+              onClick={() => setActiveView('imports')}
+            >
+              Imports/Exports
+            </button>
             
             {activeView === 'code' && selectedFunction && (
               <div className="language-selector">
@@ -354,6 +369,19 @@ function App() {
                   setHexJumpOffset(offset);
                   setActiveView('hex');
                 }}
+              />
+            )}
+            
+            {activeView === 'cfg' && (
+              <CFGViewer
+                functionData={selectedFunction}
+                peData={peData}
+              />
+            )}
+            
+            {activeView === 'imports' && (
+              <ImportsExportsViewer
+                peData={peData}
               />
             )}
           </div>
