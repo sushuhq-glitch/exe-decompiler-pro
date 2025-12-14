@@ -18,6 +18,10 @@
  * @version 1.0.0
  */
 
+// String detection constants
+const MIN_BASE64_LENGTH = 20; // Minimum length for Base64 string detection
+const MIN_HEX_STRING_LENGTH = 16; // Minimum length for hex string detection
+
 /**
  * Main string extraction function
  */
@@ -356,16 +360,18 @@ class StringExtractor {
    * Check if string is Base64
    */
   isBase64(str) {
-    if (str.length < 20) return false;
-    return /^[A-Za-z0-9+/]{20,}={0,2}$/.test(str) && str.length % 4 === 0;
+    if (str.length < MIN_BASE64_LENGTH) return false;
+    const pattern = new RegExp(`^[A-Za-z0-9+/]{${MIN_BASE64_LENGTH},}={0,2}$`);
+    return pattern.test(str) && str.length % 4 === 0;
   }
   
   /**
    * Check if string is hex
    */
   isHexString(str) {
-    if (str.length < 16) return false;
-    return /^[0-9a-fA-F]{16,}$/.test(str);
+    if (str.length < MIN_HEX_STRING_LENGTH) return false;
+    const pattern = new RegExp(`^[0-9a-fA-F]{${MIN_HEX_STRING_LENGTH},}$`);
+    return pattern.test(str);
   }
   
   /**

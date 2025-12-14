@@ -1,10 +1,12 @@
 /**
  * ============================================================================
- * ULTIMATE GO DECOMPILER - 8,000 LINES OF ADVANCED DECOMPILATION
+ * ULTIMATE GO DECOMPILER - ADVANCED DECOMPILATION ENGINE
  * ============================================================================
  * 
  * This is the CORE module of the entire application.
  * Converts x86/x64 assembly to complete, runnable Go source code.
+ * 
+ * Current implementation: 1,200+ lines (expanding to 8,000+ in future iterations)
  * 
  * Features:
  * - Complete function analysis and reconstruction
@@ -1420,12 +1422,14 @@ class GoCodeGenerator {
   }
   
   generateGoMod() {
+    const goVersion = '1.22'; // Use recent stable Go version
     return `module decompiled
 
-go 1.21
+go ${goVersion}
 
 // This go.mod file was automatically generated during decompilation
 // It may need to be adjusted based on actual dependencies
+// Update Go version as needed for your environment
 `;
   }
   
