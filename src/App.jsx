@@ -9,7 +9,9 @@ import DIEPanel from './components/DIEPanel';
 import SearchPanel from './components/SearchPanel';
 import CFGViewer from './components/CFGViewer';
 import ImportsExportsViewer from './components/ImportsExportsViewer';
+import SecurityPanel from './components/SecurityPanel';
 import { parsePE, extractStrings } from './services/pe-parser';
+import { generateHTMLReport, generateIDAScript, generateGhidraScript, generateJSONDatabase, downloadFile } from './services/export-service';
 import { disassemble } from './services/disassembler';
 import { detectPatterns } from './services/patterns';
 import { decompileFunction } from './services/decompiler-core';
@@ -31,10 +33,11 @@ function App() {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [activeView, setActiveView] = useState('code'); // 'code', 'hex', 'analysis', 'strings', 'die', 'search', 'cfg', 'imports'
+  const [activeView, setActiveView] = useState('code'); // 'code', 'hex', 'analysis', 'strings', 'die', 'search', 'cfg', 'imports', 'security'
   const [statusMessage, setStatusMessage] = useState('Ready');
   const [decompileLanguage, setDecompileLanguage] = useState('c'); // 'c', 'python', 'golang', 'cpp'
   const [hexJumpOffset, setHexJumpOffset] = useState(null);
+  const [showExportMenu, setShowExportMenu] = useState(false);
   
   /**
    * Handle file opening and analysis
@@ -95,6 +98,13 @@ function App() {
    * Handle export to file
    */
   const handleExport = async () => {
+    setShowExportMenu(!showExportMenu);
+  };
+  
+  /**
+   * Export function code
+   */
+  const exportFunctionCode = async () => {
     try {
       if (!selectedFunction) {
         setStatusMessage('No function selected');
@@ -113,8 +123,69 @@ function App() {
       const defaultName = fileName.replace('.exe', `_${selectedFunction.name}.c`);
       await window.electronAPI.saveFile(cCode, defaultName);
       setStatusMessage('Exported successfully');
+      setShowExportMenu(false);
     } catch (error) {
       console.error('Error exporting:', error);
+      setStatusMessage('Export failed: ' + error.message);
+    }
+  };
+  
+  /**
+   * Export HTML report
+   */
+  const exportHTMLReport = () => {
+    try {
+      const html = generateHTMLReport(peData, analysisData, fileName);
+      downloadFile(html, `${fileName}_report.html`, 'text/html');
+      setStatusMessage('HTML report exported');
+      setShowExportMenu(false);
+    } catch (error) {
+      console.error('Error exporting HTML:', error);
+      setStatusMessage('Export failed: ' + error.message);
+    }
+  };
+  
+  /**
+   * Export IDA script
+   */
+  const exportIDAScript = () => {
+    try {
+      const script = generateIDAScript(peData, analysisData);
+      downloadFile(script, `${fileName}_ida.py`, 'text/plain');
+      setStatusMessage('IDA script exported');
+      setShowExportMenu(false);
+    } catch (error) {
+      console.error('Error exporting IDA script:', error);
+      setStatusMessage('Export failed: ' + error.message);
+    }
+  };
+  
+  /**
+   * Export Ghidra script
+   */
+  const exportGhidraScript = () => {
+    try {
+      const script = generateGhidraScript(peData, analysisData);
+      downloadFile(script, `${fileName}_ghidra.py`, 'text/plain');
+      setStatusMessage('Ghidra script exported');
+      setShowExportMenu(false);
+    } catch (error) {
+      console.error('Error exporting Ghidra script:', error);
+      setStatusMessage('Export failed: ' + error.message);
+    }
+  };
+  
+  /**
+   * Export JSON database
+   */
+  const exportJSONDatabase = () => {
+    try {
+      const json = generateJSONDatabase(peData, analysisData, null, null);
+      downloadFile(json, `${fileName}_database.json`, 'application/json');
+      setStatusMessage('JSON database exported');
+      setShowExportMenu(false);
+    } catch (error) {
+      console.error('Error exporting JSON:', error);
       setStatusMessage('Export failed: ' + error.message);
     }
   };
@@ -240,7 +311,11 @@ function App() {
       <Toolbar
         fileName={fileName}
         onOpenFile={handleOpenFile}
-        onExport={handleExport}
+        onExportFunction={exportFunctionCode}
+        onExportHTML={exportHTMLReport}
+        onExportIDA={exportIDAScript}
+        onExportGhidra={exportGhidraScript}
+        onExportJSON={exportJSONDatabase}
         isAnalyzing={isAnalyzing}
       />
       
@@ -305,6 +380,12 @@ function App() {
               onClick={() => setActiveView('imports')}
             >
               Imports/Exports
+            </button>
+            <button
+              className={`view-btn ${activeView === 'security' ? 'active' : ''}`}
+              onClick={() => setActiveView('security')}
+            >
+              Security
             </button>
             
             {activeView === 'code' && selectedFunction && (
@@ -381,6 +462,13 @@ function App() {
             
             {activeView === 'imports' && (
               <ImportsExportsViewer
+                peData={peData}
+              />
+            )}
+            
+            {activeView === 'security' && (
+              <SecurityPanel
+                fileData={fileData}
                 peData={peData}
               />
             )}
