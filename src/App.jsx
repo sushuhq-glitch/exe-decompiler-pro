@@ -9,6 +9,8 @@ import { disassemble } from './services/disassembler';
 import { detectPatterns } from './services/patterns';
 import { decompileFunction } from './services/decompiler-core';
 import { decompileToGo } from './services/go-decompiler-complete';
+import { analyzeExecutableDeep } from './services/intelligent-analyzer';
+import { generateIntelligentGo } from './services/go-generator-intelligent';
 import { saveToDesktop } from './utils/desktop-saver';
 import './App.css';
 
@@ -170,7 +172,7 @@ function App() {
   };
   
   /**
-   * Handle Go decompilation - generates complete main.go file
+   * Handle Go decompilation - generates complete main.go file with intelligent analysis
    */
   const handleGoDecompile = async () => {
     try {
@@ -188,20 +190,28 @@ function App() {
       }
       
       setIsAnalyzing(true);
-      setStatusMessage('Decompiling to Go... This may take a moment...');
+      setStatusMessage('🔍 Step 1/3: Performing deep analysis...');
       
       // Convert fileData array to Uint8Array
       const uint8Data = new Uint8Array(fileData);
       
-      // Decompile to complete Go source
-      const goSourceCode = decompileToGo(uint8Data, peData, patterns);
+      // Step 1: Deep analysis to understand the executable
+      const analysis = analyzeExecutableDeep(uint8Data, peData, patterns);
       
-      setStatusMessage('Saving to Desktop/main.go...');
+      setStatusMessage(`🧠 Step 2/3: Generating intelligent Go code (detected: ${analysis.appType?.description || 'unknown app'})...`);
       
-      // Save to Desktop
+      // Small delay to show progress
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Step 2: Generate intelligent Go code based on analysis
+      const goSourceCode = generateIntelligentGo(analysis);
+      
+      setStatusMessage('💾 Step 3/3: Saving to Desktop/main.go...');
+      
+      // Step 3: Save to Desktop
       const savedPath = await saveToDesktop(goSourceCode);
       
-      setStatusMessage(`✅ Successfully decompiled! Saved to: ${savedPath}`);
+      setStatusMessage(`✅ Successfully decompiled! App type: ${analysis.appType?.description || 'unknown'} | Confidence: ${Math.round(analysis.confidence)}% | Saved to: ${savedPath}`);
       setIsAnalyzing(false);
       
       // Show success notification
@@ -209,7 +219,7 @@ function App() {
         if (statusMessage.includes('Successfully decompiled')) {
           setStatusMessage('Ready');
         }
-      }, 5000);
+      }, 8000);
       
     } catch (error) {
       console.error('Error decompiling to Go:', error);
