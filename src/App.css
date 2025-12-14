@@ -12,15 +12,16 @@
   overflow: hidden;
 }
 
-/* Enhanced App Layout */
+/* Enhanced App Layout - IDA Pro Theme */
 .app-enhanced {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  background: #1e1e1e;
-  color: #d4d4d4;
+  background: #2B2B2B;
+  color: #D4D4D4;
+  font-family: 'Consolas', 'Courier New', monospace;
 }
 
 .main-layout {
@@ -34,40 +35,41 @@
   flex-direction: column;
   flex: 1;
   overflow: hidden;
-  background: #1e1e1e;
+  background: #2B2B2B;
 }
 
 .view-selector {
   display: flex;
-  gap: 4px;
-  padding: 8px 12px;
-  background: #252526;
-  border-bottom: 1px solid #3e3e42;
+  gap: 2px;
+  padding: 4px 8px;
+  background: #3C3C3C;
+  border-bottom: 1px solid #1E1E1E;
 }
 
 .view-btn {
-  padding: 6px 16px;
-  background: #3c3c3c;
-  border: 1px solid #555;
-  color: #d4d4d4;
-  border-radius: 3px;
+  padding: 4px 12px;
+  background: #3C3C3C;
+  border: 1px solid #4A4A4A;
+  color: #D4D4D4;
+  border-radius: 0;
   cursor: pointer;
-  font-size: 13px;
-  transition: all 0.2s;
+  font-size: 12px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  transition: none;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .view-btn:hover {
-  background: #505050;
-  border-color: #666;
+  background: #4A4A4A;
+  border-color: #5A5A5A;
 }
 
 .view-btn.active {
-  background: #0e639c;
-  border-color: #0e639c;
-  color: white;
+  background: #4A4A4A;
+  border-color: #5A5A5A;
+  color: #FFFFFF;
 }
 
 .view-content {
@@ -75,16 +77,18 @@
   overflow: hidden;
 }
 
-/* Status Bar */
+/* Status Bar - IDA Pro Style */
 .status-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 12px;
-  background: #007acc;
-  color: white;
-  font-size: 12px;
-  height: 28px;
+  padding: 4px 8px;
+  background: #3C3C3C;
+  color: #D4D4D4;
+  font-size: 11px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  height: 24px;
+  border-top: 1px solid #1E1E1E;
 }
 
 .status-message {
@@ -92,8 +96,8 @@
 }
 
 .status-info {
-  margin-left: 16px;
-  padding: 2px 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  margin-left: 12px;
+  padding: 1px 6px;
+  background: #2B2B2B;
+  border: 1px solid #4A4A4A;
 }
