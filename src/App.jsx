@@ -35,11 +35,13 @@ function App() {
    */
   const handleOpenFile = async () => {
     try {
+      // RESET STATE
       setIsAnalyzing(true);
       setAnalysisProgress(0);
       setAnalysisStage('Loading file...');
       setStatusMessage('Loading file...');
       
+      // STEP 1: Load file (0-10%)
       const result = await window.electronAPI.openFile();
       if (!result) {
         setIsAnalyzing(false);
@@ -53,43 +55,72 @@ function App() {
       setFileData(result.data);
       setFileSize(result.data.length);
       
-      // Parse PE structure
-      setAnalysisStage('Parsing PE structure...');
+      setAnalysisProgress(10);
+      setStatusMessage('File loaded');
+      
+      // STEP 2: Parse PE structure (10-50%)
       setAnalysisProgress(25);
-      setStatusMessage('Parsing PE headers...');
+      setAnalysisStage('Parsing PE structure...');
+      setStatusMessage('Parsing PE structure...');
       
       const parsedPE = parsePE(result.data);
       console.log('PE Data:', parsedPE); // DEBUG
-      setPeData(parsedPE);
       
       if (!parsedPE || !parsedPE.isValid) {
-        setStatusMessage('❌ Failed to parse PE structure');
+        setStatusMessage('❌ Failed to parse PE structure - invalid PE file');
         setIsAnalyzing(false);
         setAnalysisProgress(0);
         setAnalysisStage('');
         return;
       }
       
-      // Detect patterns and functions
-      setAnalysisStage('Detecting patterns...');
+      setPeData(parsedPE);
       setAnalysisProgress(50);
+      setStatusMessage('PE structure parsed');
+      
+      // STEP 3: Extract strings (50-60%)
+      setAnalysisProgress(55);
+      setAnalysisStage('Extracting strings...');
+      setStatusMessage('Extracting strings...');
+      
+      const strings = extractStrings(result.data);
+      console.log('Strings:', strings.length); // DEBUG
+      
+      setAnalysisProgress(60);
+      
+      // STEP 4: Detect patterns (60-80%)
+      setAnalysisProgress(65);
+      setAnalysisStage('Detecting patterns...');
       setStatusMessage('Detecting patterns...');
       
       const detectedPatterns = detectPatterns(result.data, parsedPE);
       console.log('Patterns:', detectedPatterns); // DEBUG
-      setPatterns(detectedPatterns);
       
-      if (!detectedPatterns || !detectedPatterns.functions) {
-        setStatusMessage('❌ Failed to detect patterns');
+      if (!detectedPatterns) {
+        setStatusMessage('❌ Failed to detect patterns - file may be packed/encrypted');
         setIsAnalyzing(false);
         setAnalysisProgress(0);
         setAnalysisStage('');
         return;
       }
       
+      setPatterns(detectedPatterns);
+      setAnalysisProgress(80);
+      
+      // STEP 5: Disassemble functions (80-95%)
+      setAnalysisProgress(85);
+      setAnalysisStage('Disassembling functions...');
+      setStatusMessage('Disassembling functions...');
+      
+      // Give UI time to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      setAnalysisProgress(95);
+      
+      // STEP 6: Complete (95-100%)
       setAnalysisProgress(100);
       setAnalysisStage('Ready');
-      setStatusMessage(`✅ Analysis complete! Found ${detectedPatterns.functions.length} functions.`);
+      setStatusMessage('✅ Analysis complete - ready to decompile!');
       setIsAnalyzing(false);
       
     } catch (error) {
