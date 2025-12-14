@@ -496,7 +496,7 @@ function parseExports(data, optionalHeader, sections) {
           name,
           ordinal: base + ordinal,
           rva: functionRVA,
-          address: optionalHeader.imageBase + functionRVA
+          address: Number(optionalHeader.imageBase) + Number(functionRVA)
         });
       }
     }
@@ -604,8 +604,12 @@ function parseResources(data, optionalHeader, sections) {
  */
 function rvaToFileOffset(rva, sections) {
   for (const section of sections) {
-    if (rva >= section.virtualAddress && rva < section.virtualAddress + section.virtualSize) {
-      return section.pointerToRawData + (rva - section.virtualAddress);
+    const sectionStart = Number(section.virtualAddress);
+    const sectionEnd = sectionStart + Number(section.virtualSize);
+    const rvaNum = Number(rva);
+    
+    if (rvaNum >= sectionStart && rvaNum < sectionEnd) {
+      return Number(section.pointerToRawData) + (rvaNum - sectionStart);
     }
   }
   return -1;
