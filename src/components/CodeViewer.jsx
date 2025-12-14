@@ -104,21 +104,21 @@ function CodeViewer({ assembly = '', decompiled = '', highlights = [], onLineCli
             onClick={() => setViewMode('split')}
             title="Split View"
           >
-            ⚏ Split
+            Split
           </button>
           <button
             className={`view-mode-btn ${viewMode === 'asm' ? 'active' : ''}`}
             onClick={() => setViewMode('asm')}
             title="Assembly Only"
           >
-            📋 Assembly
+            Assembly
           </button>
           <button
             className={`view-mode-btn ${viewMode === 'c' ? 'active' : ''}`}
             onClick={() => setViewMode('c')}
-            title="C Code Only"
+            title="Decompiled Code Only"
           >
-            💻 C Code
+            Decompiled
           </button>
         </div>
         

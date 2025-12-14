@@ -43,6 +43,34 @@
   padding: 8px 12px;
   background: #252526;
   border-bottom: 1px solid #3e3e42;
+  align-items: center;
+}
+
+.language-selector {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.language-select {
+  padding: 4px 8px;
+  background: #3c3c3c;
+  border: 1px solid #555;
+  color: #d4d4d4;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+}
+
+.language-select:hover {
+  background: #505050;
+  border-color: #666;
+}
+
+.language-select:focus {
+  border-color: #0e639c;
 }
 
 .view-btn {

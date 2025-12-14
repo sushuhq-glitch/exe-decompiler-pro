@@ -4,10 +4,16 @@ import FunctionList from './components/FunctionList';
 import CodeViewer from './components/CodeViewer';
 import HexViewer from './components/HexViewer';
 import AnalysisPanel from './components/AnalysisPanel';
+import StringViewer from './components/StringViewer';
+import DIEPanel from './components/DIEPanel';
+import SearchPanel from './components/SearchPanel';
 import { parsePE, extractStrings } from './services/pe-parser';
 import { disassemble } from './services/disassembler';
 import { detectPatterns } from './services/patterns';
 import { decompileFunction } from './services/decompiler-core';
+import { decompileToPython } from './services/decompiler-python';
+import { decompileToGolang } from './services/decompiler-golang';
+import { decompileToCpp } from './services/decompiler-cpp';
 import './App.css';
 
 /**
@@ -23,8 +29,10 @@ function App() {
   const [selectedFunction, setSelectedFunction] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [activeView, setActiveView] = useState('code'); // 'code', 'hex', 'analysis'
+  const [activeView, setActiveView] = useState('code'); // 'code', 'hex', 'analysis', 'strings', 'die', 'search'
   const [statusMessage, setStatusMessage] = useState('Ready');
+  const [decompileLanguage, setDecompileLanguage] = useState('c'); // 'c', 'python', 'golang', 'cpp'
+  const [hexJumpOffset, setHexJumpOffset] = useState(null);
   
   /**
    * Handle file opening and analysis
@@ -172,9 +180,26 @@ function App() {
   if (selectedFunction && selectedFunction.instructions) {
     assemblyCode = selectedFunction.instructions;
     
-    // Decompile on the fly
+    // Decompile to selected language
     try {
-      const decompiled = decompileFunction(selectedFunction.instructions, peData, selectedFunction);
+      let decompiled;
+      
+      switch (decompileLanguage) {
+        case 'python':
+          decompiled = decompileToPython(selectedFunction.instructions, peData, selectedFunction);
+          break;
+        case 'golang':
+          decompiled = decompileToGolang(selectedFunction.instructions, peData, selectedFunction);
+          break;
+        case 'cpp':
+          decompiled = decompileToCpp(selectedFunction.instructions, peData, selectedFunction);
+          break;
+        case 'c':
+        default:
+          decompiled = decompileFunction(selectedFunction.instructions, peData, selectedFunction);
+          break;
+      }
+      
       decompiledCode = decompiled.code;
     } catch (error) {
       decompiledCode = `// Error decompiling function\n// ${error.message}`;
@@ -234,20 +259,53 @@ function App() {
               className={`view-btn ${activeView === 'code' ? 'active' : ''}`}
               onClick={() => setActiveView('code')}
             >
-              💻 Code
+              Code
             </button>
             <button
               className={`view-btn ${activeView === 'hex' ? 'active' : ''}`}
               onClick={() => setActiveView('hex')}
             >
-              🔢 Hex
+              Hex
+            </button>
+            <button
+              className={`view-btn ${activeView === 'strings' ? 'active' : ''}`}
+              onClick={() => setActiveView('strings')}
+            >
+              Strings
             </button>
             <button
               className={`view-btn ${activeView === 'analysis' ? 'active' : ''}`}
               onClick={() => setActiveView('analysis')}
             >
-              📊 Analysis
+              Analysis
             </button>
+            <button
+              className={`view-btn ${activeView === 'die' ? 'active' : ''}`}
+              onClick={() => setActiveView('die')}
+            >
+              Detection
+            </button>
+            <button
+              className={`view-btn ${activeView === 'search' ? 'active' : ''}`}
+              onClick={() => setActiveView('search')}
+            >
+              Search
+            </button>
+            
+            {activeView === 'code' && selectedFunction && (
+              <div className="language-selector">
+                <select
+                  value={decompileLanguage}
+                  onChange={(e) => setDecompileLanguage(e.target.value)}
+                  className="language-select"
+                >
+                  <option value="c">C</option>
+                  <option value="cpp">C++</option>
+                  <option value="python">Python</option>
+                  <option value="golang">Go</option>
+                </select>
+              </div>
+            )}
           </div>
           
           <div className="view-content">
@@ -262,11 +320,41 @@ function App() {
               <HexViewer
                 data={fileData}
                 highlights={hexHighlights}
+                jumpToOffset={hexJumpOffset}
+              />
+            )}
+            
+            {activeView === 'strings' && (
+              <StringViewer
+                fileData={fileData}
+                peData={peData}
+                onJumpToHex={(offset) => {
+                  setHexJumpOffset(offset);
+                  setActiveView('hex');
+                }}
               />
             )}
             
             {activeView === 'analysis' && (
               <AnalysisPanel analysisData={analysisData} />
+            )}
+            
+            {activeView === 'die' && (
+              <DIEPanel
+                fileData={fileData}
+                peData={peData}
+              />
+            )}
+            
+            {activeView === 'search' && (
+              <SearchPanel
+                fileData={fileData}
+                peData={peData}
+                onResultClick={(offset) => {
+                  setHexJumpOffset(offset);
+                  setActiveView('hex');
+                }}
+              />
             )}
           </div>
         </div>
