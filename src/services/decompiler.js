@@ -11,8 +11,11 @@ export function analyzeExecutable(data) {
     [0x55, 0x48, 0x89, 0xE5], // push rbp; mov rbp, rsp (x64)
   ];
   
+  // Reserve bytes for pattern matching and extracting code context
+  const RESERVED_BYTES = 10;
+  
   // Only scan if data has sufficient length
-  const scanLength = Math.max(0, data.length - 10);
+  const scanLength = Math.max(0, data.length - RESERVED_BYTES);
   for (let i = 0; i < scanLength; i++) {
     // Check for function prologue patterns
     if (matchesPattern(data, i, prologuePatterns[0]) || 
@@ -55,7 +58,9 @@ export function analyzeExecutable(data) {
 
 function matchesPattern(data, offset, pattern) {
   for (let i = 0; i < pattern.length; i++) {
-    if (data[offset + i] !== pattern[i]) return false;
+    if (offset + i >= data.length || data[offset + i] !== pattern[i]) {
+      return false;
+    }
   }
   return true;
 }
