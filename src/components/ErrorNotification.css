@@ -1,0 +1,73 @@
+.error-notification-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.error-notification {
+  max-width: 500px;
+  width: 90%;
+  padding: 30px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: rgba(255, 59, 48, 0.1);
+  border: 2px solid rgba(255, 59, 48, 0.3);
+  box-shadow: 0 20px 60px rgba(255, 59, 48, 0.3);
+  position: relative;
+}
+
+.error-icon {
+  font-size: 48px;
+  flex-shrink: 0;
+}
+
+.error-content {
+  flex: 1;
+}
+
+.error-content h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 10px 0;
+}
+
+.error-content p {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.error-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.error-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}

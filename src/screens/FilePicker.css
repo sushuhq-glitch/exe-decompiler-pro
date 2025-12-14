@@ -1,0 +1,143 @@
+.file-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 40px;
+}
+
+.file-picker-content {
+  max-width: 700px;
+  width: 100%;
+  position: relative;
+}
+
+.back-btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 40px;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateX(-5px);
+}
+
+.file-picker-content h2 {
+  font-size: 42px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 40px 0;
+  text-align: center;
+}
+
+.drop-zone {
+  padding: 80px 40px;
+  border-radius: 30px;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 3px dashed rgba(255, 255, 255, 0.2);
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.drop-zone.dragging {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+  transform: scale(1.02);
+}
+
+.drop-zone.has-file {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.drop-icon {
+  font-size: 100px;
+  margin-bottom: 30px;
+  opacity: 0.7;
+}
+
+.file-icon {
+  font-size: 100px;
+  margin-bottom: 20px;
+}
+
+.drop-text {
+  font-size: 24px;
+  color: white;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.drop-subtext {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 20px 0;
+}
+
+.browse-btn,
+.change-btn {
+  padding: 16px 40px;
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+}
+
+.browse-btn:hover,
+.change-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+.file-name {
+  font-size: 28px;
+  color: white;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  word-break: break-all;
+}
+
+.file-size {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 20px 0;
+}
+
+.continue-btn {
+  width: 100%;
+  padding: 20px;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  margin-top: 30px;
+  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+}
+
+.continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 50px rgba(102, 126, 234, 0.6);
+}
