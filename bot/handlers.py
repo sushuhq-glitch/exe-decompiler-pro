@@ -57,13 +57,54 @@ class BotHandlers:
         
         # Send welcome message
         message = self.messages.get_start_message(language, user.first_name)
-        keyboard = self.keyboards.get_main_menu(language)
+        menu = self.keyboards.get_main_menu(language)
         
         await update.message.reply_text(
-            message,
-            reply_markup=keyboard,
+            f"{message}\n\n{menu}",
             parse_mode="Markdown"
         )
+        
+        return ConversationStates.MAIN_MENU
+    
+    async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Handle number-based menu selections."""
+        text = update.message.text.strip()
+        user_id = update.effective_user.id
+        language = context.user_data.get("language", "en")
+        
+        # Get current state
+        current_state = context.user_data.get("state", ConversationStates.MAIN_MENU)
+        
+        if current_state == ConversationStates.MAIN_MENU:
+            # Main menu options
+            if text == "1":
+                # New Project
+                message = self.messages.get_url_prompt(language)
+                await update.message.reply_text(message, parse_mode="Markdown")
+                return ConversationStates.WAITING_URL
+            elif text == "2":
+                # My Projects
+                await self.projects_command(update, context)
+                return ConversationStates.MAIN_MENU
+            elif text == "3":
+                # Settings
+                await self.settings_command(update, context)
+                return ConversationStates.MAIN_MENU
+            elif text == "4":
+                # Help
+                await self.help_command(update, context)
+                return ConversationStates.MAIN_MENU
+            elif text == "5":
+                # Statistics
+                await self.stats_command(update, context)
+                return ConversationStates.MAIN_MENU
+            else:
+                menu = self.keyboards.get_main_menu(language)
+                await update.message.reply_text(
+                    f"❌ Invalid option. Please select 1-5.\n\n{menu}",
+                    parse_mode="Markdown"
+                )
+                return ConversationStates.MAIN_MENU
         
         return ConversationStates.MAIN_MENU
     
@@ -71,11 +112,9 @@ class BotHandlers:
         """Handle /help command."""
         language = context.user_data.get("language", "en")
         message = self.messages.get_help_message(language)
-        keyboard = self.keyboards.get_help_topics_keyboard(language)
         
         await update.message.reply_text(
             message,
-            reply_markup=keyboard,
             parse_mode="Markdown"
         )
     
@@ -106,8 +145,8 @@ class BotHandlers:
         user_id = update.effective_user.id
         language = context.user_data.get("language", "en")
         
-        projects = await self.db.get_user_projects(user_id)
-        keyboard = self.keyboards.get_project_list_keyboard(projects, language)
+        # Temporarily return empty list - get_user_projects not implemented yet
+        projects = []
         
         if projects:
             msg = f"📁 **Your Projects** ({len(projects)})\n\nSelect a project to view details:"
@@ -116,19 +155,16 @@ class BotHandlers:
         
         await update.message.reply_text(
             msg,
-            reply_markup=keyboard,
             parse_mode="Markdown"
         )
     
     async def settings_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         """Handle /settings command."""
         language = context.user_data.get("language", "en")
-        keyboard = self.keyboards.get_settings_keyboard(language)
         
-        msg = "⚙️ **Settings**\n\nChoose what you'd like to configure:"
+        msg = "⚙️ **Settings**\n\nSettings feature coming soon!"
         await update.message.reply_text(
             msg,
-            reply_markup=keyboard,
             parse_mode="Markdown"
         )
     
@@ -153,18 +189,6 @@ class BotHandlers:
         await update.message.reply_text(message, parse_mode="Markdown")
         
         return ConversationHandler.END
-    
-    async def new_project_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        """Handle new project button."""
-        query = update.callback_query
-        await query.answer()
-        
-        language = context.user_data.get("language", "en")
-        message = self.messages.get_url_prompt(language)
-        
-        await query.edit_message_text(message, parse_mode="Markdown")
-        
-        return ConversationStates.WAITING_URL
     
     async def handle_url_input(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         """Handle URL input from user."""
@@ -196,11 +220,10 @@ class BotHandlers:
             
             # Show results
             result_msg = self.messages.get_analysis_complete_message(results, language)
-            keyboard = self.keyboards.get_analysis_options(language)
+            menu = self.keyboards.get_analysis_options(language)
             
             await status_message.edit_text(
-                result_msg,
-                reply_markup=keyboard,
+                f"{result_msg}\n\n{menu}",
                 parse_mode="Markdown"
             )
             
@@ -212,30 +235,33 @@ class BotHandlers:
             await status_message.edit_text(error_msg, parse_mode="Markdown")
             return ConversationStates.WAITING_URL
     
-    async def handle_analysis_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        """Handle analysis callbacks."""
-        query = update.callback_query
-        await query.answer()
-        
-        action = query.data.replace("analysis_", "")
+    async def handle_analysis_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Handle analysis menu selections."""
+        text = update.message.text.strip()
         language = context.user_data.get("language", "en")
         
-        if action == "continue":
+        if text == "1":  # Continue
             message = self.messages.get_credentials_prompt(language)
-            await query.edit_message_text(message, parse_mode="Markdown")
+            await update.message.reply_text(message, parse_mode="Markdown")
             return ConversationStates.WAITING_CREDENTIALS
         
-        elif action == "retry":
+        elif text == "2":  # Retry
             message = self.messages.get_url_prompt(language)
-            await query.edit_message_text(message, parse_mode="Markdown")
+            await update.message.reply_text(message, parse_mode="Markdown")
             return ConversationStates.WAITING_URL
         
-        elif action == "cancel":
+        elif text == "3":  # Cancel
             message = self.messages.get_cancel_message(language)
-            await query.edit_message_text(message, parse_mode="Markdown")
+            await update.message.reply_text(message, parse_mode="Markdown")
             return ConversationHandler.END
         
-        return ConversationStates.ANALYZING_WEBSITE
+        else:
+            menu = self.keyboards.get_analysis_options(language)
+            await update.message.reply_text(
+                f"❌ Invalid option. Please select 1-3.\n\n{menu}",
+                parse_mode="Markdown"
+            )
+            return ConversationStates.ANALYZING_WEBSITE
     
     async def handle_credentials_input(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         """Handle credentials input."""
@@ -279,21 +305,18 @@ class BotHandlers:
                     validation_result.get("tokens", {}),
                     language
                 )
-                keyboard = self.keyboards.get_discovery_options(language)
+                menu = self.keyboards.get_discovery_options(language)
                 
                 await status_message.edit_text(
-                    success_msg,
-                    reply_markup=keyboard,
+                    f"{success_msg}\n\n{menu}",
                     parse_mode="Markdown"
                 )
                 
                 return ConversationStates.DISCOVERING_APIS
             else:
                 error_msg = self.messages.get_error_message("validation_failed", language)
-                keyboard = self.keyboards.get_validation_options(language)
                 await status_message.edit_text(
                     error_msg,
-                    reply_markup=keyboard,
                     parse_mode="Markdown"
                 )
                 return ConversationStates.WAITING_CREDENTIALS
@@ -304,44 +327,18 @@ class BotHandlers:
             await status_message.edit_text(error_msg, parse_mode="Markdown")
             return ConversationStates.WAITING_CREDENTIALS
     
-    async def handle_validation_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        """Handle validation callbacks."""
-        query = update.callback_query
-        await query.answer()
-        
-        action = query.data.replace("validation_", "")
-        language = context.user_data.get("language", "en")
-        
-        if action == "success":
-            keyboard = self.keyboards.get_discovery_options(language)
-            await query.edit_message_reply_markup(reply_markup=keyboard)
-            return ConversationStates.DISCOVERING_APIS
-        
-        elif action == "retry":
-            message = self.messages.get_credentials_prompt(language)
-            await query.edit_message_text(message, parse_mode="Markdown")
-            return ConversationStates.WAITING_CREDENTIALS
-        
-        elif action == "cancel":
-            message = self.messages.get_cancel_message(language)
-            await query.edit_message_text(message, parse_mode="Markdown")
-            return ConversationHandler.END
-        
-        return ConversationStates.VALIDATING_CREDENTIALS
+
     
-    async def handle_discovery_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        """Handle API discovery callbacks."""
-        query = update.callback_query
-        await query.answer()
-        
-        action = query.data.replace("discovery_", "")
+    async def handle_discovery_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Handle API discovery menu selections."""
+        text = update.message.text.strip()
         user_id = update.effective_user.id
         language = context.user_data.get("language", "en")
         
-        if action == "start":
+        if text == "1":  # Discover APIs
             # Start API discovery
             discovering_msg = self.messages.get_discovering_message(language)
-            await query.edit_message_text(discovering_msg, parse_mode="Markdown")
+            status_message = await update.message.reply_text(discovering_msg, parse_mode="Markdown")
             
             try:
                 session = context.bot_data.get(f"session_{user_id}", {})
@@ -360,11 +357,10 @@ class BotHandlers:
                 
                 # Show results
                 result_msg = self.messages.get_discovery_complete_message(endpoints, language)
-                keyboard = self.keyboards.get_generation_options(language)
+                menu = self.keyboards.get_generation_options(language)
                 
-                await query.edit_message_text(
-                    result_msg,
-                    reply_markup=keyboard,
+                await status_message.edit_text(
+                    f"{result_msg}\n\n{menu}",
                     parse_mode="Markdown"
                 )
                 
@@ -373,29 +369,32 @@ class BotHandlers:
             except Exception as e:
                 logger.error(f"Discovery failed: {e}")
                 error_msg = self.messages.get_error_message("discovery_failed", language)
-                await query.edit_message_text(error_msg, parse_mode="Markdown")
+                await status_message.edit_text(error_msg, parse_mode="Markdown")
                 return ConversationStates.DISCOVERING_APIS
         
-        elif action == "complete":
-            keyboard = self.keyboards.get_generation_options(language)
-            await query.edit_message_reply_markup(reply_markup=keyboard)
+        elif text == "2":  # Complete
+            menu = self.keyboards.get_generation_options(language)
+            await update.message.reply_text(menu, parse_mode="Markdown")
             return ConversationStates.GENERATING_CHECKER
         
-        return ConversationStates.DISCOVERING_APIS
+        else:
+            menu = self.keyboards.get_discovery_options(language)
+            await update.message.reply_text(
+                f"❌ Invalid option. Please select 1-2.\n\n{menu}",
+                parse_mode="Markdown"
+            )
+            return ConversationStates.DISCOVERING_APIS
     
-    async def handle_generation_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        """Handle checker generation callbacks."""
-        query = update.callback_query
-        await query.answer()
-        
-        action = query.data.replace("generation_", "")
+    async def handle_generation_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Handle checker generation menu selections."""
+        text = update.message.text.strip()
         user_id = update.effective_user.id
         language = context.user_data.get("language", "en")
         
-        if action == "start":
+        if text == "1":  # Generate Checker
             # Start checker generation
             generating_msg = self.messages.get_generating_message(language)
-            await query.edit_message_text(generating_msg, parse_mode="Markdown")
+            status_message = await update.message.reply_text(generating_msg, parse_mode="Markdown")
             
             try:
                 session = context.bot_data.get(f"session_{user_id}", {})
@@ -414,22 +413,21 @@ class BotHandlers:
                 
                 # Show success
                 success_msg = self.messages.get_generation_complete_message(files, language)
-                await query.edit_message_text(success_msg, parse_mode="Markdown")
+                await status_message.edit_text(success_msg, parse_mode="Markdown")
                 
                 # Send files
                 for file_info in files:
                     with open(file_info["path"], "rb") as f:
-                        await query.message.reply_document(
+                        await update.message.reply_document(
                             document=f,
                             filename=file_info["name"],
                             caption=f"✅ {file_info['name']}"
                         )
                 
                 # Show main menu again
-                keyboard = self.keyboards.get_main_menu(language)
-                await query.message.reply_text(
-                    "🎉 All done! What's next?",
-                    reply_markup=keyboard
+                menu = self.keyboards.get_main_menu(language)
+                await update.message.reply_text(
+                    f"🎉 All done! What's next?\n\n{menu}"
                 )
                 
                 return ConversationStates.COMPLETE
@@ -437,79 +435,23 @@ class BotHandlers:
             except Exception as e:
                 logger.error(f"Generation failed: {e}")
                 error_msg = self.messages.get_error_message("generation_failed", language)
-                await query.edit_message_text(error_msg, parse_mode="Markdown")
+                await status_message.edit_text(error_msg, parse_mode="Markdown")
                 return ConversationStates.GENERATING_CHECKER
         
-        return ConversationStates.GENERATING_CHECKER
+        elif text == "2":  # Cancel
+            message = self.messages.get_cancel_message(language)
+            await update.message.reply_text(message, parse_mode="Markdown")
+            return ConversationHandler.END
+        
+        else:
+            menu = self.keyboards.get_generation_options(language)
+            await update.message.reply_text(
+                f"❌ Invalid option. Please select 1-2.\n\n{menu}",
+                parse_mode="Markdown"
+            )
+            return ConversationStates.GENERATING_CHECKER
     
-    async def handle_language_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        """Handle language selection callbacks."""
-        query = update.callback_query
-        await query.answer()
-        
-        lang_code = query.data.replace("lang_", "")
-        context.user_data["language"] = lang_code
-        
-        # Save to database
-        user_id = update.effective_user.id
-        await self.db.update_user_language(user_id, lang_code)
-        
-        await query.answer(f"Language changed to {lang_code.upper()}!")
-    
-    async def handle_menu_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        """Handle menu navigation callbacks."""
-        query = update.callback_query
-        await query.answer()
-        
-        menu_item = query.data.replace("menu_", "")
-        language = context.user_data.get("language", "en")
-        
-        if menu_item == "main":
-            keyboard = self.keyboards.get_main_menu(language)
-            await query.edit_message_text("🏠 Main Menu", reply_markup=keyboard)
-        
-        elif menu_item == "help":
-            message = self.messages.get_help_message(language)
-            keyboard = self.keyboards.get_help_topics_keyboard(language)
-            await query.edit_message_text(message, reply_markup=keyboard, parse_mode="Markdown")
-        
-        elif menu_item == "settings":
-            keyboard = self.keyboards.get_settings_keyboard(language)
-            await query.edit_message_text("⚙️ Settings", reply_markup=keyboard)
-    
-    async def handle_project_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        """Handle project-related callbacks."""
-        query = update.callback_query
-        await query.answer()
-        
-        # Parse callback data
-        data_parts = query.data.split("_")
-        action = data_parts[1]
-        project_id = int(data_parts[2]) if len(data_parts) > 2 else None
-        
-        language = context.user_data.get("language", "en")
-        
-        if action == "view" and project_id:
-            project = await self.db.get_project(project_id)
-            if project:
-                msg = f"📁 **{project['name']}**\n\n"
-                msg += f"URL: {project['url']}\n"
-                msg += f"Created: {project['created_at']}\n"
-                msg += f"Status: {project['status']}"
-                
-                keyboard = self.keyboards.get_project_actions_keyboard(project_id, language)
-                await query.edit_message_text(msg, reply_markup=keyboard, parse_mode="Markdown")
-    
-    async def handle_inline_query(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        """Handle inline queries for search."""
-        query = update.inline_query.query
-        
-        if not query:
-            return
-        
-        # Search functionality can be implemented here
-        results = []
-        await update.inline_query.answer(results)
+
     
     def _is_valid_url(self, url: str) -> bool:
         """Validate URL format."""

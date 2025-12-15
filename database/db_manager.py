@@ -86,6 +86,19 @@ class DatabaseManager:
         if not self.session_factory:
             raise RuntimeError("Database not initialized. Call initialize() first.")
         return self.session_factory()
+    
+    async def get_user_projects(self, user_id: int):
+        """
+        Get all projects for a user.
+        
+        Args:
+            user_id: User ID to get projects for
+            
+        Returns:
+            List of projects (empty for now - not implemented yet)
+        """
+        # TODO: Implement when project model is ready
+        return []
 
 
 __all__ = ['DatabaseManager', 'Base']

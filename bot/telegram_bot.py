@@ -30,7 +30,6 @@ from telegram import Update, BotCommand, Bot
 from telegram.ext import (
     Application,
     CommandHandler,
-    CallbackQueryHandler,
     MessageHandler,
     ConversationHandler,
     filters,
@@ -172,13 +171,15 @@ class TelegramAPICheckerBot:
         # Main conversation handler for project creation
         conversation_handler = ConversationHandler(
             entry_points=[
-                CommandHandler("start", self.handlers.start_command),
-                CallbackQueryHandler(
-                    self.handlers.new_project_callback,
-                    pattern="^new_project$"
-                )
+                CommandHandler("start", self.handlers.start_command)
             ],
             states={
+                ConversationStates.MAIN_MENU: [
+                    MessageHandler(
+                        filters.TEXT & ~filters.COMMAND,
+                        self.handlers.handle_message
+                    )
+                ],
                 ConversationStates.WAITING_URL: [
                     MessageHandler(
                         filters.TEXT & ~filters.COMMAND,
@@ -186,9 +187,9 @@ class TelegramAPICheckerBot:
                     )
                 ],
                 ConversationStates.ANALYZING_WEBSITE: [
-                    CallbackQueryHandler(
-                        self.handlers.handle_analysis_callback,
-                        pattern="^analysis_"
+                    MessageHandler(
+                        filters.TEXT & ~filters.COMMAND,
+                        self.handlers.handle_analysis_message
                     )
                 ],
                 ConversationStates.WAITING_CREDENTIALS: [
@@ -197,22 +198,16 @@ class TelegramAPICheckerBot:
                         self.handlers.handle_credentials_input
                     )
                 ],
-                ConversationStates.VALIDATING_CREDENTIALS: [
-                    CallbackQueryHandler(
-                        self.handlers.handle_validation_callback,
-                        pattern="^validation_"
-                    )
-                ],
                 ConversationStates.DISCOVERING_APIS: [
-                    CallbackQueryHandler(
-                        self.handlers.handle_discovery_callback,
-                        pattern="^discovery_"
+                    MessageHandler(
+                        filters.TEXT & ~filters.COMMAND,
+                        self.handlers.handle_discovery_message
                     )
                 ],
                 ConversationStates.GENERATING_CHECKER: [
-                    CallbackQueryHandler(
-                        self.handlers.handle_generation_callback,
-                        pattern="^generation_"
+                    MessageHandler(
+                        filters.TEXT & ~filters.COMMAND,
+                        self.handlers.handle_generation_message
                     )
                 ]
             },
@@ -232,33 +227,6 @@ class TelegramAPICheckerBot:
         app.add_handler(CommandHandler("myprojects", self.handlers.projects_command))
         app.add_handler(CommandHandler("settings", self.handlers.settings_command))
         app.add_handler(CommandHandler("stats", self.handlers.stats_command))
-        
-        # Callback query handlers
-        app.add_handler(
-            CallbackQueryHandler(
-                self.handlers.handle_language_callback,
-                pattern="^lang_"
-            )
-        )
-        app.add_handler(
-            CallbackQueryHandler(
-                self.handlers.handle_menu_callback,
-                pattern="^menu_"
-            )
-        )
-        app.add_handler(
-            CallbackQueryHandler(
-                self.handlers.handle_project_callback,
-                pattern="^project_"
-            )
-        )
-        
-        # Inline query handler for search
-        if self.config.enable_inline_mode:
-            from telegram.ext import InlineQueryHandler
-            app.add_handler(
-                InlineQueryHandler(self.handlers.handle_inline_query)
-            )
         
         logger.info("✅ All handlers registered")
 
