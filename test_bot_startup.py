@@ -31,7 +31,7 @@ async def test_config():
     try:
         from utils.config import Config
         config = Config()
-        assert config.telegram_bot_token
+        assert config.telegram_token
         logger.info("✅ Configuration valid")
         return True
     except Exception as e:
@@ -64,10 +64,10 @@ async def test_bot_init():
         await db.initialize()
         await db.migrate()
         
-        bot = TelegramAPICheckerBot(config, db)
+        bot = TelegramAPICheckerBot(token=config.telegram_token, config=config, db_manager=db)
         
         # Don't start, just test initialization
-        await bot.bot.initialize()
+        await bot.initialize()
         
         await db.close()
         logger.info("✅ Bot initialization successful")
