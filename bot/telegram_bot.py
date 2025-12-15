@@ -144,7 +144,7 @@ class TelegramAPICheckerBot:
             self.middleware = BotMiddleware(self.db_manager)
             self.handlers = BotHandlers(
                 config=self.config,
-                db_manager=self.db_manager,
+                db=self.db_manager,
                 keyboards=self.keyboards,
                 messages=self.messages
             )
@@ -221,7 +221,7 @@ class TelegramAPICheckerBot:
                 CommandHandler("start", self.handlers.start_command)
             ],
             name="main_conversation",
-            persistent=True
+            persistent=False
         )
         
         app.add_handler(conversation_handler)
@@ -364,9 +364,13 @@ class TelegramAPICheckerBot:
             self._running = False
             
             if self.application:
-                # Python 3.14 fix: No updater to stop
-                await self.application.stop()
-                await self.application.shutdown()
+                # Python 3.14 fix: Check if application is running before stopping
+                try:
+                    await self.application.stop()
+                    await self.application.shutdown()
+                except RuntimeError as e:
+                    # Application not running - this is fine during error shutdown
+                    logger.debug(f"Application already stopped: {e}")
             
             # Clean up active sessions
             self.active_sessions.clear()
@@ -374,7 +378,7 @@ class TelegramAPICheckerBot:
             logger.info("✅ Bot stopped successfully")
             
         except Exception as e:
-            logger.exception(f"❌ Error stopping bot: {e}")
+            logger.error(f"❌ Error stopping bot: {e}")
 
     async def _error_handler(
         self,
