@@ -33,12 +33,12 @@ class BotHandlers:
     def __init__(
         self,
         config: Config,
-        db_manager: DatabaseManager,
+        db: DatabaseManager,
         keyboards: BotKeyboards,
         messages: BotMessages
     ):
         self.config = config
-        self.db = db_manager
+        self.db = db
         self.keyboards = keyboards
         self.messages = messages
         self.analyzer = WebsiteAnalyzer()
@@ -52,7 +52,8 @@ class BotHandlers:
         language = context.user_data.get("language", "en")
         
         # Register user in database
-        await self.db.register_user(user.id, user.username, user.first_name)
+        # await self.db.register_user(user.id, user.username, user.first_name)
+        logger.info(f"👤 User {user.id} ({user.first_name}) started the bot")
         
         # Send welcome message
         message = self.messages.get_start_message(language, user.first_name)
