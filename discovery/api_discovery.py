@@ -1,17 +1,49 @@
-'''Comprehensive API Endpoint Discovery System'''
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+API Discovery - Comprehensive Endpoint Discovery Module
+=======================================================
+
+This module discovers API endpoints by testing common paths
+with valid authentication tokens.
+
+Author: Telegram API Checker Bot Team
+Version: 2.0.0
+"""
+
 import asyncio
 import logging
 import re
 from typing import Dict, Any, List, Optional
 from urllib.parse import urljoin, urlparse
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+logger = logging.getLogger(__name__)
+
 
 class APIDiscovery:
-    '''Discovers API endpoints by analyzing traffic and patterns.'''
+    """
+    Discovers API endpoints by testing common paths with valid tokens.
     
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
+    Tests various endpoint patterns to find accessible APIs.
+    """
+    
+    def __init__(self, timeout: int = 10, max_retries: int = 2):
+        """
+        Initialize API Discovery.
+        
+        Args:
+            timeout: Request timeout in seconds
+            max_retries: Maximum retry attempts
+        """
+        self.timeout = timeout
+        self.max_retries = max_retries
         self.discovered_endpoints = []
+        self.session = self._create_session()
+        
+        # Common API endpoint patterns to test
         self.common_patterns = [
             r'/api/[a-zA-Z0-9/_-]+',
             r'/v[0-9]+/[a-zA-Z0-9/_-]+',
@@ -19,38 +51,99 @@ class APIDiscovery:
             r'/rest/[a-zA-Z0-9/_-]+'
         ]
     
+    def _create_session(self) -> requests.Session:
+        """Create a requests session with retry logic."""
+        session = requests.Session()
+        
+        retry_strategy = Retry(
+            total=self.max_retries,
+            backoff_factor=0.5,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS", "TRACE"]
+        )
+        
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        
+        return session
+    
     async def discover_endpoints(
         self,
         base_url: str,
         tokens: Dict[str, Any],
         intercepted_requests: Optional[List[Dict]] = None
     ) -> List[Dict[str, Any]]:
-        '''Discover API endpoints.'''
-        self.logger.info(f"Starting API discovery for {base_url}")
+        """
+        Discover API endpoints using valid authentication tokens.
+        
+        Args:
+            base_url: Base URL of the website/API
+            tokens: Authentication tokens from successful login
+            intercepted_requests: Optional list of intercepted requests
+            
+        Returns:
+            List of discovered endpoints with their details
+        """
+        logger.info(f"🔍 Starting API discovery for {base_url}")
         
         endpoints = []
+        
+        # Extract base API URL from login endpoint if available
+        api_base = self._extract_api_base(base_url)
         
         # Discover from intercepted traffic
         if intercepted_requests:
             endpoints.extend(self._extract_from_requests(intercepted_requests))
         
-        # Discover common endpoints
-        endpoints.extend(await self._discover_common_endpoints(base_url, tokens))
+        # Test common endpoint patterns
+        logger.info("Testing common endpoints...")
+        endpoints.extend(await self._discover_common_endpoints(api_base, tokens))
         
-        # Discover profile endpoints
-        endpoints.extend(await self._discover_profile_endpoints(base_url, tokens))
+        # Test profile endpoints
+        logger.info("Testing profile endpoints...")
+        endpoints.extend(await self._discover_profile_endpoints(api_base, tokens))
         
-        # Discover payment endpoints
-        endpoints.extend(await self._discover_payment_endpoints(base_url, tokens))
+        # Test order/purchase endpoints
+        logger.info("Testing order endpoints...")
+        endpoints.extend(await self._discover_order_endpoints(api_base, tokens))
         
-        # Discover order endpoints
-        endpoints.extend(await self._discover_order_endpoints(base_url, tokens))
+        # Test address endpoints
+        logger.info("Testing address endpoints...")
+        endpoints.extend(await self._discover_address_endpoints(api_base, tokens))
+        
+        # Test payment endpoints
+        logger.info("Testing payment endpoints...")
+        endpoints.extend(await self._discover_payment_endpoints(api_base, tokens))
         
         # Remove duplicates
         unique_endpoints = self._deduplicate_endpoints(endpoints)
         
-        self.logger.info(f"Discovered {len(unique_endpoints)} unique endpoints")
+        logger.info(f"✅ Discovered {len(unique_endpoints)} unique endpoints")
         return unique_endpoints
+    
+    def _extract_api_base(self, base_url: str) -> str:
+        """
+        Extract API base URL from website URL.
+        
+        Args:
+            base_url: Website base URL
+            
+        Returns:
+            API base URL
+        """
+        parsed = urlparse(base_url)
+        
+        # Common API subdomain patterns
+        if 'api.' not in parsed.netloc:
+            # Try to use api subdomain
+            api_netloc = parsed.netloc.replace('www.', 'api.')
+            if not api_netloc.startswith('api.'):
+                api_netloc = f"api.{api_netloc}"
+            
+            return f"{parsed.scheme}://{api_netloc}"
+        
+        return base_url
     
     def _extract_from_requests(self, requests: List[Dict]) -> List[Dict]:
         '''Extract endpoints from intercepted requests.'''
