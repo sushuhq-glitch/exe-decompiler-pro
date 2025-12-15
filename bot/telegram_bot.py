@@ -26,7 +26,7 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime
 from pathlib import Path
 
-from telegram import Update, BotCommand
+from telegram import Update, BotCommand, Bot
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -34,9 +34,10 @@ from telegram.ext import (
     MessageHandler,
     ConversationHandler,
     filters,
-    ContextTypes
+    ContextTypes,
+    Defaults
 )
-from telegram.error import TelegramError
+from telegram.error import TelegramError, NetworkError, TimedOut
 
 from .handlers import BotHandlers
 from .keyboards import BotKeyboards
@@ -124,13 +125,21 @@ class TelegramAPICheckerBot:
         try:
             logger.info("🔧 Initializing bot components...")
             
-            # Build application
+            # Python 3.14 fix: Build application without triggering Updater __slots__ bug
+            # Create bot instance directly (optional, but ensures bot is available)
+            bot = Bot(token=self.token)
+            
+            # Build application with updater=None to avoid __slots__ bug
             self.application = (
                 Application.builder()
                 .token(self.token)
                 .concurrent_updates(True)
+                .updater(None)  # KEY FIX: Disable Updater to avoid Python 3.14 __slots__ bug
                 .build()
             )
+            
+            # Manually create a custom polling mechanism
+            self._running = False
             
             # Initialize sub-components
             self.keyboards = BotKeyboards(self.config)
@@ -152,6 +161,7 @@ class TelegramAPICheckerBot:
             # Register error handler
             self.application.add_error_handler(self._error_handler)
             
+            logger.info("✅ Application initialized successfully")
             logger.info("✅ Bot initialization complete")
             
         except Exception as e:
@@ -274,7 +284,7 @@ class TelegramAPICheckerBot:
             logger.error(f"❌ Failed to register commands: {e}")
 
     async def start(self) -> None:
-        """Start the bot and begin polling for updates."""
+        """Start the bot (Python 3.14 compatible)."""
         try:
             logger.info("🚀 Starting Telegram bot...")
             
@@ -288,35 +298,75 @@ class TelegramAPICheckerBot:
             
             # Get bot info
             bot_info = await self.application.bot.get_me()
-            logger.info(f"✅ Bot started successfully!")
+            logger.info(f"✅ Bot started successfully (Python 3.14 compatible mode)")
             logger.info(f"   Username: @{bot_info.username}")
             logger.info(f"   Name: {bot_info.first_name}")
             logger.info(f"   ID: {bot_info.id}")
             
-            # Start polling
-            logger.info("📡 Starting polling...")
-            await self.application.updater.start_polling(
-                allowed_updates=Update.ALL_TYPES,
-                drop_pending_updates=self.config.drop_pending_updates
-            )
+            # Python 3.14 fix: Manual polling without Updater
+            self._running = True
+            logger.info("🎯 Bot is now running! Press Ctrl+C to stop.")
             
-            # Keep the bot running
-            logger.info("🎯 Bot is now running!")
+            # Start manual update fetching loop
+            await self._poll_updates()
             
         except Exception as e:
             logger.exception(f"❌ Failed to start bot: {e}")
             raise
+
+    async def _poll_updates(self) -> None:
+        """
+        Manual polling loop for Python 3.14 compatibility.
+        Replaces the broken Updater.start_polling().
+        """
+        offset = 0
+        timeout = 30
+        
+        logger.info("📡 Starting manual polling loop (Python 3.14 mode)...")
+        
+        while self._running:
+            try:
+                # Get updates from Telegram
+                updates = await self.application.bot.get_updates(
+                    offset=offset,
+                    timeout=timeout,
+                    allowed_updates=Update.ALL_TYPES
+                )
+                
+                # Process each update
+                for update in updates:
+                    offset = update.update_id + 1
+                    
+                    # Process update through application
+                    await self.application.process_update(update)
+                
+                # Small delay to avoid hammering the API
+                if not updates:
+                    await asyncio.sleep(1)
+                    
+            except (NetworkError, TimedOut) as e:
+                logger.warning(f"⚠️  Network error in polling: {e}")
+                await asyncio.sleep(5)  # Wait before retry
+                
+            except TelegramError as e:
+                logger.error(f"❌ Telegram error in polling: {e}")
+                await asyncio.sleep(5)
+                
+            except Exception as e:
+                logger.error(f"❌ Unexpected error in polling: {e}")
+                await asyncio.sleep(5)
+        
+        logger.info("🛑 Manual polling loop stopped")
 
     async def stop(self) -> None:
         """Stop the bot gracefully."""
         try:
             logger.info("🛑 Stopping bot...")
             
+            self._running = False
+            
             if self.application:
-                # Stop polling
-                await self.application.updater.stop()
-                
-                # Stop application
+                # Python 3.14 fix: No updater to stop
                 await self.application.stop()
                 await self.application.shutdown()
             
