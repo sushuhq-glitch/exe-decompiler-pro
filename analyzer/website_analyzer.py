@@ -62,10 +62,13 @@ try:
     BS4_AVAILABLE = True
 except ImportError:
     BS4_AVAILABLE = False
-    # Define dummy classes if BeautifulSoup not available
+    # Fallback classes when BeautifulSoup is not available
     class Tag:
+        """Fallback Tag class when bs4 is not installed."""
         pass
+    
     class NavigableString:
+        """Fallback NavigableString class when bs4 is not installed."""
         pass
 
 try:
@@ -92,6 +95,14 @@ from utils.constants import (
     API_ENDPOINT_PATTERNS,
     FORM_FIELD_SELECTORS
 )
+
+# Import BrowserController for network interception script
+try:
+    from interceptor.browser_controller import BrowserController
+    BROWSER_CONTROLLER_AVAILABLE = True
+except ImportError:
+    BROWSER_CONTROLLER_AVAILABLE = False
+    BrowserController = None
 
 logger = get_logger(__name__)
 
@@ -1329,8 +1340,21 @@ class WebsiteAnalyzer:
                 self.logger.warning(f"Failed to enable CDP network tracking: {e}")
             
             # Inject network interception script
-            from interceptor.browser_controller import BrowserController
-            inject_script = BrowserController._get_network_interception_script()
+            if BROWSER_CONTROLLER_AVAILABLE and BrowserController:
+                inject_script = BrowserController._get_network_interception_script()
+            else:
+                # Fallback to inline script if BrowserController not available
+                inject_script = """
+                (function() {
+                    window.__interceptedRequests = [];
+                    window.__interceptedResponses = [];
+                    const originalFetch = window.fetch;
+                    window.fetch = function(...args) {
+                        window.__interceptedRequests.push({url: args[0], timestamp: Date.now()});
+                        return originalFetch.apply(this, args);
+                    };
+                })();
+                """
             
             self.driver.execute_script(inject_script)
             self.logger.info("✅ Network interception script injected")

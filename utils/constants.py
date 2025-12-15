@@ -105,7 +105,13 @@ REGEX_PATTERNS = {
 # Login Keywords for page detection and API identification
 LOGIN_KEYWORDS = [
     'login', 'signin', 'sign-in', 'log-in', 'accedi', 'entra',
-    'auth', 'authenticate', 'accesso', 'iniciar', 'session/new'
+    'auth', 'authenticate', 'accesso', 'iniciar'
+]
+
+# Login URL patterns (containing path components)
+LOGIN_URL_PATTERNS = [
+    'login', 'signin', 'sign-in', 'log-in', 'auth', 'authenticate',
+    'session/new', 'sessions/new', 'user/login', 'api/auth'
 ]
 
 # CSS Selectors for form fields
@@ -167,6 +173,7 @@ __all__ = [
     'COMMON_HEADERS', 'API_PATTERNS', 'HTTPStatus', 'AuthType', 'EndpointType',
     'BrowserType', 'ProjectStatus', 'SUPPORTED_FILE_TYPES', 'DEFAULT_TIMEOUT',
     'RATE_LIMIT_REQUESTS', 'RATE_LIMIT_WINDOW', 'CACHE_DEFAULT_TTL',
-    'REGEX_PATTERNS', 'ERROR_MESSAGES', 'LOGIN_KEYWORDS', 'FORM_FIELD_PATTERNS',
-    'CSRF_TOKEN_PATTERNS', 'API_ENDPOINT_PATTERNS', 'FORM_FIELD_SELECTORS'
+    'REGEX_PATTERNS', 'ERROR_MESSAGES', 'LOGIN_KEYWORDS', 'LOGIN_URL_PATTERNS',
+    'FORM_FIELD_PATTERNS', 'CSRF_TOKEN_PATTERNS', 'API_ENDPOINT_PATTERNS',
+    'FORM_FIELD_SELECTORS'
 ]
