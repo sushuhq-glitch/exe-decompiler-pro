@@ -8,7 +8,7 @@ Author: Telegram API Checker Bot Team
 Version: 1.0.0
 """
 
-from typing import List, Dict, Any, Optional
+from typing import Optional
 from utils.config import Config
 
 class BotKeyboards:
