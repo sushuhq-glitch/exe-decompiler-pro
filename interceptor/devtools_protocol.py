@@ -2,6 +2,7 @@
 import json
 import logging
 from typing import Dict, Any, Callable, List, Optional
+from utils.constants import LOGIN_KEYWORDS
 
 class DevToolsProtocol:
     """Chrome DevTools Protocol integration."""
@@ -155,14 +156,12 @@ class DevToolsProtocol:
         Returns:
             Login API request dictionary or None
         """
-        login_keywords = ['login', 'signin', 'auth', 'authenticate', 'session/new']
-        
         for request in requests:
             url = request.get('url', '').lower()
             method = request.get('method', '')
             
             # Look for POST requests with login keywords
-            if method == 'POST' and any(keyword in url for keyword in login_keywords):
+            if method == 'POST' and any(keyword in url for keyword in LOGIN_KEYWORDS):
                 self.logger.info(f"✅ Found login API: {request['url']}")
                 return request
         

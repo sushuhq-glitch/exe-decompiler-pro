@@ -9,6 +9,7 @@ import logging
 import asyncio
 import json
 from typing import Dict, Any, List
+from utils.constants import LOGIN_KEYWORDS, FORM_FIELD_SELECTORS
 
 class BrowserController:
     """Controls browser automation."""
@@ -52,15 +53,8 @@ class BrowserController:
     
     def fill_form(self, email: str, password: str):
         """Fill login form."""
-        # Find email field
-        email_selectors = [
-            'input[type="email"]',
-            'input[name*="email"]',
-            'input[name*="user"]',
-            'input[id*="email"]'
-        ]
-        
-        for selector in email_selectors:
+        # Find email field using shared selectors
+        for selector in FORM_FIELD_SELECTORS['email']:
             try:
                 elem = self.driver.find_element(By.CSS_SELECTOR, selector)
                 elem.send_keys(email)
@@ -68,14 +62,8 @@ class BrowserController:
             except:
                 continue
         
-        # Find password field
-        password_selectors = [
-            'input[type="password"]',
-            'input[name*="pass"]',
-            'input[id*="pass"]'
-        ]
-        
-        for selector in password_selectors:
+        # Find password field using shared selectors
+        for selector in FORM_FIELD_SELECTORS['password']:
             try:
                 elem = self.driver.find_element(By.CSS_SELECTOR, selector)
                 elem.send_keys(password)
@@ -85,14 +73,8 @@ class BrowserController:
     
     def submit_form(self):
         """Submit the form."""
-        submit_selectors = [
-            'button[type="submit"]',
-            'input[type="submit"]',
-            'button:contains("Login")',
-            'button:contains("Sign in")'
-        ]
-        
-        for selector in submit_selectors:
+        # Use shared submit button selectors
+        for selector in FORM_FIELD_SELECTORS['submit']:
             try:
                 elem = self.driver.find_element(By.CSS_SELECTOR, selector)
                 elem.click()
@@ -225,7 +207,25 @@ class BrowserController:
         if not self.driver:
             return False
         
-        script = """
+        script = self._get_network_interception_script()
+        
+        try:
+            self.driver.execute_script(script)
+            self.logger.info("✅ Network intercept script injected")
+            return True
+        except Exception as e:
+            self.logger.error(f"Failed to inject intercept script: {e}")
+            return False
+    
+    @staticmethod
+    def _get_network_interception_script() -> str:
+        """
+        Get the JavaScript code for network interception.
+        
+        Returns:
+            JavaScript code as string
+        """
+        return """
         (function() {
             window.__interceptedRequests = [];
             window.__interceptedResponses = [];
@@ -269,18 +269,10 @@ class BrowserController:
             };
         })();
         """
-        
-        try:
-            self.driver.execute_script(script)
-            self.logger.info("✅ Network intercept script injected")
-            return True
-        except Exception as e:
-            self.logger.error(f"Failed to inject intercept script: {e}")
-            return False
     
-    async def get_intercepted_requests(self) -> List[Dict[str, Any]]:
+    def get_intercepted_requests_sync(self) -> List[Dict[str, Any]]:
         """
-        Get intercepted network requests.
+        Get intercepted network requests (synchronous).
         
         Returns:
             List of intercepted requests
@@ -294,9 +286,9 @@ class BrowserController:
         except Exception:
             return []
     
-    async def get_intercepted_responses(self) -> List[Dict[str, Any]]:
+    def get_intercepted_responses_sync(self) -> List[Dict[str, Any]]:
         """
-        Get intercepted network responses.
+        Get intercepted network responses (synchronous).
         
         Returns:
             List of intercepted responses
@@ -309,6 +301,24 @@ class BrowserController:
             return self.driver.execute_script(script)
         except Exception:
             return []
+    
+    async def get_intercepted_requests(self) -> List[Dict[str, Any]]:
+        """
+        Get intercepted network requests (async wrapper).
+        
+        Returns:
+            List of intercepted requests
+        """
+        return self.get_intercepted_requests_sync()
+    
+    async def get_intercepted_responses(self) -> List[Dict[str, Any]]:
+        """
+        Get intercepted network responses (async wrapper).
+        
+        Returns:
+            List of intercepted responses
+        """
+        return self.get_intercepted_responses_sync()
     
     async def execute_fake_login(self, email: str = "test@example.com", password: str = "password123") -> Dict[str, Any]:
         """
@@ -344,14 +354,14 @@ class BrowserController:
             await asyncio.sleep(3)
             
             # Get intercepted network traffic
-            requests = await self.get_intercepted_requests()
-            responses = await self.get_intercepted_responses()
+            requests = self.get_intercepted_requests_sync()
+            responses = self.get_intercepted_responses_sync()
             
             # Find authentication API calls
             auth_requests = []
             for req in requests:
                 url = req.get('url', '').lower()
-                if any(keyword in url for keyword in ['login', 'auth', 'signin', 'authenticate']):
+                if any(keyword in url for keyword in LOGIN_KEYWORDS):
                     auth_requests.append(req)
             
             self.logger.info(f"✅ Captured {len(requests)} requests, {len(auth_requests)} auth requests")

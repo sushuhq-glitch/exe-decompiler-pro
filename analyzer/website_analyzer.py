@@ -89,7 +89,8 @@ from utils.constants import (
     LOGIN_KEYWORDS,
     FORM_FIELD_PATTERNS,
     CSRF_TOKEN_PATTERNS,
-    API_ENDPOINT_PATTERNS
+    API_ENDPOINT_PATTERNS,
+    FORM_FIELD_SELECTORS
 )
 
 logger = get_logger(__name__)
@@ -1328,70 +1329,31 @@ class WebsiteAnalyzer:
                 self.logger.warning(f"Failed to enable CDP network tracking: {e}")
             
             # Inject network interception script
-            inject_script = """
-            (function() {
-                window.__networkRequests = [];
-                window.__networkResponses = [];
-                
-                const originalFetch = window.fetch;
-                window.fetch = function(...args) {
-                    const [url, options] = args;
-                    window.__networkRequests.push({
-                        type: 'fetch',
-                        url: url.toString(),
-                        method: options?.method || 'GET',
-                        timestamp: Date.now()
-                    });
-                    
-                    return originalFetch.apply(this, args).then(response => {
-                        const clonedResponse = response.clone();
-                        clonedResponse.text().then(body => {
-                            window.__networkResponses.push({
-                                type: 'fetch',
-                                url: url.toString(),
-                                status: response.status,
-                                body: body,
-                                timestamp: Date.now()
-                            });
-                        }).catch(() => {});
-                        return response;
-                    });
-                };
-                
-                const originalOpen = XMLHttpRequest.prototype.open;
-                XMLHttpRequest.prototype.open = function(method, url) {
-                    this.__requestData = { method, url, timestamp: Date.now() };
-                    window.__networkRequests.push({
-                        type: 'xhr',
-                        url: url.toString(),
-                        method: method,
-                        timestamp: Date.now()
-                    });
-                    return originalOpen.apply(this, arguments);
-                };
-            })();
-            """
+            from interceptor.browser_controller import BrowserController
+            inject_script = BrowserController._get_network_interception_script()
             
             self.driver.execute_script(inject_script)
             self.logger.info("✅ Network interception script injected")
             
             # Try to fill and submit login form
             try:
-                # Find email/username field
+                # Find email/username field using shared selectors
                 email_field = None
-                for selector in ['input[type="email"]', 'input[name*="email"]', 'input[name*="user"]']:
+                for selector in FORM_FIELD_SELECTORS['email']:
                     try:
                         email_field = self.driver.find_element(By.CSS_SELECTOR, selector)
                         break
                     except:
                         continue
                 
-                # Find password field
+                # Find password field using shared selectors
                 password_field = None
-                try:
-                    password_field = self.driver.find_element(By.CSS_SELECTOR, 'input[type="password"]')
-                except:
-                    pass
+                for selector in FORM_FIELD_SELECTORS['password']:
+                    try:
+                        password_field = self.driver.find_element(By.CSS_SELECTOR, selector)
+                        break
+                    except:
+                        continue
                 
                 # Fill form if fields found
                 if email_field and password_field:
@@ -1399,17 +1361,23 @@ class WebsiteAnalyzer:
                     email_field.send_keys("test@example.com")
                     password_field.send_keys("password123")
                     
-                    # Submit form
-                    try:
-                        submit_button = self.driver.find_element(By.CSS_SELECTOR, 
-                            'button[type="submit"], input[type="submit"]')
+                    # Submit form using shared selectors
+                    submit_button = None
+                    for selector in FORM_FIELD_SELECTORS['submit']:
+                        try:
+                            submit_button = self.driver.find_element(By.CSS_SELECTOR, selector)
+                            break
+                        except:
+                            continue
+                    
+                    if submit_button:
                         submit_button.click()
                         self.logger.info("✅ Form submitted")
                         
                         # Wait for response
                         await asyncio.sleep(3)
-                    except Exception as e:
-                        self.logger.warning(f"Failed to click submit: {e}")
+                    else:
+                        self.logger.warning("⚠️ Submit button not found")
                 else:
                     self.logger.warning("⚠️ Could not find login form fields")
             
@@ -1418,10 +1386,10 @@ class WebsiteAnalyzer:
             
             # Get intercepted requests
             intercepted_requests = self.driver.execute_script(
-                "return window.__networkRequests || [];"
+                "return window.__interceptedRequests || [];"
             )
             intercepted_responses = self.driver.execute_script(
-                "return window.__networkResponses || [];"
+                "return window.__interceptedResponses || [];"
             )
             
             # Get CDP network logs
@@ -1455,7 +1423,7 @@ class WebsiteAnalyzer:
                     })
                 
                 # Identify login API
-                if method == 'POST' and any(kw in url_lower for kw in ['login', 'auth', 'signin']):
+                if method == 'POST' and any(kw in url_lower for kw in LOGIN_KEYWORDS):
                     login_api = {
                         'url': req['url'],
                         'method': method,
