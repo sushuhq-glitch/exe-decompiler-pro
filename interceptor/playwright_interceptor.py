@@ -1,4 +1,8 @@
 """Playwright-based Network Interceptor"""
+import logging
+
+logger = logging.getLogger(__name__)
+
 try:
     from playwright.async_api import async_playwright, Page
     PLAYWRIGHT_AVAILABLE = True
@@ -6,9 +10,7 @@ except ImportError:
     PLAYWRIGHT_AVAILABLE = False
     async_playwright = None
     Page = None
-    print("⚠️  Playwright not available. Install with: pip install playwright && playwright install chromium")
-
-import logging
+    logger.warning("⚠️  Playwright not available. Install with: pip install playwright && playwright install chromium")
 
 class PlaywrightInterceptor:
     """Playwright-based network interception."""
