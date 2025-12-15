@@ -219,24 +219,34 @@ async def main():
 
 
 def run():
-    """Run the application with proper event loop handling."""
+    """Run the application with proper event loop handling (Python 3.14 compatible)."""
     try:
         # Check Python version
         if sys.version_info < (3, 8):
             print("❌ Python 3.8 or higher is required")
             sys.exit(1)
 
-        # Run the async main function
-        if sys.platform == 'win32':
-            # Windows-specific event loop policy
-            asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        # Python 3.14 compatible event loop
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         
-        asyncio.run(main())
-
-    except KeyboardInterrupt:
-        logger.info("👋 Goodbye!")
+        try:
+            loop.run_until_complete(main())
+        except KeyboardInterrupt:
+            print("\n🛑 Bot stopped by user")
+        finally:
+            # Cleanup tasks
+            try:
+                loop.run_until_complete(loop.shutdown_asyncgens())
+            except Exception:
+                # Ignore cleanup errors
+                pass
+            loop.close()
+            
     except Exception as e:
         logger.exception(f"❌ Fatal error: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 

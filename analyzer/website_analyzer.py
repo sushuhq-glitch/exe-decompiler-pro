@@ -33,13 +33,6 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from enum import Enum
 
-# Import for async compatibility (optional)
-try:
-    import nest_asyncio
-    nest_asyncio.apply()
-except ImportError:
-    pass
-
 try:
     from selenium import webdriver
     from selenium.webdriver.common.by import By

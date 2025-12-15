@@ -28,7 +28,6 @@ webdriver-manager>=4.0.1
 
 # Async Support
 asyncio>=3.4.3
-nest-asyncio>=1.5.8
 aiofiles>=23.2.1
 aiodns>=3.1.1
 
