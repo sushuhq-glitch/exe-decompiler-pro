@@ -54,7 +54,8 @@ def run():
             # Cleanup tasks
             try:
                 loop.run_until_complete(loop.shutdown_asyncgens())
-            except:
+            except Exception:
+                # Ignore cleanup errors
                 pass
             loop.close()
             
@@ -220,7 +221,8 @@ except KeyboardInterrupt:
 finally:
     try:
         loop.run_until_complete(loop.shutdown_asyncgens())
-    except:
+    except Exception:
+        # Ignore cleanup errors
         pass
     loop.close()
 ```
