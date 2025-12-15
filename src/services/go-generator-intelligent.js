@@ -56,6 +56,7 @@ function generateSmartImports(analysis) {
   // Core imports - always needed
   imports.add('fmt');
   imports.add('log');
+  imports.add('os'); // Always needed for os.Exit, os.Stdout, etc.
   
   // Network imports
   if (purposes.has('HTTP_CLIENT_INIT') || purposes.has('HTTP_SEND') || purposes.has('HTTP_REQUEST')) {
