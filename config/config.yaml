@@ -1,0 +1,160 @@
+# Telegram API Checker Bot Configuration
+# ========================================
+
+# Bot Settings
+bot:
+  token: "8440573724:AAGFEW0MSo2G7kPrDtvQRBi2E-bWrRiOSXU"
+  admin_ids: []
+  enable_inline: true
+  drop_pending_updates: false
+  allowed_updates:
+    - message
+    - callback_query
+    - inline_query
+
+# Database Settings
+database:
+  url: "sqlite:///data/bot.db"
+  pool_size: 10
+  pool_timeout: 30
+  echo: false
+  backup_enabled: true
+  backup_interval: 24
+
+# Browser Automation
+browser:
+  type: "chrome"  # chrome, firefox, edge
+  headless: true
+  window_size:
+    width: 1920
+    height: 1080
+  timeout: 30
+  implicit_wait: 10
+  page_load_timeout: 30
+  user_agent_rotation: true
+  disable_images: false
+  disable_css: false
+
+# Network Interception
+network:
+  log_requests: true
+  log_responses: true
+  max_log_size: 10240
+  export_har: false
+  capture_screenshots: true
+  capture_video: false
+
+# API Discovery
+discovery:
+  common_endpoints:
+    - /api
+    - /v1
+    - /v2
+    - /graphql
+    - /rest
+  max_endpoints: 50
+  timeout: 60
+  test_endpoints: true
+  fuzzing_enabled: true
+
+# Validation
+validation:
+  max_attempts: 3
+  timeout: 30
+  detailed_logging: true
+  save_responses: true
+
+# Checker Generation
+generator:
+  template: "default"
+  enable_proxy: true
+  enable_threading: true
+  default_threads: 10
+  enable_rate_limit: true
+  default_rate_limit: 0.1
+
+# Storage
+storage:
+  base_dir: "./storage"
+  projects_dir: "./storage/projects"
+  temp_dir: "./storage/temp"
+  max_file_size: 52428800  # 50 MB
+
+# Logging
+logging:
+  level: "INFO"
+  format: "detailed"
+  to_file: true
+  file_path: "./logs/bot.log"
+  rotation: true
+  max_size: 10485760  # 10 MB
+  backup_count: 5
+  colors: true
+
+# Security
+security:
+  encrypt_credentials: true
+  encryption_key: null  # Set in .env
+  session_expiry: 24  # hours
+  max_failed_attempts: 5
+  lockout_duration: 30  # minutes
+
+# Rate Limiting
+rate_limit:
+  enabled: true
+  per_user: 10  # requests per minute
+  per_ip: 20
+  window: 60  # seconds
+
+# Proxy
+proxy:
+  enabled: false
+  type: "http"  # http, socks4, socks5
+  host: null
+  port: null
+  username: null
+  password: null
+  rotate: false
+  list_file: "./config/proxies.txt"
+
+# Features
+features:
+  graphql: true
+  websocket: true
+  ml_analysis: false
+  advanced_fuzzing: true
+  cloud_deploy: false
+  max_concurrent_projects: 3
+  project_retention_days: 30
+  auto_cleanup: true
+
+# Language
+language:
+  default: "en"
+  supported:
+    - en
+    - it
+  auto_detect: true
+
+# Performance
+performance:
+  max_workers: 10
+  task_queue_size: 100
+  enable_cache: true
+  cache_ttl: 3600
+  cache_max_size: 1000
+
+# Monitoring
+monitoring:
+  enabled: false
+  sentry_dsn: null
+  analytics: false
+  error_reporting: true
+
+# Notifications
+notifications:
+  email_enabled: false
+  smtp_server: null
+  smtp_port: 587
+  webhook_enabled: false
+  webhook_url: null
