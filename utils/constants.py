@@ -102,11 +102,38 @@ REGEX_PATTERNS = {
     'uuid': r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
 }
 
-# Login Keywords for page detection
+# Login Keywords for page detection and API identification
 LOGIN_KEYWORDS = [
     'login', 'signin', 'sign-in', 'log-in', 'accedi', 'entra',
     'auth', 'authenticate', 'accesso', 'iniciar'
 ]
+
+# Login URL patterns (containing path components)
+LOGIN_URL_PATTERNS = [
+    'login', 'signin', 'sign-in', 'log-in', 'auth', 'authenticate',
+    'session/new', 'sessions/new', 'user/login', 'api/auth'
+]
+
+# CSS Selectors for form fields
+FORM_FIELD_SELECTORS = {
+    'email': [
+        'input[type="email"]',
+        'input[name*="email"]',
+        'input[name*="user"]',
+        'input[id*="email"]'
+    ],
+    'password': [
+        'input[type="password"]',
+        'input[name*="pass"]',
+        'input[id*="pass"]'
+    ],
+    'submit': [
+        'button[type="submit"]',
+        'input[type="submit"]',
+        'button:contains("Login")',
+        'button:contains("Sign in")'
+    ]
+}
 
 # Form Field Patterns
 FORM_FIELD_PATTERNS = {
@@ -146,6 +173,7 @@ __all__ = [
     'COMMON_HEADERS', 'API_PATTERNS', 'HTTPStatus', 'AuthType', 'EndpointType',
     'BrowserType', 'ProjectStatus', 'SUPPORTED_FILE_TYPES', 'DEFAULT_TIMEOUT',
     'RATE_LIMIT_REQUESTS', 'RATE_LIMIT_WINDOW', 'CACHE_DEFAULT_TTL',
-    'REGEX_PATTERNS', 'ERROR_MESSAGES', 'LOGIN_KEYWORDS', 'FORM_FIELD_PATTERNS',
-    'CSRF_TOKEN_PATTERNS', 'API_ENDPOINT_PATTERNS'
+    'REGEX_PATTERNS', 'ERROR_MESSAGES', 'LOGIN_KEYWORDS', 'LOGIN_URL_PATTERNS',
+    'FORM_FIELD_PATTERNS', 'CSRF_TOKEN_PATTERNS', 'API_ENDPOINT_PATTERNS',
+    'FORM_FIELD_SELECTORS'
 ]

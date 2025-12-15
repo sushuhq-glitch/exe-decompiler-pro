@@ -30,29 +30,29 @@ class CheckerGenerator:
         # Generate main checker script (large, comprehensive)
         checker_code = self._generate_checker_script(url, endpoints, tokens)
         checker_path = self.output_dir / "checker.py"
-        with open(checker_path, 'w') as f:
+        with open(checker_path, 'w', encoding='utf-8') as f:
             f.write(checker_code)
         files.append({"name": "checker.py", "path": str(checker_path)})
         
         # Generate requirements.txt
         requirements = self._generate_requirements()
         req_path = self.output_dir / "requirements.txt"
-        with open(req_path, 'w') as f:
+        with open(req_path, 'w', encoding='utf-8') as f:
             f.write(requirements)
         files.append({"name": "requirements.txt", "path": str(req_path)})
         
         # Generate comprehensive README.md
         readme = self._generate_readme(url, endpoints)
         readme_path = self.output_dir / "README.md"
-        with open(readme_path, 'w') as f:
+        with open(readme_path, 'w', encoding='utf-8') as f:
             f.write(readme)
         files.append({"name": "README.md", "path": str(readme_path)})
         
         # Generate config.json
         config = self._generate_config(url, endpoints)
         config_path = self.output_dir / "config.json"
-        with open(config_path, 'w') as f:
-            json.dump(config, f, indent=2)
+        with open(config_path, 'w', encoding='utf-8') as f:
+            json.dump(config, f, indent=2, ensure_ascii=False)
         files.append({"name": "config.json", "path": str(config_path)})
         
         self.logger.info(f"Generated {len(files)} files successfully")

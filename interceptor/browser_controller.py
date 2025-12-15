@@ -6,6 +6,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import logging
+import asyncio
+import json
+from typing import Dict, Any, List
+from utils.constants import LOGIN_KEYWORDS, FORM_FIELD_SELECTORS
 
 class BrowserController:
     """Controls browser automation."""
@@ -15,18 +19,27 @@ class BrowserController:
         self.headless = headless
         self.driver = None
     
-    def start(self):
-        """Start browser."""
+    def start(self, enable_cdp: bool = True):
+        """Start browser with Chrome DevTools Protocol enabled."""
         options = Options()
         if self.headless:
-            options.add_argument("--headless")
+            options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--disable-gpu")
         options.add_argument("--window-size=1920,1080")
         
+        # Enable Chrome DevTools Protocol for network interception
+        if enable_cdp:
+            options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
+            # Enable network tracking
+            options.add_experimental_option("perfLoggingPrefs", {
+                "enableNetwork": True,
+                "enablePage": False
+            })
+        
         self.driver = webdriver.Chrome(options=options)
-        self.logger.info("Browser started")
+        self.logger.info("Browser started with CDP enabled" if enable_cdp else "Browser started")
     
     def navigate(self, url: str):
         """Navigate to URL."""
@@ -40,15 +53,8 @@ class BrowserController:
     
     def fill_form(self, email: str, password: str):
         """Fill login form."""
-        # Find email field
-        email_selectors = [
-            'input[type="email"]',
-            'input[name*="email"]',
-            'input[name*="user"]',
-            'input[id*="email"]'
-        ]
-        
-        for selector in email_selectors:
+        # Find email field using shared selectors
+        for selector in FORM_FIELD_SELECTORS['email']:
             try:
                 elem = self.driver.find_element(By.CSS_SELECTOR, selector)
                 elem.send_keys(email)
@@ -56,14 +62,8 @@ class BrowserController:
             except:
                 continue
         
-        # Find password field
-        password_selectors = [
-            'input[type="password"]',
-            'input[name*="pass"]',
-            'input[id*="pass"]'
-        ]
-        
-        for selector in password_selectors:
+        # Find password field using shared selectors
+        for selector in FORM_FIELD_SELECTORS['password']:
             try:
                 elem = self.driver.find_element(By.CSS_SELECTOR, selector)
                 elem.send_keys(password)
@@ -73,14 +73,8 @@ class BrowserController:
     
     def submit_form(self):
         """Submit the form."""
-        submit_selectors = [
-            'button[type="submit"]',
-            'input[type="submit"]',
-            'button:contains("Login")',
-            'button:contains("Sign in")'
-        ]
-        
-        for selector in submit_selectors:
+        # Use shared submit button selectors
+        for selector in FORM_FIELD_SELECTORS['submit']:
             try:
                 elem = self.driver.find_element(By.CSS_SELECTOR, selector)
                 elem.click()
@@ -213,7 +207,25 @@ class BrowserController:
         if not self.driver:
             return False
         
-        script = """
+        script = self._get_network_interception_script()
+        
+        try:
+            self.driver.execute_script(script)
+            self.logger.info("✅ Network intercept script injected")
+            return True
+        except Exception as e:
+            self.logger.error(f"Failed to inject intercept script: {e}")
+            return False
+    
+    @staticmethod
+    def _get_network_interception_script() -> str:
+        """
+        Get the JavaScript code for network interception.
+        
+        Returns:
+            JavaScript code as string
+        """
+        return """
         (function() {
             window.__interceptedRequests = [];
             window.__interceptedResponses = [];
@@ -257,18 +269,10 @@ class BrowserController:
             };
         })();
         """
-        
-        try:
-            self.driver.execute_script(script)
-            self.logger.info("✅ Network intercept script injected")
-            return True
-        except Exception as e:
-            self.logger.error(f"Failed to inject intercept script: {e}")
-            return False
     
-    async def get_intercepted_requests(self) -> List[Dict[str, Any]]:
+    def get_intercepted_requests_sync(self) -> List[Dict[str, Any]]:
         """
-        Get intercepted network requests.
+        Get intercepted network requests (synchronous).
         
         Returns:
             List of intercepted requests
@@ -282,9 +286,9 @@ class BrowserController:
         except Exception:
             return []
     
-    async def get_intercepted_responses(self) -> List[Dict[str, Any]]:
+    def get_intercepted_responses_sync(self) -> List[Dict[str, Any]]:
         """
-        Get intercepted network responses.
+        Get intercepted network responses (synchronous).
         
         Returns:
             List of intercepted responses
@@ -297,3 +301,161 @@ class BrowserController:
             return self.driver.execute_script(script)
         except Exception:
             return []
+    
+    async def get_intercepted_requests(self) -> List[Dict[str, Any]]:
+        """
+        Get intercepted network requests (async wrapper).
+        
+        Returns:
+            List of intercepted requests
+        """
+        return self.get_intercepted_requests_sync()
+    
+    async def get_intercepted_responses(self) -> List[Dict[str, Any]]:
+        """
+        Get intercepted network responses (async wrapper).
+        
+        Returns:
+            List of intercepted responses
+        """
+        return self.get_intercepted_responses_sync()
+    
+    async def execute_fake_login(self, email: str = "test@example.com", password: str = "password123") -> Dict[str, Any]:
+        """
+        Execute a fake login to capture authentication API.
+        
+        Args:
+            email: Fake email to use
+            password: Fake password to use
+        
+        Returns:
+            Dictionary containing captured network traffic
+        """
+        if not self.driver:
+            return {"success": False, "error": "Driver not initialized"}
+        
+        try:
+            # Inject network interception script first
+            await self.inject_intercept_script()
+            
+            # Wait a bit for page to be ready
+            await asyncio.sleep(1)
+            
+            # Fill form with fake credentials
+            self.fill_form(email, password)
+            
+            # Wait for form to be filled
+            await asyncio.sleep(0.5)
+            
+            # Submit form
+            self.submit_form()
+            
+            # Wait for network requests to complete
+            await asyncio.sleep(3)
+            
+            # Get intercepted network traffic
+            requests = self.get_intercepted_requests_sync()
+            responses = self.get_intercepted_responses_sync()
+            
+            # Find authentication API calls
+            auth_requests = []
+            for req in requests:
+                url = req.get('url', '').lower()
+                if any(keyword in url for keyword in LOGIN_KEYWORDS):
+                    auth_requests.append(req)
+            
+            self.logger.info(f"✅ Captured {len(requests)} requests, {len(auth_requests)} auth requests")
+            
+            return {
+                "success": True,
+                "all_requests": requests,
+                "all_responses": responses,
+                "auth_requests": auth_requests,
+                "login_email": email
+            }
+        
+        except Exception as e:
+            self.logger.error(f"Fake login execution failed: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
+    
+    def get_network_logs(self) -> List[Dict[str, Any]]:
+        """
+        Get network logs from Chrome DevTools Protocol.
+        
+        Returns:
+            List of network log entries
+        """
+        if not self.driver:
+            return []
+        
+        try:
+            logs = self.driver.get_log('performance')
+            network_logs = []
+            
+            for entry in logs:
+                try:
+                    log = json.loads(entry['message'])['message']
+                    
+                    # Filter for network events
+                    if 'Network.' in log.get('method', ''):
+                        network_logs.append(log)
+                
+                except Exception:
+                    continue
+            
+            return network_logs
+        
+        except Exception as e:
+            self.logger.error(f"Failed to get network logs: {e}")
+            return []
+    
+    def extract_api_calls(self, network_logs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Extract API calls from network logs.
+        
+        Args:
+            network_logs: List of network log entries
+        
+        Returns:
+            List of API call details
+        """
+        api_calls = []
+        seen_urls = set()
+        
+        for log in network_logs:
+            method = log.get('method', '')
+            params = log.get('params', {})
+            
+            if method == 'Network.requestWillBeSent':
+                request = params.get('request', {})
+                url = request.get('url', '')
+                request_method = request.get('method', 'GET')
+                
+                # Filter for API calls
+                if any(pattern in url for pattern in ['/api/', '/v1/', '/v2/', '/v3/', '/graphql']):
+                    if url not in seen_urls:
+                        seen_urls.add(url)
+                        api_calls.append({
+                            'url': url,
+                            'method': request_method,
+                            'headers': request.get('headers', {}),
+                            'post_data': request.get('postData', ''),
+                            'type': 'api'
+                        })
+                
+                # Also capture auth-related calls
+                elif any(keyword in url.lower() for keyword in ['login', 'auth', 'signin', 'token', 'session']):
+                    if url not in seen_urls:
+                        seen_urls.add(url)
+                        api_calls.append({
+                            'url': url,
+                            'method': request_method,
+                            'headers': request.get('headers', {}),
+                            'post_data': request.get('postData', ''),
+                            'type': 'auth'
+                        })
+        
+        return api_calls
