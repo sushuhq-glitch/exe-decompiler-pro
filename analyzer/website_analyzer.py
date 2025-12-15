@@ -33,6 +33,10 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from enum import Enum
 
+# Import for async compatibility
+import nest_asyncio
+nest_asyncio.apply()
+
 try:
     from selenium import webdriver
     from selenium.webdriver.common.by import By
@@ -50,10 +54,16 @@ except ImportError:
     SELENIUM_AVAILABLE = False
 
 try:
-    from bs4 import BeautifulSoup, Tag, NavigableString
+    from bs4 import BeautifulSoup
+    from bs4.element import Tag, NavigableString
     BS4_AVAILABLE = True
 except ImportError:
     BS4_AVAILABLE = False
+    # Define dummy classes if BeautifulSoup not available
+    class Tag:
+        pass
+    class NavigableString:
+        pass
 
 try:
     import requests
