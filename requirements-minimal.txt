@@ -1,0 +1,61 @@
+# ============================================================
+# Telegram API Checker Bot - Minimal Dependencies
+# ============================================================
+# Version: 1.0.0
+# Python: >=3.8
+# ============================================================
+# This minimal requirements file includes only essential
+# dependencies for basic bot functionality without browser
+# automation tools that require C++ build tools.
+# ============================================================
+
+# Core Telegram Bot
+python-telegram-bot>=20.7,<21.0
+requests>=2.31.0
+
+# Web Scraping & Parsing
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# HTTP Clients
+aiohttp>=3.9.0
+urllib3>=2.0.0,<3.0.0
+
+# Configuration
+pyyaml>=6.0.1
+python-dotenv>=1.0.0
+
+# Terminal UI
+colorama>=0.4.6
+tqdm>=4.66.1
+
+# Security
+cryptography>=41.0.7
+
+# Templates
+jinja2>=3.1.2
+
+# Database
+sqlalchemy>=2.0.23
+aiosqlite>=0.19.0
+
+# Data Validation
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Browser Automation (Selenium only - no Visual C++ Build Tools required)
+selenium>=4.15.0
+webdriver-manager>=4.0.1
+
+# Async Support
+nest-asyncio>=1.5.8
+aiofiles>=23.2.1
+
+# User Agents
+fake-useragent>=1.4.0
+
+# Logging
+loguru>=0.7.2
+
+# Utilities
+tenacity>=8.2.3

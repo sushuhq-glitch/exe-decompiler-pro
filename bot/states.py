@@ -20,7 +20,7 @@ Version: 1.0.0
 """
 
 from enum import IntEnum, auto
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 
 class ConversationStates(IntEnum):

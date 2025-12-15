@@ -163,7 +163,6 @@ class Application:
         required_modules = [
             'telegram',
             'selenium',
-            'playwright',
             'bs4',
             'requests',
             'aiohttp',
@@ -171,6 +170,10 @@ class Application:
             'cryptography',
             'sqlalchemy',
             'pydantic'
+        ]
+        
+        optional_modules = [
+            'playwright'
         ]
 
         missing = []
@@ -182,8 +185,15 @@ class Application:
 
         if missing:
             logger.error(f"❌ Missing required modules: {', '.join(missing)}")
-            logger.info("💡 Install them with: pip install -r requirements.txt")
+            logger.info("💡 Install them with: pip install -r requirements.txt or requirements-minimal.txt")
             return False
+
+        # Check optional modules and warn if missing
+        for module in optional_modules:
+            try:
+                __import__(module)
+            except ImportError:
+                logger.warning(f"⚠️  Optional module '{module}' not available (some features may be limited)")
 
         return True
 

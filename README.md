@@ -40,17 +40,60 @@ This is a comprehensive Telegram bot that automatically analyzes websites, captu
 
 - Python 3.8 or higher
 - pip (Python package installer)
-- Telegram Bot Token from [@BotFather](https://t.me/BotFather)
+- Telegram Bot Token from [@BotFather](https://t.me/BotFather) (pre-configured: `8440573724:AAGFEW0MSo2G7kPrDtvQRBi2E-bWrRiOSXU`)
 
-### Installation
+### Installation Options
+
+#### Option 1: Minimal Installation (Recommended for Quick Start)
+
+**Perfect for users who want to get started quickly without additional dependencies:**
+
+1. **Download and extract:**
+```bash
+# Download ZIP from GitHub and extract, or clone:
+git clone https://github.com/sushuhq-glitch/exe-decompiler-pro.git
+cd exe-decompiler-pro
+```
+
+2. **Install minimal dependencies:**
+```bash
+pip install -r requirements-minimal.txt
+```
+
+3. **Run the bot:**
+```bash
+python main.py
+```
+
+Expected output:
+```
+🤖 Telegram API Checker Bot
+✅ Bot token configured
+✅ Database initialized
+✅ Starting bot...
+✅ Bot started successfully!
+```
+
+#### Option 2: Full Installation (With All Features)
+
+**For users who want advanced browser automation features (Playwright):**
+
+⚠️ **Windows users:** Playwright requires **Visual C++ Build Tools** to be installed first.
+
+**Installing Visual C++ Build Tools on Windows:**
+1. Download from: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+2. Install "Desktop development with C++" workload
+3. Restart your computer
+
+**Then install all dependencies:**
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/your-repo/telegram-api-checker-bot.git
-cd telegram-api-checker-bot
+git clone https://github.com/sushuhq-glitch/exe-decompiler-pro.git
+cd exe-decompiler-pro
 ```
 
-2. **Install dependencies:**
+2. **Install all dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
@@ -60,15 +103,22 @@ pip install -r requirements.txt
 playwright install chromium
 ```
 
-4. **Configure environment:**
-```bash
-cp .env.example .env
-# Edit .env and add your bot token (already configured by default)
-```
-
-5. **Run the bot:**
+4. **Run the bot:**
 ```bash
 python main.py
+```
+
+### Configuration
+
+The bot token is **pre-configured** in the code:
+```
+8440573724:AAGFEW0MSo2G7kPrDtvQRBi2E-bWrRiOSXU
+```
+
+You can also create a `.env` file to override settings:
+```bash
+cp .env.example .env
+# Edit .env if needed
 ```
 
 ---
@@ -247,19 +297,56 @@ View stats with `/stats` command.
 ## 🐛 Troubleshooting
 
 ### Bot doesn't start
-- Check Python version (3.8+)
-- Verify all dependencies installed
-- Check bot token is valid
+- **Check Python version**: Must be 3.8 or higher
+  ```bash
+  python --version
+  ```
+- **Verify all dependencies installed**: Use the minimal requirements first
+  ```bash
+  pip install -r requirements-minimal.txt
+  ```
+- **Check bot token**: The token is pre-configured, but verify it in `utils/config.py`
+
+### Installation errors
+
+#### "error: Microsoft Visual C++ 14.0 or greater is required"
+This error occurs when trying to install Playwright without Visual C++ Build Tools.
+
+**Solutions:**
+1. Use minimal installation: `pip install -r requirements-minimal.txt` (skips Playwright)
+2. OR install Visual C++ Build Tools:
+   - Download: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+   - Install "Desktop development with C++" workload
+   - Restart and try again
+
+#### "No module named 'pydantic_settings'"
+The bot requires Pydantic v2 with pydantic-settings:
+```bash
+pip install pydantic>=2.5.0 pydantic-settings>=2.1.0
+```
+
+#### urllib3 version conflicts
+If you see urllib3 version conflicts:
+```bash
+pip install "urllib3>=2.0.0,<3.0.0" --force-reinstall
+```
 
 ### Analysis fails
 - Verify website URL is accessible
 - Check network connectivity
 - Try with different website
+- Check if Selenium webdriver is properly installed
 
 ### Generation fails
 - Ensure discovered endpoints exist
 - Check disk space for output files
-- Review logs for errors
+- Review logs in `./logs/bot.log` for errors
+
+### Playwright not available warning
+If you see "⚠️ Optional module 'playwright' not available":
+- This is **normal** if using minimal installation
+- The bot will work fine with Selenium only
+- To enable Playwright: Install Visual C++ Build Tools, then `pip install playwright && playwright install chromium`
 
 ---
 
