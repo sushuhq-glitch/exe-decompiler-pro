@@ -85,3 +85,7 @@ Thumbs.db
 *.har
 screenshots/
 downloads/
+
+# Test files
+test_event_loop_fix.py
+test_bot_event_loop.py
