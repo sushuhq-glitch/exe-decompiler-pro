@@ -126,9 +126,6 @@ class TelegramAPICheckerBot:
             logger.info("🔧 Initializing bot components...")
             
             # Python 3.14 fix: Build application without triggering Updater __slots__ bug
-            # Create bot instance directly (optional, but ensures bot is available)
-            bot = Bot(token=self.token)
-            
             # Build application with updater=None to avoid __slots__ bug
             self.application = (
                 Application.builder()
@@ -340,15 +337,16 @@ class TelegramAPICheckerBot:
                     # Process update through application
                     await self.application.process_update(update)
                 
-                # Small delay to avoid hammering the API
+                # Small delay to avoid hammering the API when no updates
                 if not updates:
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(0.5)
                     
             except (NetworkError, TimedOut) as e:
                 logger.warning(f"⚠️  Network error in polling: {e}")
                 await asyncio.sleep(5)  # Wait before retry
                 
             except TelegramError as e:
+                # Catch other TelegramError types not already handled above
                 logger.error(f"❌ Telegram error in polling: {e}")
                 await asyncio.sleep(5)
                 
