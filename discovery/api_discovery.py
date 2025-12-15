@@ -284,7 +284,7 @@ class APIDiscovery:
         base_url: str,
         tokens: Dict[str, Any]
     ) -> List[Dict]:
-        '''Discover order-related endpoints.'''
+        """Discover order-related endpoints."""
         order_paths = [
             '/api/orders',
             '/api/user/orders',
@@ -292,19 +292,63 @@ class APIDiscovery:
             '/api/purchases',
             '/api/transactions',
             '/api/v1/orders',
-            '/api/v1/user/orders'
+            '/api/v1/user/orders',
+            '/api/v2/orders',
+            '/api/v3/orders',
+            '/v1/user/orders',
+            '/v2/user/orders',
+            '/v3/user/orders'
         ]
         
         endpoints = []
         for path in order_paths:
             url = urljoin(base_url, path)
-            if await self._test_endpoint(url, 'GET', tokens):
+            result = await self._test_endpoint(url, 'GET', tokens)
+            if result:
                 endpoints.append({
                     'url': url,
                     'method': 'GET',
                     'type': 'orders',
                     'tested': True,
+                    'status_code': result.get('status_code'),
                     'description': 'Order history and transactions'
+                })
+        
+        return endpoints
+    
+    async def _discover_address_endpoints(
+        self,
+        base_url: str,
+        tokens: Dict[str, Any]
+    ) -> List[Dict]:
+        """Discover address-related endpoints."""
+        address_paths = [
+            '/api/addresses',
+            '/api/user/addresses',
+            '/api/user/address',
+            '/api/delivery/addresses',
+            '/api/shipping/addresses',
+            '/api/v1/addresses',
+            '/api/v1/user/addresses',
+            '/api/v2/addresses',
+            '/api/v3/addresses',
+            '/v1/user/addresses',
+            '/v2/user/addresses',
+            '/v3/user/addresses'
+        ]
+        
+        endpoints = []
+        for path in address_paths:
+            url = urljoin(base_url, path)
+            result = await self._test_endpoint(url, 'GET', tokens)
+            if result:
+                endpoints.append({
+                    'url': url,
+                    'method': 'GET',
+                    'type': 'addresses',
+                    'tested': True,
+                    'status_code': result.get('status_code'),
+                    'description': 'User addresses and delivery locations'
                 })
         
         return endpoints
@@ -314,33 +358,106 @@ class APIDiscovery:
         url: str,
         method: str,
         tokens: Dict[str, Any]
-    ) -> bool:
-        '''Test if endpoint exists and is accessible.'''
+    ) -> Optional[Dict]:
+        """
+        Test if endpoint exists and is accessible.
+        
+        Args:
+            url: Endpoint URL to test
+            method: HTTP method
+            tokens: Authentication tokens
+            
+        Returns:
+            Dict with status code if endpoint exists, None otherwise
+        """
         try:
             headers = self._build_auth_headers(tokens)
             
-            response = requests.request(
+            response = self.session.request(
                 method=method,
                 url=url,
                 headers=headers,
-                timeout=5
+                timeout=self.timeout,
+                allow_redirects=False
             )
             
-            # Consider 200, 401, 403 as existing endpoints
-            return response.status_code in [200, 401, 403]
+            # Consider 200 as successful (endpoint exists and returns data)
+            if response.status_code == 200:
+                logger.info(f"✅ GET {url} (200 OK)")
+                return {'status_code': 200, 'success': True}
+            
+            # 401/403 means endpoint exists but requires different auth
+            elif response.status_code in [401, 403]:
+                logger.debug(f"⚠️  GET {url} ({response.status_code})")
+                return {'status_code': response.status_code, 'success': False}
+            
+            else:
+                logger.debug(f"❌ GET {url} ({response.status_code})")
+                return None
         
+        except requests.exceptions.Timeout:
+            logger.debug(f"⏱️  Timeout: {url}")
+            return None
+        except requests.exceptions.ConnectionError:
+            logger.debug(f"🔌 Connection error: {url}")
+            return None
         except Exception as e:
-            self.logger.debug(f"Endpoint test failed for {url}: {e}")
-            return False
+            logger.debug(f"❌ Test failed for {url}: {e}")
+            return None
     
     def _build_auth_headers(self, tokens: Dict[str, Any]) -> Dict[str, str]:
-        '''Build authentication headers from tokens.'''
+        """
+        Build authentication headers from tokens.
+        
+        Args:
+            tokens: Dictionary of authentication tokens
+            
+        Returns:
+            Headers dictionary with authentication
+        """
         headers = {
-            'User-Agent': 'Mozilla/5.0',
-            'Accept': 'application/json'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json',
+            'Accept-Language': 'en-US,en;q=0.9'
         }
         
         # Add Bearer token if present
+        access_token = tokens.get('access_token')
+        if access_token:
+            headers['Authorization'] = f'Bearer {access_token}'
+        
+        # Add cookies if present
+        cookies = tokens.get('cookies', {})
+        if cookies:
+            cookie_str = '; '.join([f'{k}={v}' for k, v in cookies.items()])
+            headers['Cookie'] = cookie_str
+        
+        return headers
+    
+    def _deduplicate_endpoints(self, endpoints: List[Dict]) -> List[Dict]:
+        """
+        Remove duplicate endpoints based on URL.
+        
+        Args:
+            endpoints: List of endpoints
+            
+        Returns:
+            List of unique endpoints
+        """
+        seen_urls = set()
+        unique = []
+        
+        for endpoint in endpoints:
+            url = endpoint.get('url')
+            if url and url not in seen_urls:
+                seen_urls.add(url)
+                unique.append(endpoint)
+        
+        return unique
+
+
+# Export
+__all__ = ['APIDiscovery']
         if 'access_token' in tokens:
             headers['Authorization'] = f"Bearer {tokens['access_token']}"
         
