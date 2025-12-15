@@ -13,10 +13,13 @@ Version: 2.0.0
 import os
 from pathlib import Path
 from typing import Optional
-from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Try to load environment variables if dotenv is available
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv not installed, use environment variables directly
 
 
 class Config:

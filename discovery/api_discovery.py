@@ -458,24 +458,3 @@ class APIDiscovery:
 
 # Export
 __all__ = ['APIDiscovery']
-        if 'access_token' in tokens:
-            headers['Authorization'] = f"Bearer {tokens['access_token']}"
-        
-        # Add custom headers
-        if 'custom_headers' in tokens:
-            headers.update(tokens['custom_headers'])
-        
-        return headers
-    
-    def _deduplicate_endpoints(self, endpoints: List[Dict]) -> List[Dict]:
-        '''Remove duplicate endpoints.'''
-        seen = set()
-        unique = []
-        
-        for endpoint in endpoints:
-            key = f"{endpoint['method']}:{endpoint['url']}"
-            if key not in seen:
-                seen.add(key)
-                unique.append(endpoint)
-        
-        return unique
