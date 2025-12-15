@@ -11,7 +11,6 @@ Version: 1.0.0
 import asyncio
 import logging
 from typing import Optional, Dict, Any
-from pathlib import Path
 from telegram import Update
 from telegram.ext import ContextTypes, ConversationHandler
 from .states import ConversationStates
@@ -192,117 +191,48 @@ class BotHandlers:
         return ConversationHandler.END
     
     async def handle_url_input(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        """Handle URL input from user and perform complete analysis."""
+        """Handle URL input from user."""
         url = update.message.text.strip()
         user_id = update.effective_user.id
         language = context.user_data.get("language", "en")
         
         # Validate URL
         if not self._is_valid_url(url):
-            await update.message.reply_text(
-                "❌ Invalid URL. Please provide a valid website URL.",
-                parse_mode="Markdown"
-            )
+            error_msg = self.messages.get_error_message("invalid_url", language)
+            await update.message.reply_text(error_msg, parse_mode="Markdown")
             return ConversationStates.WAITING_URL
         
-        # Extract site name
-        from urllib.parse import urlparse
-        site_name = urlparse(url).netloc.replace('www.', '')
+        # Start analysis
+        analyzing_msg = self.messages.get_analyzing_message(url, language)
+        status_message = await update.message.reply_text(analyzing_msg, parse_mode="Markdown")
         
-        # Start comprehensive analysis
-        status_msg = await update.message.reply_text(
-            f"🔍 **Analyzing {site_name}...**",
-            parse_mode="Markdown"
-        )
-        
+        # Perform website analysis
         try:
-            # Import form detector
-            from analyzer.form_detector import FormDetector
-            from interceptor.network_interceptor import NetworkInterceptor
+            results = await self.analyzer.analyze(url)
             
-            # Step 1: Find login page
-            await status_msg.edit_text(
-                f"🔍 **Analyzing {site_name}...**\n✅ Found login page: {url}\n\n📝 Detecting forms...",
-                parse_mode="Markdown"
-            )
-            
-            # Step 2: Detect forms
-            with FormDetector(headless=True) as form_detector:
-                forms = form_detector.find_login_forms(url)
-                
-                if not forms:
-                    await status_msg.edit_text(
-                        f"❌ No login forms found on {url}\n\nPlease check the URL and try again.",
-                        parse_mode="Markdown"
-                    )
-                    return ConversationStates.WAITING_URL
-                
-                await status_msg.edit_text(
-                    f"🔍 **Analyzing {site_name}...**\n"
-                    f"✅ Found login page: {url}\n"
-                    f"✅ Found {len(forms)} form(s) with email + password\n\n"
-                    f"🚀 Executing FAKE login with test@example.com...",
-                    parse_mode="Markdown"
-                )
-                
-                # Step 3: Execute fake login and intercept network
-                form = forms[0]  # Use first form
-                
-                if form.get('is_js_form'):
-                    email_selector = form.get('email_selector', 'input[type="email"]')
-                    password_selector = form.get('password_selector', 'input[type="password"]')
-                    submit_selector = form.get('submit_selector', 'button[type="submit"]')
-                else:
-                    email_selector = form.get('email_field', {}).get('selector', 'input[type="email"]')
-                    password_selector = form.get('password_field', {}).get('selector', 'input[type="password"]')
-                    submit_selector = form.get('submit_button', {}).get('selector', 'button[type="submit"]')
-                
-                # Use the driver from form detector for network interception
-                interceptor = NetworkInterceptor(form_detector.driver)
-                captured_api = await interceptor.intercept_login(
-                    url=url,
-                    email_selector=email_selector,
-                    password_selector=password_selector,
-                    submit_selector=submit_selector
-                )
-            
-            if not captured_api:
-                await status_msg.edit_text(
-                    f"⚠️ Could not capture login API.\n\nPlease try a different page or website.",
-                    parse_mode="Markdown"
-                )
-                return ConversationStates.WAITING_URL
-            
-            # Success! Show captured API
-            api_info = (
-                f"✅ **CAPTURED LOGIN API!**\n\n"
-                f"🔗 URL: {captured_api.get('method', 'POST')} {captured_api.get('url', 'N/A')}\n"
-                f"📋 Headers: {len(captured_api.get('headers', {}))} headers\n"
-                f"📦 Payload: Captured\n\n"
-                f"💬 Now send VALID credentials\n"
-                f"Format: **email:password**"
-            )
-            
-            await status_msg.edit_text(api_info, parse_mode="Markdown")
-            
-            # Store data in session
+            # Store results in session
             context.bot_data[f"session_{user_id}"] = {
                 "url": url,
-                "site_name": site_name,
-                "captured_api": captured_api,
-                "forms": forms,
-                "state": "waiting_credentials",
-                "progress": 40
+                "analysis_results": results,
+                "state": "analyzed",
+                "progress": 30
             }
             
-            return ConversationStates.WAITING_CREDENTIALS
+            # Show results
+            result_msg = self.messages.get_analysis_complete_message(results, language)
+            menu = self.keyboards.get_analysis_options(language)
             
-        except Exception as e:
-            logger.exception(f"Analysis failed: {e}")
-            await status_msg.edit_text(
-                f"❌ Analysis failed: {str(e)}\n\nPlease try again or use /cancel",
+            await status_message.edit_text(
+                f"{result_msg}\n\n{menu}",
                 parse_mode="Markdown"
             )
+            
+            return ConversationStates.ANALYZING_WEBSITE
+            
+        except Exception as e:
+            logger.error(f"Analysis failed: {e}")
+            error_msg = self.messages.get_error_message("analysis_failed", language)
+            await status_message.edit_text(error_msg, parse_mode="Markdown")
             return ConversationStates.WAITING_URL
     
     async def handle_analysis_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -334,152 +264,67 @@ class BotHandlers:
             return ConversationStates.ANALYZING_WEBSITE
     
     async def handle_credentials_input(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        """Handle credentials input and complete workflow."""
+        """Handle credentials input."""
         credentials = update.message.text.strip()
         user_id = update.effective_user.id
         language = context.user_data.get("language", "en")
         
         # Validate format
         if ":" not in credentials:
-            await update.message.reply_text(
-                "❌ Invalid format. Use: **email:password**",
-                parse_mode="Markdown"
-            )
+            error_msg = self.messages.get_error_message("invalid_credentials", language)
+            await update.message.reply_text(error_msg, parse_mode="Markdown")
             return ConversationStates.WAITING_CREDENTIALS
         
-        # Parse credentials
-        email, password = self.validator.parse_credentials(credentials)
-        if not email or not password:
-            await update.message.reply_text(
-                "❌ Invalid credentials format. Use: **email:password**",
-                parse_mode="Markdown"
-            )
-            return ConversationStates.WAITING_CREDENTIALS
+        email, password = credentials.split(":", 1)
         
-        # Get session data
-        session = context.bot_data.get(f"session_{user_id}", {})
-        captured_api = session.get("captured_api")
+        # Start validation
+        validating_msg = self.messages.get_validating_message(language)
+        status_message = await update.message.reply_text(validating_msg, parse_mode="Markdown")
         
-        if not captured_api:
-            await update.message.reply_text(
-                "❌ Session expired. Please start over with /start",
-                parse_mode="Markdown"
-            )
-            return ConversationHandler.END
-        
-        status_msg = await update.message.reply_text(
-            "✅ Testing credentials...",
-            parse_mode="Markdown"
-        )
-        
+        # Validate credentials
         try:
-            # Step 1: Validate credentials
+            session = context.bot_data.get(f"session_{user_id}", {})
+            analysis_results = session.get("analysis_results", {})
+            
             validation_result = await self.validator.validate(
-                api_data=captured_api,
+                url=session.get("url"),
                 email=email,
-                password=password
+                password=password,
+                login_endpoint=analysis_results.get("login_url")
             )
             
-            if not validation_result.get("success"):
-                await status_msg.edit_text(
-                    f"❌ Login failed: {validation_result.get('error', 'Invalid credentials')}",
+            if validation_result.get("success"):
+                # Store tokens
+                session["tokens"] = validation_result.get("tokens", {})
+                session["state"] = "validated"
+                session["progress"] = 50
+                context.bot_data[f"session_{user_id}"] = session
+                
+                # Show success
+                success_msg = self.messages.get_validation_success_message(
+                    validation_result.get("tokens", {}),
+                    language
+                )
+                menu = self.keyboards.get_discovery_options(language)
+                
+                await status_message.edit_text(
+                    f"{success_msg}\n\n{menu}",
+                    parse_mode="Markdown"
+                )
+                
+                return ConversationStates.DISCOVERING_APIS
+            else:
+                error_msg = self.messages.get_error_message("validation_failed", language)
+                await status_message.edit_text(
+                    error_msg,
                     parse_mode="Markdown"
                 )
                 return ConversationStates.WAITING_CREDENTIALS
-            
-            # Extract tokens
-            tokens = validation_result.get("tokens", {})
-            access_token = tokens.get("access_token", "N/A")
-            
-            await status_msg.edit_text(
-                f"✅ **Login successful!**\n"
-                f"🎫 Access token: {access_token[:50] if access_token != 'N/A' else 'N/A'}...\n\n"
-                f"🔍 Discovering other APIs...",
-                parse_mode="Markdown"
-            )
-            
-            # Step 2: Discover APIs
-            from urllib.parse import urlparse
-            base_url = session.get("url", "")
-            parsed = urlparse(captured_api.get("url", base_url))
-            api_base = f"{parsed.scheme}://{parsed.netloc}"
-            
-            endpoints = await self.discovery.discover_endpoints(
-                base_url=api_base,
-                tokens=tokens
-            )
-            
-            # Show discovered endpoints
-            endpoint_list = "\n".join([
-                f"✅ {e.get('method', 'GET')} {e['url'][:60]}... ({e.get('status_code', '200')} OK)"
-                for e in endpoints[:5]  # Show first 5
-            ])
-            
-            await status_msg.edit_text(
-                f"✅ **Login successful!**\n"
-                f"🎫 Access token extracted\n\n"
-                f"🔍 **Discovered {len(endpoints)} endpoint(s):**\n"
-                f"{endpoint_list}\n\n"
-                f"🎉 Generating Python checker...",
-                parse_mode="Markdown"
-            )
-            
-            # Step 3: Generate checker
-            site_name = session.get("site_name", "website")
-            
-            files = await self.generator.generate_checker(
-                site_name=site_name,
-                api_data=captured_api,
-                endpoints=endpoints,
-                user_id=user_id
-            )
-            
-            # Send ZIP file
-            zip_path = files.get("zip")
-            if zip_path and Path(zip_path).exists():
-                await status_msg.edit_text(
-                    f"📦 **Checker ready!**\n\nSending file...",
-                    parse_mode="Markdown"
-                )
                 
-                with open(zip_path, 'rb') as f:
-                    await update.message.reply_document(
-                        document=f,
-                        filename=Path(zip_path).name,
-                        caption=(
-                            f"🎉 **Checker Generated Successfully!**\n\n"
-                            f"📦 Files included:\n"
-                            f"• checker.py ({len(open(files['checker.py'], 'r', encoding='utf-8').read())} characters)\n"
-                            f"• requirements.txt\n"
-                            f"• README.md\n"
-                            f"• config.json\n\n"
-                            f"Total endpoints: {len(endpoints)}"
-                        ),
-                        parse_mode="Markdown"
-                    )
-                
-                await status_msg.edit_text(
-                    f"✅ **Complete!**\n\nChecker sent successfully!",
-                    parse_mode="Markdown"
-                )
-            else:
-                await status_msg.edit_text(
-                    f"❌ Error creating ZIP file",
-                    parse_mode="Markdown"
-                )
-            
-            # Clean up session
-            if f"session_{user_id}" in context.bot_data:
-                del context.bot_data[f"session_{user_id}"]
-            
-            return ConversationHandler.END
-            
         except Exception as e:
-            logger.exception(f"Credential validation/generation failed: {e}")
-            await status_msg.edit_text(
-                f"❌ Error: {str(e)}\n\nPlease try again or use /cancel",
-                parse_mode="Markdown"
-            )
+            logger.error(f"Validation failed: {e}")
+            error_msg = self.messages.get_error_message("validation_failed", language)
+            await status_message.edit_text(error_msg, parse_mode="Markdown")
             return ConversationStates.WAITING_CREDENTIALS
     
 
