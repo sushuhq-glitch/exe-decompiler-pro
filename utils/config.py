@@ -2,7 +2,8 @@
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
-from pydantic import BaseSettings, Field, validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, field_validator
 import yaml
 
 class Config(BaseSettings):
@@ -50,11 +51,14 @@ class Config(BaseSettings):
     enable_cache: bool = Field(default=True, env="ENABLE_CACHE")
     cache_ttl: int = Field(default=3600, env="CACHE_TTL")
     
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False
+    )
     
-    @validator("telegram_admin_ids", pre=True)
+    @field_validator("telegram_admin_ids", mode='before')
+    @classmethod
     def parse_admin_ids(cls, v):
         if isinstance(v, str):
             return [int(id.strip()) for id in v.split(",") if id.strip()]
@@ -74,7 +78,7 @@ class Config(BaseSettings):
     def save_to_yaml(self, path: str) -> None:
         """Save configuration to YAML file."""
         with open(path, 'w') as f:
-            yaml.dump(self.dict(), f)
+            yaml.dump(self.model_dump(), f)
     
     def get(self, key: str, default: Any = None) -> Any:
         """Get configuration value by key."""
