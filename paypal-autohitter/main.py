@@ -536,10 +536,11 @@ ERROR_KEYWORDS = [
 LOG_FORMAT = '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
 LOG_DATE_FORMAT = '%H:%M:%S'
 LOG_LEVEL = logging.INFO
-LOG_TO_FILE = True
-LOG_TO_CONSOLE = True
+LOG_TO_FILE = True              # Reserved for future file logging
+LOG_TO_CONSOLE = True           # Reserved for future console control
 
-# Configure logging system
+# Configure logging system (currently console-only)
+# LOG_TO_FILE and LOG_TO_CONSOLE are reserved for future enhancements
 logging.basicConfig(
     level=LOG_LEVEL,
     format=LOG_FORMAT,
@@ -560,10 +561,12 @@ CLEAR_CACHE = True              # Clear cache between checks
 # Debug Settings
 # ------------------------------
 # Settings for debugging and development
-DEBUG_MODE = False              # Enable debug output
-SAVE_SCREENSHOTS = False        # Save screenshots on error
-SAVE_PAGE_SOURCE = False        # Save page HTML on error
-VERBOSE_LOGGING = False         # Enable verbose logging
+# Debug Settings (placeholders for future enhancements)
+# These can be used to implement additional debugging features
+DEBUG_MODE = False              # Enable debug output (reserved for future use)
+SAVE_SCREENSHOTS = False        # Save screenshots on error (reserved for future use)
+SAVE_PAGE_SOURCE = False        # Save page HTML on error (reserved for future use)
+VERBOSE_LOGGING = False         # Enable verbose logging (reserved for future use)
 
 
 
@@ -996,8 +999,8 @@ class PayPalChecker:
             
             # Performance optimizations
             prefs = {
-                'profile.managed_default_content_settings.images': 2,
-                'profile.managed_default_content_settings.stylesheets': 2,
+                'profile.default_content_settings.images': 2,
+                'profile.default_content_settings.stylesheets': 2,
             }
             chrome_options.add_experimental_option('prefs', prefs)
             
@@ -1706,6 +1709,8 @@ class PayPalHitterGUI:
             
             threads = []
             for i in range(MAX_THREADS):
+                # Use daemon threads for automatic cleanup on application exit
+                # Each worker includes proper cleanup() calls for browser instances
                 thread = threading.Thread(
                     target=worker,
                     args=(task_queue, checkout_url, self.stats, self.stats_lock, self.log),
