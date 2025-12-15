@@ -172,7 +172,7 @@ export function analyzeExecutableDeep(fileData, peData, patterns) {
   
   const analysis = {
     strings: extractAndCategorizeStrings(fileData),
-    apiCalls: analyzeAPICallsdetailed(peData),
+    apiCalls: analyzeAPICallsDetailed(peData),
     appType: null,
     mainLogic: [],
     confidence: 0,
@@ -589,11 +589,4 @@ function calculateAnalysisConfidence(analysis) {
   }
   
   return Math.min(95, Math.max(30, confidence));
-}
-
-/**
- * Helper function to fix the typo in function name
- */
-function analyzeAPICallsdetailed(peData) {
-  return analyzeAPICallsDetailed(peData);
 }
