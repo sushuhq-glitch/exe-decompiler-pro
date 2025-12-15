@@ -131,9 +131,14 @@ class Timer:
             return (self.end_time - self.start_time).total_seconds()
         return 0.0
 
+# Aliases for backwards compatibility
+sanitize_url = normalize_url
+is_valid_url = validate_url
+
 __all__ = [
     'validate_url', 'validate_email', 'normalize_url', 'extract_domain',
     'generate_id', 'hash_string', 'encode_base64', 'decode_base64',
     'parse_credentials', 'format_bytes', 'format_duration', 'sanitize_filename',
-    'truncate_string', 'deep_merge', 'retry_async', 'chunk_list', 'Timer'
+    'truncate_string', 'deep_merge', 'retry_async', 'chunk_list', 'Timer',
+    'sanitize_url', 'is_valid_url'
 ]

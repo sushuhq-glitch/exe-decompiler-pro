@@ -102,6 +102,34 @@ REGEX_PATTERNS = {
     'uuid': r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
 }
 
+# Login Keywords for page detection
+LOGIN_KEYWORDS = [
+    'login', 'signin', 'sign-in', 'log-in', 'accedi', 'entra',
+    'auth', 'authenticate', 'accesso', 'iniciar'
+]
+
+# Form Field Patterns
+FORM_FIELD_PATTERNS = {
+    'email': ['email', 'e-mail', 'user', 'username', 'login', 'account'],
+    'password': ['password', 'passwd', 'pwd', 'pass', 'senha', 'contraseña'],
+    'username': ['username', 'user', 'login', 'account', 'usuario'],
+}
+
+# CSRF Token Patterns
+CSRF_TOKEN_PATTERNS = [
+    'csrf', 'csrftoken', 'csrf_token', 'xsrf', 'xsrftoken',
+    '_token', 'authenticity_token', 'token'
+]
+
+# API Endpoint Patterns for discovery
+API_ENDPOINT_PATTERNS = {
+    'auth': ['/api/auth', '/api/login', '/auth', '/login', '/api/v1/auth'],
+    'user': ['/api/user', '/api/me', '/api/profile', '/api/v1/user'],
+    'profile': ['/api/profile', '/api/user/profile', '/api/me', '/profile'],
+    'payment': ['/api/payment', '/api/wallet', '/api/billing', '/payment'],
+    'orders': ['/api/orders', '/api/order', '/orders', '/api/user/orders'],
+}
+
 # Error Messages
 ERROR_MESSAGES = {
     'invalid_url': 'Invalid URL format',
@@ -118,5 +146,6 @@ __all__ = [
     'COMMON_HEADERS', 'API_PATTERNS', 'HTTPStatus', 'AuthType', 'EndpointType',
     'BrowserType', 'ProjectStatus', 'SUPPORTED_FILE_TYPES', 'DEFAULT_TIMEOUT',
     'RATE_LIMIT_REQUESTS', 'RATE_LIMIT_WINDOW', 'CACHE_DEFAULT_TTL',
-    'REGEX_PATTERNS', 'ERROR_MESSAGES'
+    'REGEX_PATTERNS', 'ERROR_MESSAGES', 'LOGIN_KEYWORDS', 'FORM_FIELD_PATTERNS',
+    'CSRF_TOKEN_PATTERNS', 'API_ENDPOINT_PATTERNS'
 ]
