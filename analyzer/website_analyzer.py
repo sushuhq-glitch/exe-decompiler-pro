@@ -33,9 +33,12 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from enum import Enum
 
-# Import for async compatibility
-import nest_asyncio
-nest_asyncio.apply()
+# Import for async compatibility (optional)
+try:
+    import nest_asyncio
+    nest_asyncio.apply()
+except ImportError:
+    pass
 
 try:
     from selenium import webdriver
@@ -494,6 +497,15 @@ class WebsiteAnalyzer:
             if screenshot:
                 results["screenshots"].append(screenshot)
             
+            # Step 9: Network capture with fake login (if forms found)
+            if results["forms_count"] > 0 and deep:
+                self.logger.info("🔐 Step 9: Executing fake login to capture APIs...")
+                network_data = await self._capture_network_with_fake_login(target_url)
+                if network_data.get("success"):
+                    results["network_capture"] = network_data
+                    results["api_calls"] = network_data.get("api_calls", [])
+                    results["login_api"] = network_data.get("login_api")
+            
             # Calculate analysis time
             results["analysis_time"] = time.time() - start_time
             
@@ -646,6 +658,7 @@ class WebsiteAnalyzer:
     async def _analyze_forms(self, url: str, deep: bool = True) -> List[FormInfo]:
         """
         Analyze all forms on the page in detail.
+        Uses both static HTML parsing and dynamic browser rendering.
         
         Args:
             url: Page URL
@@ -656,6 +669,7 @@ class WebsiteAnalyzer:
         """
         forms = []
         
+        # Try static HTML parsing first (faster)
         try:
             response = self.session.get(url, timeout=10)
             soup = BeautifulSoup(response.content, "html.parser")
@@ -667,9 +681,50 @@ class WebsiteAnalyzer:
                 except Exception as e:
                     self.logger.warning(f"Failed to parse form: {e}")
                     continue
+            
+            # If we found forms, return them
+            if forms:
+                self.logger.info(f"✅ Found {len(forms)} forms via static HTML parsing")
+                return forms
+            
+            # If no forms found, log and try with browser
+            self.logger.warning("⚠️ No forms found in static HTML, trying with browser...")
         
         except Exception as e:
-            self.logger.error(f"Form analysis failed: {e}")
+            self.logger.error(f"Static form analysis failed: {e}")
+        
+        # Try with browser if no forms found (for JavaScript-rendered forms)
+        if not forms and SELENIUM_AVAILABLE:
+            try:
+                if not self.driver:
+                    self._init_driver()
+                
+                if self.driver:
+                    self.logger.info("🌐 Loading page with browser for dynamic form detection...")
+                    self.driver.get(url)
+                    
+                    # Wait for page to load and JavaScript to execute
+                    await asyncio.sleep(2)
+                    
+                    # Get rendered HTML
+                    page_source = self.driver.page_source
+                    soup = BeautifulSoup(page_source, "html.parser")
+                    
+                    for form_elem in soup.find_all("form"):
+                        try:
+                            form_info = await self._parse_form(form_elem, url, deep=deep)
+                            forms.append(form_info)
+                        except Exception as e:
+                            self.logger.warning(f"Failed to parse dynamic form: {e}")
+                            continue
+                    
+                    if forms:
+                        self.logger.info(f"✅ Found {len(forms)} forms via browser rendering")
+                    else:
+                        self.logger.warning("⚠️ Still no forms found after browser rendering")
+            
+            except Exception as e:
+                self.logger.error(f"Dynamic form analysis failed: {e}")
         
         return forms
     
@@ -1238,6 +1293,195 @@ class WebsiteAnalyzer:
         except Exception as e:
             self.logger.error(f"Screenshot capture failed: {e}")
             return None
+    
+    async def _capture_network_with_fake_login(self, url: str) -> Dict[str, Any]:
+        """
+        Capture network traffic by executing a fake login.
+        
+        Args:
+            url: Login page URL
+        
+        Returns:
+            Dictionary with network capture results
+        """
+        if not SELENIUM_AVAILABLE:
+            return {"success": False, "error": "Selenium not available"}
+        
+        try:
+            # Initialize driver with CDP enabled
+            if not self.driver:
+                self._init_driver()
+            
+            if not self.driver:
+                return {"success": False, "error": "Failed to initialize driver"}
+            
+            # Navigate to login page
+            self.logger.info(f"🌐 Navigating to {url}")
+            self.driver.get(url)
+            await asyncio.sleep(2)
+            
+            # Enable network tracking via CDP
+            try:
+                self.driver.execute_cdp_cmd("Network.enable", {})
+                self.logger.info("✅ Network tracking enabled")
+            except Exception as e:
+                self.logger.warning(f"Failed to enable CDP network tracking: {e}")
+            
+            # Inject network interception script
+            inject_script = """
+            (function() {
+                window.__networkRequests = [];
+                window.__networkResponses = [];
+                
+                const originalFetch = window.fetch;
+                window.fetch = function(...args) {
+                    const [url, options] = args;
+                    window.__networkRequests.push({
+                        type: 'fetch',
+                        url: url.toString(),
+                        method: options?.method || 'GET',
+                        timestamp: Date.now()
+                    });
+                    
+                    return originalFetch.apply(this, args).then(response => {
+                        const clonedResponse = response.clone();
+                        clonedResponse.text().then(body => {
+                            window.__networkResponses.push({
+                                type: 'fetch',
+                                url: url.toString(),
+                                status: response.status,
+                                body: body,
+                                timestamp: Date.now()
+                            });
+                        }).catch(() => {});
+                        return response;
+                    });
+                };
+                
+                const originalOpen = XMLHttpRequest.prototype.open;
+                XMLHttpRequest.prototype.open = function(method, url) {
+                    this.__requestData = { method, url, timestamp: Date.now() };
+                    window.__networkRequests.push({
+                        type: 'xhr',
+                        url: url.toString(),
+                        method: method,
+                        timestamp: Date.now()
+                    });
+                    return originalOpen.apply(this, arguments);
+                };
+            })();
+            """
+            
+            self.driver.execute_script(inject_script)
+            self.logger.info("✅ Network interception script injected")
+            
+            # Try to fill and submit login form
+            try:
+                # Find email/username field
+                email_field = None
+                for selector in ['input[type="email"]', 'input[name*="email"]', 'input[name*="user"]']:
+                    try:
+                        email_field = self.driver.find_element(By.CSS_SELECTOR, selector)
+                        break
+                    except:
+                        continue
+                
+                # Find password field
+                password_field = None
+                try:
+                    password_field = self.driver.find_element(By.CSS_SELECTOR, 'input[type="password"]')
+                except:
+                    pass
+                
+                # Fill form if fields found
+                if email_field and password_field:
+                    self.logger.info("📝 Filling login form with fake credentials...")
+                    email_field.send_keys("test@example.com")
+                    password_field.send_keys("password123")
+                    
+                    # Submit form
+                    try:
+                        submit_button = self.driver.find_element(By.CSS_SELECTOR, 
+                            'button[type="submit"], input[type="submit"]')
+                        submit_button.click()
+                        self.logger.info("✅ Form submitted")
+                        
+                        # Wait for response
+                        await asyncio.sleep(3)
+                    except Exception as e:
+                        self.logger.warning(f"Failed to click submit: {e}")
+                else:
+                    self.logger.warning("⚠️ Could not find login form fields")
+            
+            except Exception as e:
+                self.logger.warning(f"Failed to fill form: {e}")
+            
+            # Get intercepted requests
+            intercepted_requests = self.driver.execute_script(
+                "return window.__networkRequests || [];"
+            )
+            intercepted_responses = self.driver.execute_script(
+                "return window.__networkResponses || [];"
+            )
+            
+            # Get CDP network logs
+            network_logs = []
+            try:
+                logs = self.driver.get_log('performance')
+                for entry in logs:
+                    try:
+                        log = json.loads(entry['message'])['message']
+                        if 'Network.' in log.get('method', ''):
+                            network_logs.append(log)
+                    except:
+                        continue
+            except Exception as e:
+                self.logger.warning(f"Failed to get CDP logs: {e}")
+            
+            # Extract API calls
+            api_calls = []
+            login_api = None
+            
+            for req in intercepted_requests:
+                url_lower = req.get('url', '').lower()
+                method = req.get('method', 'GET')
+                
+                # Identify API calls
+                if any(pattern in url_lower for pattern in ['/api/', '/v1/', '/v2/', '/graphql']):
+                    api_calls.append({
+                        'url': req['url'],
+                        'method': method,
+                        'type': 'api'
+                    })
+                
+                # Identify login API
+                if method == 'POST' and any(kw in url_lower for kw in ['login', 'auth', 'signin']):
+                    login_api = {
+                        'url': req['url'],
+                        'method': method,
+                        'type': 'login'
+                    }
+            
+            self.logger.info(
+                f"✅ Network capture complete: {len(intercepted_requests)} requests, "
+                f"{len(api_calls)} API calls, {'login API found' if login_api else 'no login API'}"
+            )
+            
+            return {
+                "success": True,
+                "requests": intercepted_requests,
+                "responses": intercepted_responses,
+                "network_logs": network_logs,
+                "api_calls": api_calls,
+                "login_api": login_api
+            }
+        
+        except Exception as e:
+            self.logger.error(f"Network capture failed: {e}")
+            return {
+                "success": False,
+                "error": str(e)
+            }
     
     def cleanup(self):
         """Cleanup resources."""
