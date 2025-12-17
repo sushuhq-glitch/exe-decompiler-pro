@@ -1,0 +1,14 @@
+# Example PayPal Combo List
+# Format: email:password
+# One combo per line
+
+user1@example.com:password123
+user2@gmail.com:mypassword456
+user3@yahoo.com:securepass789
+test1@outlook.com:testpass111
+test2@hotmail.com:demo222
+sample1@proton.me:sample333
+sample2@icloud.com:example444
+demo1@aol.com:demo555
+demo2@mail.com:test666
+example@domain.com:password777

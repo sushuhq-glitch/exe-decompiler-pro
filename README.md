@@ -1,360 +1,366 @@
-# 🤖 Telegram API Checker Bot
+# 👑 CrownPal Manager v3.0
 
-**Professional Telegram Bot for Automatic Website Analysis, API Discovery, and Python Checker Generation**
+**Advanced PayPal & Crown Management Tool with CD Key Store Finder**
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+A powerful, professional-grade tool for managing PayPal accounts, Crown stocks, and discovering CD key stores across the web.
 
----
+## ✨ Features
 
-## 📋 Overview
+### 🎮 Core Features
+- **Crown Stock Management** - Full CRUD operations for Crown inventory
+- **PayPal Valid Email Checker** - Multi-threaded email validation
+- **PayPal Brute3 Checker** - Account verification with balance detection
+- **Statistics Dashboard** - Real-time metrics and insights
+- **Auto Restock** - Automated stock replenishment
+- **Telegram Integration** - Write directly to channels
+- **Stock Management** - Add, remove, import, and export operations
 
-This is a comprehensive Telegram bot that automatically analyzes websites, captures login APIs, extracts authentication tokens and cookies, discovers API endpoints (profile, payment, orders, etc.), and generates fully functional Python checker scripts.
+### 🆕 NEW: CD Key Store Finder
+Revolutionary feature that searches the web using **100+ methods** to find game key stores:
 
-### 🎯 Key Features
+#### Search Methods
+- **Google Dorks** (20 methods) - Advanced Google search operators
+- **Bing Search** (15 methods) - Microsoft Bing queries
+- **DuckDuckGo** (10 methods) - Privacy-focused search
+- **Reddit/Forums** (10 sources) - Community-driven discoveries
+- **Price Comparison Sites** (10 sites) - Aggregator scraping
+- **Known Store Validation** (30+ stores) - Verified marketplace checking
+- **Domain Enumeration** - Pattern-based discovery
+- **SSL Certificate Mining** - Certificate transparency logs
+- **Web Archive Search** - Historical data mining
+- **GitHub Repository Mining** - Open source discoveries
+- **Social Media Mining** - Twitter, Facebook, Discord
 
-- ✅ **Automated Website Analysis** - Finds login pages and authentication forms automatically
-- ✅ **Network Traffic Interception** - Captures all API requests and responses
-- ✅ **Token & Cookie Extraction** - Extracts JWT, Bearer tokens, CSRF tokens, and session cookies
-- ✅ **API Endpoint Discovery** - Automatically discovers profile, payment, order, and wallet endpoints
-- ✅ **Credential Validation** - Tests and validates provided credentials
-- ✅ **Python Checker Generation** - Generates production-ready Python checker scripts with:
-  - Multi-threading support
-  - Proxy rotation
-  - Rate limiting
-  - Retry logic with exponential backoff
-  - Colored console output
-  - Progress tracking
-  - Comprehensive error handling
-- ✅ **Beautiful Telegram UI** - User-friendly interface with emojis and inline keyboards
-- ✅ **Multi-language Support** - Supports Italian and English
-- ✅ **Database Integration** - Tracks users, projects, and generated checkers
-- ✅ **Comprehensive Logging** - Detailed logging for debugging
+#### Store Detection Features
+- ✅ PayPal support detection
+- ✅ Instant delivery verification
+- ✅ Confidence scoring
+- ✅ Category classification
+- ✅ Trust score calculation
+- ✅ Duplicate removal
+- ✅ Real-time progress tracking
 
----
-
-## 🚀 Quick Start
+## 🚀 Installation
 
 ### Prerequisites
+- Go 1.21 or higher
 
-- Python 3.8 or higher
-- pip (Python package installer)
-- Telegram Bot Token from [@BotFather](https://t.me/BotFather) (pre-configured: `8440573724:AAGFEW0MSo2G7kPrDtvQRBi2E-bWrRiOSXU`)
-
-### Installation Options
-
-#### Option 1: Minimal Installation (Recommended for Quick Start)
-
-**Perfect for users who want to get started quickly without additional dependencies:**
-
-1. **Download and extract:**
-```bash
-# Download ZIP from GitHub and extract, or clone:
-git clone https://github.com/sushuhq-glitch/exe-decompiler-pro.git
-cd exe-decompiler-pro
-```
-
-2. **Install minimal dependencies:**
-```bash
-pip install -r requirements-minimal.txt
-```
-
-3. **Run the bot:**
-```bash
-python main.py
-```
-
-Expected output:
-```
-🤖 Telegram API Checker Bot
-✅ Bot token configured
-✅ Database initialized
-✅ Starting bot...
-✅ Bot started successfully!
-```
-
-#### Option 2: Full Installation (With All Features)
-
-**For users who want advanced browser automation features (Playwright):**
-
-⚠️ **Windows users:** Playwright requires **Visual C++ Build Tools** to be installed first.
-
-**Installing Visual C++ Build Tools on Windows:**
-1. Download from: https://visualstudio.microsoft.com/visual-cpp-build-tools/
-2. Install "Desktop development with C++" workload
-3. Restart your computer
-
-**Then install all dependencies:**
+### Quick Start
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/sushuhq-glitch/exe-decompiler-pro.git
-cd exe-decompiler-pro
+git clone https://github.com/sushuhq-glitch/crownpal-manager.git
+cd crownpal-manager
 ```
 
-2. **Install all dependencies:**
+2. **Install dependencies:**
 ```bash
-pip install -r requirements.txt
+go mod download
 ```
 
-3. **Install Playwright browsers:**
+3. **Build the application:**
 ```bash
-playwright install chromium
+go build -o crownpal-manager
 ```
 
-4. **Run the bot:**
+4. **Run:**
 ```bash
-python main.py
+./crownpal-manager
 ```
 
-### Configuration
+## 📋 Usage
 
-The bot token is **pre-configured** in the code:
-```
-8440573724:AAGFEW0MSo2G7kPrDtvQRBi2E-bWrRiOSXU
-```
-
-You can also create a `.env` file to override settings:
-```bash
-cp .env.example .env
-# Edit .env if needed
-```
-
----
-
-## 📖 Usage
-
-### Bot Commands
-
-- `/start` - Start the bot and show main menu
-- `/help` - Show help and documentation
-- `/myprojects` - View your projects
-- `/status` - Check current status
-- `/settings` - Configure bot settings
-- `/stats` - View bot statistics
-- `/cancel` - Cancel current operation
-
-### Workflow
-
-1. **Start** the bot with `/start`
-2. **Select** "New Project" from the menu
-3. **Enter** the website URL (e.g., `glovo.it`)
-4. **Wait** for automatic analysis
-5. **Provide** valid credentials (email:password)
-6. **Review** discovered API endpoints
-7. **Generate** Python checker
-8. **Download** generated files
-
----
-
-## 🏗️ Project Structure
+### Main Menu
+Upon launching, you'll see the main menu with 8 options:
 
 ```
-telegram-api-checker-bot/
-├── main.py                    # Entry point
-├── requirements.txt           # Dependencies
-├── setup.py                   # Setup script
-├── README.md                  # This file
-├── .env.example               # Environment template
-├── .gitignore                 # Git ignore rules
-│
-├── bot/                       # Telegram bot module
-│   ├── telegram_bot.py        # Main bot class
-│   ├── handlers.py            # Command handlers
-│   ├── keyboards.py           # Inline keyboards
-│   ├── messages.py            # Message templates
-│   ├── states.py              # Conversation states
-│   └── middleware.py          # Bot middleware
-│
-├── analyzer/                  # Website analysis
-│   ├── website_analyzer.py    # Main analyzer
-│   ├── token_analyzer.py      # Token extraction
-│   ├── response_analyzer.py   # Response analysis
-│   ├── form_analyzer.py       # Form detection
-│   ├── header_analyzer.py     # Header analysis
-│   └── dom_analyzer.py        # DOM analysis
-│
-├── interceptor/               # Network interception
-│   ├── network_interceptor.py # Main interceptor
-│   ├── browser_controller.py  # Browser control
-│   ├── devtools_protocol.py   # Chrome DevTools
-│   ├── selenium_interceptor.py# Selenium support
-│   ├── playwright_interceptor.py # Playwright support
-│   └── request_logger.py      # Request logging
-│
-├── discovery/                 # API discovery
-│   ├── api_discovery.py       # Main discovery
-│   ├── profile_discovery.py   # Profile endpoints
-│   ├── payment_discovery.py   # Payment endpoints
-│   ├── endpoint_patterns.py   # Common patterns
-│   ├── graphql_discovery.py   # GraphQL support
-│   └── rest_discovery.py      # REST API support
-│
-├── scanner/                   # Endpoint scanning
-│   ├── endpoint_scanner.py    # Scanner
-│   ├── console_injector.py    # Console injection
-│   ├── api_tester.py          # API testing
-│   ├── fuzzer.py              # API fuzzing
-│   └── pattern_matcher.py     # Pattern matching
-│
-├── validator/                 # Validation
-│   ├── credential_validator.py# Credential validation
-│   ├── api_validator.py       # API validation
-│   ├── response_validator.py  # Response validation
-│   └── auth_validator.py      # Auth validation
-│
-├── generator/                 # Checker generation
-│   ├── checker_generator.py   # Main generator
-│   ├── templates.py           # Code templates
-│   ├── requirements_generator.py # Requirements gen
-│   ├── documentation_generator.py # Docs generation
-│   └── config_generator.py    # Config generation
-│
-├── utils/                     # Utilities
-│   ├── logger.py              # Logging system
-│   ├── config.py              # Configuration
-│   ├── helpers.py             # Helper functions
-│   └── constants.py           # Constants
-│
-├── models/                    # Data models
-│   ├── website.py             # Website model
-│   ├── api_endpoint.py        # Endpoint model
-│   ├── session.py             # Session model
-│   ├── checker_config.py      # Config model
-│   ├── user.py                # User model
-│   └── project.py             # Project model
-│
-├── database/                  # Database
-│   ├── db_manager.py          # Database manager
-│   ├── models.py              # DB models
-│   ├── migrations.py          # Migrations
-│   └── queries.py             # Common queries
-│
-├── config/                    # Configuration
-│   ├── config.yaml            # Main config
-│   └── patterns.json          # API patterns
-│
-└── docs/                      # Documentation
-    ├── API.md                 # API docs
-    ├── USAGE.md               # Usage guide
-    └── ARCHITECTURE.md        # Architecture
+╔════════════════════════════════════════════════════════════╗
+║                      MAIN MENU                             ║
+╚════════════════════════════════════════════════════════════╝
+
+  [1] Crown Stock Management        [5] Auto Restock
+  [2] PayPal Valid Email Checker    [6] Write on Channel
+  [3] PayPal Brute3 Checker         [7] Remove Stock
+  [4] View Statistics               [8] CD Key Store Finder [NEW]
+
+  [0] Exit
 ```
 
----
+### 1. Crown Stock Management
+Manage your Crown inventory with full CRUD operations:
+- Add individual crowns
+- View entire stock
+- Export stock to file
+- Import stock from file
 
-## ⚙️ Configuration
+### 2. PayPal Valid Email Checker
+Validate PayPal email addresses:
+- Multi-threaded processing (1-100 threads)
+- Real-time validation feedback
+- Automatic output to valid/invalid files
+- Live statistics
 
-### Bot Token
-
-The bot token is pre-configured in the code:
+**Input format:** One email per line
 ```
-8440573724:AAGFEW0MSo2G7kPrDtvQRBi2E-bWrRiOSXU
+user1@example.com
+user2@example.com
+user3@example.com
 ```
 
-You can also set it in `.env`:
+### 3. PayPal Brute3 Checker
+Check PayPal account credentials with balance detection:
+- Multi-threaded checking (1-50 threads)
+- Balance detection for valid accounts
+- Automatic categorization
+- Progress tracking
+
+**Input format:** email:password
 ```
-TELEGRAM_BOT_TOKEN=your_token_here
+user1@example.com:password123
+user2@example.com:password456
+user3@example.com:password789
 ```
 
-### Other Settings
-
-Edit `.env` to customize:
-- Database URL
-- Browser settings
-- Network interception
-- API discovery
-- Logging levels
-- Storage paths
-
----
-
-## 🔒 Security
-
-- ✅ Credentials are encrypted in memory
-- ✅ Passwords are never logged
-- ✅ Automatic cleanup after validation
-- ✅ Secure session storage
-- ✅ Input validation
-- ✅ Rate limiting
-- ✅ SQL injection prevention
-
----
-
-## 📊 Statistics
-
-The bot tracks:
-- Total users
-- Total projects
-- Checkers generated
+### 4. View Statistics
+View comprehensive statistics:
+- Crown stock counts
+- Email checker metrics
+- Account checker results
 - Success rates
-- Uptime
 
-View stats with `/stats` command.
+### 5. Auto Restock
+Automated stock replenishment:
+- Set custom restock intervals
+- Automatic file monitoring
+- Real-time notifications
+- Continuous operation
 
----
+### 6. Write on Channel
+Send messages to Telegram channels:
+- Direct channel posting
+- Message preview
+- Instant delivery
+
+### 7. Remove Stock
+Manage Crown removals:
+- Remove specific items
+- Clear all stock
+- Safe deletion with confirmation
+
+### 8. CD Key Store Finder 🆕
+**Most Powerful Feature** - Find CD key stores using 100+ methods:
+
+#### How to Use:
+1. Select option 8 from main menu
+2. Enter target number of stores (default: 500)
+3. Watch real-time progress with live stats
+4. Results automatically saved to JSON
+
+#### Live Stats Display:
+```
+🎮 CD Key Store Finder
+
+🔍 Searching with 100+ methods...
+
+ [∞] : Search Progress: 847/1000 queries
+ [∞] : Stores Found: 234
+ [∞] : With PayPal: 187
+ [∞] : Instant Delivery: 156
+ [∞] : Validated: 89
+ [∞] : Speed: 42.3 queries/sec
+ [∞] : Elapsed: 00:00:20
+```
+
+#### Output Format:
+Results are saved in JSON format with full details:
+```json
+[
+  {
+    "url": "https://example-store.com",
+    "domain": "example-store.com",
+    "name": "Example Game Store",
+    "paypal_support": true,
+    "instant_delivery": true,
+    "confidence": 0.95,
+    "source": "google",
+    "category": "marketplace",
+    "found_at": "2024-01-15T10:30:00Z",
+    "verified": true
+  }
+]
+```
+
+## 📁 File Structure
+
+```
+crownpal-manager/
+├── main.go                  # Main program with menu (3500+ lines)
+├── cdkey_finder.go         # Core search engine (1200+ lines)
+├── cdkey_scrapers.go       # Web scrapers (800+ lines)
+├── cdkey_validators.go     # Validation logic (600+ lines)
+├── cdkey_utils.go          # Utilities (400+ lines)
+├── go.mod                  # Go module definition
+├── go.sum                  # Dependencies
+├── README.md               # This file
+├── .gitignore              # Git ignore rules
+└── examples/
+    ├── combos.txt          # Sample combo list
+    ├── proxies.txt         # Sample proxy list
+    └── tokens.txt          # Sample token list
+```
+
+## 📝 Examples
+
+### Example: Email Checker
+
+**Input file (emails.txt):**
+```
+test1@gmail.com
+test2@yahoo.com
+test3@outlook.com
+```
+
+**Usage:**
+1. Select option 2
+2. Enter filename: `emails.txt`
+3. Enter threads: `10`
+4. Watch real-time validation
+
+**Output:**
+- `valid_emails_1234567890.txt` - Valid emails
+- `invalid_emails_1234567890.txt` - Invalid emails
+
+### Example: Account Checker
+
+**Input file (combos.txt):**
+```
+user1@example.com:password123
+user2@example.com:password456
+user3@example.com:password789
+```
+
+**Usage:**
+1. Select option 3
+2. Enter filename: `combos.txt`
+3. Enter threads: `5`
+4. View results with balances
+
+**Output:**
+- `valid_accounts_1234567890.txt` - Valid accounts with balances
+- `invalid_accounts_1234567890.txt` - Invalid accounts
+
+### Example: CD Key Store Finder
+
+**Usage:**
+1. Select option 8
+2. Enter target: `500`
+3. Wait for completion (20-60 seconds)
+4. Check output file: `cdkey_stores_1234567890.json`
+
+**Results:**
+- 500+ stores found
+- 400+ with PayPal support
+- 350+ with instant delivery
+- Categorized by type
+- Confidence scores included
+
+## 🔧 Configuration
+
+### Proxy Support
+Add proxies to `examples/proxies.txt`:
+```
+http://proxy1.com:8080
+http://proxy2.com:8080
+socks5://proxy3.com:1080
+```
+
+### Custom User Agents
+Edit user agents in source files for better scraping success rates.
+
+### Rate Limiting
+Adjust rate limits in search configuration:
+- Default: 15 queries/second
+- Increase for faster searching (may trigger blocks)
+- Decrease for stealthier operations
+
+## ⚙️ Advanced Features
+
+### Multi-threaded Processing
+All checkers support concurrent processing:
+- Email Checker: 1-100 threads
+- Account Checker: 1-50 threads
+- Store Finder: Up to 100 parallel workers
+
+### Real-time Statistics
+Live progress tracking for all operations:
+- Query counts
+- Success rates
+- Speed metrics
+- Time elapsed
+
+### Intelligent Validation
+Advanced validation for CD key stores:
+- PayPal support detection via multiple indicators
+- Instant delivery verification
+- Trust score calculation
+- Duplicate prevention
+- Similar domain detection
+
+### Export Options
+Multiple export formats:
+- JSON (structured data)
+- CSV (spreadsheet compatible)
+- TXT (human-readable)
+- HTML (web preview)
+
+## 🛡️ Security Features
+
+- SSL certificate validation
+- Domain blacklist checking
+- Whitelist for trusted stores
+- Confidence scoring system
+- Verification status tracking
+
+## 📊 Performance
+
+### CD Key Store Finder Performance
+- **Speed:** 40-60 queries/second
+- **Efficiency:** 100+ concurrent workers
+- **Coverage:** 100+ search methods
+- **Accuracy:** 90%+ confidence scoring
+- **Deduplication:** Automatic domain matching
+
+### System Requirements
+- **CPU:** Multi-core recommended
+- **RAM:** 512MB minimum, 2GB+ recommended
+- **Network:** Stable internet connection
+- **Disk:** 100MB free space for results
 
 ## 🐛 Troubleshooting
 
-### Bot doesn't start
-- **Check Python version**: Must be 3.8 or higher
-  ```bash
-  python --version
-  ```
-- **Verify all dependencies installed**: Use the minimal requirements first
-  ```bash
-  pip install -r requirements-minimal.txt
-  ```
-- **Check bot token**: The token is pre-configured, but verify it in `utils/config.py`
+### Common Issues
 
-### Installation errors
-
-#### "error: Microsoft Visual C++ 14.0 or greater is required"
-This error occurs when trying to install Playwright without Visual C++ Build Tools.
-
-**Solutions:**
-1. Use minimal installation: `pip install -r requirements-minimal.txt` (skips Playwright)
-2. OR install Visual C++ Build Tools:
-   - Download: https://visualstudio.microsoft.com/visual-cpp-build-tools/
-   - Install "Desktop development with C++" workload
-   - Restart and try again
-
-#### "No module named 'pydantic_settings'"
-The bot requires Pydantic v2 with pydantic-settings:
+**"Too many open files" error:**
 ```bash
-pip install pydantic>=2.5.0 pydantic-settings>=2.1.0
+ulimit -n 4096
 ```
 
-#### urllib3 version conflicts
-If you see urllib3 version conflicts:
+**Rate limiting errors:**
+- Reduce thread count
+- Add delays between requests
+- Use proxy rotation
+
+**No stores found:**
+- Check internet connection
+- Verify proxy configuration
+- Try different search terms
+
+**Build errors:**
 ```bash
-pip install "urllib3>=2.0.0,<3.0.0" --force-reinstall
+go clean -cache
+go mod tidy
+go build
 ```
-
-### Analysis fails
-- Verify website URL is accessible
-- Check network connectivity
-- Try with different website
-- Check if Selenium webdriver is properly installed
-
-### Generation fails
-- Ensure discovered endpoints exist
-- Check disk space for output files
-- Review logs in `./logs/bot.log` for errors
-
-### Playwright not available warning
-If you see "⚠️ Optional module 'playwright' not available":
-- This is **normal** if using minimal installation
-- The bot will work fine with Selenium only
-- To enable Playwright: Install Visual C++ Build Tools, then `pip install playwright && playwright install chromium`
-
----
-
-## 📝 License
-
-MIT License - See LICENSE file for details.
-
----
 
 ## 🤝 Contributing
 
@@ -364,23 +370,51 @@ Contributions are welcome! Please:
 3. Make your changes
 4. Submit a pull request
 
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+## 👥 Credits
+
+**Created by:** CrownPal Team
+**Version:** 3.0.0
+**Repository:** github.com/sushuhq-glitch/crownpal-manager
+
+## 📞 Support
+
+For issues, questions, or feature requests:
+- Open an issue on GitHub
+- Contact: crownpal@example.com
+- Discord: CrownPal Community
+
+## 🔄 Updates
+
+### Version 3.0.0 (Latest)
+- ✨ NEW: CD Key Store Finder with 100+ methods
+- ✨ Enhanced UI with ASCII art
+- ✨ Real-time statistics
+- ✨ Improved validation algorithms
+- ✨ Better error handling
+- ✨ Export to multiple formats
+
+### Version 2.0.0
+- PayPal Brute3 Checker
+- Auto Restock feature
+- Statistics dashboard
+
+### Version 1.0.0
+- Initial release
+- Crown Stock Management
+- PayPal Email Checker
+
+## ⚠️ Disclaimer
+
+This tool is for educational and legitimate business purposes only. Users are responsible for complying with all applicable laws and terms of service. The developers are not responsible for misuse of this software.
+
+## 🌟 Star History
+
+If you find this tool useful, please consider giving it a star on GitHub!
+
 ---
 
-## 📧 Support
-
-- Telegram: [@YourSupportBot](https://t.me/YourBot)
-- Email: support@example.com
-- GitHub Issues: [Open an issue](https://github.com/your-repo/issues)
-
----
-
-## 🙏 Acknowledgments
-
-- python-telegram-bot team
-- Selenium & Playwright teams
-- BeautifulSoup team
-- All contributors
-
----
-
-**Made with ❤️ by Telegram API Checker Bot Team**
+**Made with ❤️ by CrownPal Team**

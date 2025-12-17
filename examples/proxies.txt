@@ -1,0 +1,27 @@
+# Example Proxy List
+# Supported formats:
+# - HTTP: http://ip:port
+# - HTTPS: https://ip:port
+# - SOCKS5: socks5://ip:port
+# - With auth: http://user:pass@ip:port
+
+# HTTP Proxies
+http://proxy1.example.com:8080
+http://proxy2.example.com:8080
+http://192.168.1.100:3128
+
+# HTTPS Proxies
+https://secure-proxy1.example.com:443
+https://secure-proxy2.example.com:8443
+
+# SOCKS5 Proxies
+socks5://socks-proxy1.example.com:1080
+socks5://socks-proxy2.example.com:1080
+
+# Proxies with Authentication
+http://username:password@proxy-auth.example.com:8080
+socks5://user:pass@auth-socks.example.com:1080
+
+# More proxies
+http://proxy3.example.com:8888
+http://proxy4.example.com:9090

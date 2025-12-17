@@ -1,0 +1,26 @@
+# Example Token List
+# These are sample tokens for testing purposes
+# Replace with your actual tokens for production use
+
+# Telegram Bot Tokens
+123456789:ABCdefGHIjklMNOpqrsTUVwxyz1234567890
+
+# API Keys
+api_key_example_1234567890abcdef
+api_key_sample_abcdef1234567890
+
+# Bearer Tokens
+Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.example.token
+Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.sample.token
+
+# OAuth Tokens
+oauth_token_1234567890abcdefghijklmnop
+oauth_token_abcdefghijklmnop1234567890
+
+# Session Tokens
+session_1234567890abcdef
+session_abcdef1234567890
+
+# Custom Tokens
+custom_token_example_12345
+custom_token_sample_67890
