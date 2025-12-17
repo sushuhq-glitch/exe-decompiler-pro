@@ -1,36 +1,23 @@
-# 🤖 Telegram API Checker Bot
+# 🎮 CD Key Store Finder
 
-**Professional Telegram Bot for Automatic Website Analysis, API Discovery, and Python Checker Generation**
+**A comprehensive standalone Python tool that finds CD key stores with PayPal support and instant delivery using 100+ search methods.**
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Python](https://img.shields.io/badge/python-3.8+-green.svg)
+![License](https://img.shields.io/badge/license-MIT-yellow.svg)
 
 ---
 
-## 📋 Overview
+## ✨ Features
 
-This is a comprehensive Telegram bot that automatically analyzes websites, captures login APIs, extracts authentication tokens and cookies, discovers API endpoints (profile, payment, orders, etc.), and generates fully functional Python checker scripts.
-
-### 🎯 Key Features
-
-- ✅ **Automated Website Analysis** - Finds login pages and authentication forms automatically
-- ✅ **Network Traffic Interception** - Captures all API requests and responses
-- ✅ **Token & Cookie Extraction** - Extracts JWT, Bearer tokens, CSRF tokens, and session cookies
-- ✅ **API Endpoint Discovery** - Automatically discovers profile, payment, order, and wallet endpoints
-- ✅ **Credential Validation** - Tests and validates provided credentials
-- ✅ **Python Checker Generation** - Generates production-ready Python checker scripts with:
-  - Multi-threading support
-  - Proxy rotation
-  - Rate limiting
-  - Retry logic with exponential backoff
-  - Colored console output
-  - Progress tracking
-  - Comprehensive error handling
-- ✅ **Beautiful Telegram UI** - User-friendly interface with emojis and inline keyboards
-- ✅ **Multi-language Support** - Supports Italian and English
-- ✅ **Database Integration** - Tracks users, projects, and generated checkers
-- ✅ **Comprehensive Logging** - Detailed logging for debugging
+- **100+ Search Methods** - Uses Google dorks, Bing, DuckDuckGo, Reddit, price comparison sites, domain enumeration, and more
+- **PayPal Detection** - Advanced detection with 10+ validation methods including image detection, button detection, SDK detection
+- **Instant Delivery Detection** - Scans for instant/immediate/automatic delivery keywords across the entire site
+- **Multi-threaded** - 100 concurrent workers for ultra-fast searching
+- **Smart Validation** - Validates each store for PayPal support, instant delivery, SSL certificate, and reputation
+- **Beautiful CLI** - Colored terminal output with live progress tracking
+- **Rate Limited** - Respects search engine limits to avoid bans
+- **Export Results** - Saves results in TXT, JSON formats with detailed statistics
 
 ---
 
@@ -40,347 +27,284 @@ This is a comprehensive Telegram bot that automatically analyzes websites, captu
 
 - Python 3.8 or higher
 - pip (Python package installer)
-- Telegram Bot Token from [@BotFather](https://t.me/BotFather) (pre-configured: `8440573724:AAGFEW0MSo2G7kPrDtvQRBi2E-bWrRiOSXU`)
 
-### Installation Options
+### Installation
 
-#### Option 1: Minimal Installation (Recommended for Quick Start)
+1. Clone or download this repository
 
-**Perfect for users who want to get started quickly without additional dependencies:**
-
-1. **Download and extract:**
-```bash
-# Download ZIP from GitHub and extract, or clone:
-git clone https://github.com/sushuhq-glitch/exe-decompiler-pro.git
-cd exe-decompiler-pro
-```
-
-2. **Install minimal dependencies:**
-```bash
-pip install -r requirements-minimal.txt
-```
-
-3. **Run the bot:**
-```bash
-python main.py
-```
-
-Expected output:
-```
-🤖 Telegram API Checker Bot
-✅ Bot token configured
-✅ Database initialized
-✅ Starting bot...
-✅ Bot started successfully!
-```
-
-#### Option 2: Full Installation (With All Features)
-
-**For users who want advanced browser automation features (Playwright):**
-
-⚠️ **Windows users:** Playwright requires **Visual C++ Build Tools** to be installed first.
-
-**Installing Visual C++ Build Tools on Windows:**
-1. Download from: https://visualstudio.microsoft.com/visual-cpp-build-tools/
-2. Install "Desktop development with C++" workload
-3. Restart your computer
-
-**Then install all dependencies:**
-
-1. **Clone the repository:**
-```bash
-git clone https://github.com/sushuhq-glitch/exe-decompiler-pro.git
-cd exe-decompiler-pro
-```
-
-2. **Install all dependencies:**
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **Install Playwright browsers:**
-```bash
-playwright install chromium
-```
+### Usage
 
-4. **Run the bot:**
+Run the tool:
 ```bash
 python main.py
 ```
 
-### Configuration
-
-The bot token is **pre-configured** in the code:
+You'll be prompted to enter how many stores you want to find (10-500):
 ```
-8440573724:AAGFEW0MSo2G7kPrDtvQRBi2E-bWrRiOSXU
+How many stores do you want to find? (10-500): 50
 ```
 
-You can also create a `.env` file to override settings:
-```bash
-cp .env.example .env
-# Edit .env if needed
+The tool will then:
+1. Launch 100 concurrent workers
+2. Execute 100+ different search methods
+3. Find and validate CD key stores
+4. Display live progress
+5. Export results to files
+
+---
+
+## 📊 Output Files
+
+The tool generates three files:
+
+### 1. `cdkey_stores.txt`
+Simple list of store URLs:
+```
+https://store1.com
+https://store2.com
+https://store3.com
+...
+```
+
+### 2. `cdkey_stores.json`
+Detailed JSON with full store information:
+```json
+[
+  {
+    "url": "https://store1.com",
+    "name": "Store Name",
+    "paypal_supported": true,
+    "instant_delivery": true,
+    "paypal_confidence": 0.85,
+    "delivery_confidence": 0.90,
+    "found_via": "google_dork_1",
+    "validated_at": "2025-01-15T10:30:00",
+    "ssl_valid": true,
+    "reputation_score": 0.82
+  }
+]
+```
+
+### 3. `stats.json`
+Search statistics:
+```json
+{
+  "total_queries": 150,
+  "stores_found": 75,
+  "with_paypal": 52,
+  "instant_delivery": 48,
+  "validated": 50,
+  "duration_seconds": 120,
+  "methods_used": ["google_dork_1", "bing_query_1", "reddit_GameDeals", ...],
+  "timestamp": "2025-01-15T10:32:00"
+}
 ```
 
 ---
 
-## 📖 Usage
+## 🔍 Search Methods (100+)
 
-### Bot Commands
+### Search Engines (35+ methods)
+- **Google** - 20+ advanced dork queries
+- **Bing** - 10+ query variations
+- **DuckDuckGo** - 5+ search patterns
+- **Additional** - 15+ generic searches
 
-- `/start` - Start the bot and show main menu
-- `/help` - Show help and documentation
-- `/myprojects` - View your projects
-- `/status` - Check current status
-- `/settings` - Configure bot settings
-- `/stats` - View bot statistics
-- `/cancel` - Cancel current operation
+### Social Media & Forums (11+ methods)
+- **Reddit** - 6 subreddits (r/GameDeals, r/CDKeys, r/SteamGameSwap, etc.)
+- **Twitter** - 5 hashtags (#cdkeys, #gamedeals, etc.)
 
-### Workflow
+### Price Comparison Sites (15 methods)
+- AllKeyShop.com
+- CheapShark.com
+- IsThereAnyDeal.com
+- GG.deals
+- CDKeys.com
+- G2A.com
+- Kinguin.net
+- GreenManGaming.com
+- HumbleBundle.com
+- Fanatical.com
+- Gamivo.com
+- Eneba.com
+- GamersGate.com
+- Gamesplanet.com
+- DLGamer.com
 
-1. **Start** the bot with `/start`
-2. **Select** "New Project" from the menu
-3. **Enter** the website URL (e.g., `glovo.it`)
-4. **Wait** for automatic analysis
-5. **Provide** valid credentials (email:password)
-6. **Review** discovered API endpoints
-7. **Generate** Python checker
-8. **Download** generated files
+### Domain Enumeration (24+ methods)
+Checks patterns like:
+- `{word}keys.com`
+- `{word}games.com`
+- `{word}gaming.com`
+- `buy{word}.com`
+- And more...
+
+### GitHub & APIs (4+ methods)
+- Searches GitHub for store lists
+- Looks for curated lists of game stores
 
 ---
 
-## 🏗️ Project Structure
+## 🛡️ Validation System
 
-```
-telegram-api-checker-bot/
-├── main.py                    # Entry point
-├── requirements.txt           # Dependencies
-├── setup.py                   # Setup script
-├── README.md                  # This file
-├── .env.example               # Environment template
-├── .gitignore                 # Git ignore rules
-│
-├── bot/                       # Telegram bot module
-│   ├── telegram_bot.py        # Main bot class
-│   ├── handlers.py            # Command handlers
-│   ├── keyboards.py           # Inline keyboards
-│   ├── messages.py            # Message templates
-│   ├── states.py              # Conversation states
-│   └── middleware.py          # Bot middleware
-│
-├── analyzer/                  # Website analysis
-│   ├── website_analyzer.py    # Main analyzer
-│   ├── token_analyzer.py      # Token extraction
-│   ├── response_analyzer.py   # Response analysis
-│   ├── form_analyzer.py       # Form detection
-│   ├── header_analyzer.py     # Header analysis
-│   └── dom_analyzer.py        # DOM analysis
-│
-├── interceptor/               # Network interception
-│   ├── network_interceptor.py # Main interceptor
-│   ├── browser_controller.py  # Browser control
-│   ├── devtools_protocol.py   # Chrome DevTools
-│   ├── selenium_interceptor.py# Selenium support
-│   ├── playwright_interceptor.py # Playwright support
-│   └── request_logger.py      # Request logging
-│
-├── discovery/                 # API discovery
-│   ├── api_discovery.py       # Main discovery
-│   ├── profile_discovery.py   # Profile endpoints
-│   ├── payment_discovery.py   # Payment endpoints
-│   ├── endpoint_patterns.py   # Common patterns
-│   ├── graphql_discovery.py   # GraphQL support
-│   └── rest_discovery.py      # REST API support
-│
-├── scanner/                   # Endpoint scanning
-│   ├── endpoint_scanner.py    # Scanner
-│   ├── console_injector.py    # Console injection
-│   ├── api_tester.py          # API testing
-│   ├── fuzzer.py              # API fuzzing
-│   └── pattern_matcher.py     # Pattern matching
-│
-├── validator/                 # Validation
-│   ├── credential_validator.py# Credential validation
-│   ├── api_validator.py       # API validation
-│   ├── response_validator.py  # Response validation
-│   └── auth_validator.py      # Auth validation
-│
-├── generator/                 # Checker generation
-│   ├── checker_generator.py   # Main generator
-│   ├── templates.py           # Code templates
-│   ├── requirements_generator.py # Requirements gen
-│   ├── documentation_generator.py # Docs generation
-│   └── config_generator.py    # Config generation
-│
-├── utils/                     # Utilities
-│   ├── logger.py              # Logging system
-│   ├── config.py              # Configuration
-│   ├── helpers.py             # Helper functions
-│   └── constants.py           # Constants
-│
-├── models/                    # Data models
-│   ├── website.py             # Website model
-│   ├── api_endpoint.py        # Endpoint model
-│   ├── session.py             # Session model
-│   ├── checker_config.py      # Config model
-│   ├── user.py                # User model
-│   └── project.py             # Project model
-│
-├── database/                  # Database
-│   ├── db_manager.py          # Database manager
-│   ├── models.py              # DB models
-│   ├── migrations.py          # Migrations
-│   └── queries.py             # Common queries
-│
-├── config/                    # Configuration
-│   ├── config.yaml            # Main config
-│   └── patterns.json          # API patterns
-│
-└── docs/                      # Documentation
-    ├── API.md                 # API docs
-    ├── USAGE.md               # Usage guide
-    └── ARCHITECTURE.md        # Architecture
-```
+Each store is validated for:
+
+### PayPal Support (10+ detection methods)
+1. ✅ Direct keyword search
+2. ✅ Image detection (`<img src="*paypal*">`)
+3. ✅ Button detection (PayPal buttons)
+4. ✅ JavaScript SDK detection
+5. ✅ Meta tag analysis
+6. ✅ Payment section scanning
+7. ✅ Link analysis (paypal.com links)
+8. ✅ Data attributes
+9. ✅ Footer detection
+10. ✅ Form action inspection
+
+### Instant Delivery Detection
+- Scans for 20+ instant delivery keywords
+- Checks titles, headings, and product descriptions
+- Analyzes FAQ sections
+- Validates delivery information
+
+### Domain Reputation
+- SSL certificate validation
+- Reputation score calculation
+- Security checks
 
 ---
 
 ## ⚙️ Configuration
 
-### Bot Token
+You can modify the following in `main.py`:
 
-The bot token is pre-configured in the code:
-```
-8440573724:AAGFEW0MSo2G7kPrDtvQRBi2E-bWrRiOSXU
-```
-
-You can also set it in `.env`:
-```
-TELEGRAM_BOT_TOKEN=your_token_here
+### Thread Count
+```python
+finder = CDKeyFinder(target_count=50, threads=100)
 ```
 
-### Other Settings
+### Rate Limiting
+```python
+self.rate_limiter = RateLimiter(max_requests_per_second=5.0)
+```
 
-Edit `.env` to customize:
-- Database URL
-- Browser settings
-- Network interception
-- API discovery
-- Logging levels
-- Storage paths
+### Timeout Settings
+```python
+self.http_client = HTTPClient(timeout=10, max_retries=2)
+```
 
 ---
 
-## 🔒 Security
+## 🎨 Beautiful CLI Output
 
-- ✅ Credentials are encrypted in memory
-- ✅ Passwords are never logged
-- ✅ Automatic cleanup after validation
-- ✅ Secure session storage
-- ✅ Input validation
-- ✅ Rate limiting
-- ✅ SQL injection prevention
+The tool features a beautiful colored terminal interface:
+
+```
+ ██████╗██████╗     ██╗  ██╗███████╗██╗   ██╗
+██╔════╝██╔══██╗    ██║ ██╔╝██╔════╝╚██╗ ██╔╝
+██║     ██║  ██║    █████╔╝ █████╗   ╚████╔╝ 
+██║     ██║  ██║    ██╔═██╗ ██╔══╝    ╚██╔╝  
+╚██████╗██████╔╝    ██║  ██╗███████╗   ██║   
+ ╚═════╝╚═════╝     ╚═╝  ╚═╝╚══════╝   ╚═╝   
+
+      CD Key Store Finder v1.0
+      100+ Search Methods | Ultra Fast
+
+🔍 SEARCHING FOR CD KEY STORES...
+
+[∞] Search Progress: 150 queries
+[∞] Stores Found: 75
+[∞] With PayPal: 52
+[∞] Instant Delivery: 48
+[∞] Validated: 50/50
+[∞] Speed: 12.5 queries/sec
+[∞] Elapsed: 00:02:00
+
+██████████████████████████░░░░ 100%
+```
 
 ---
 
-## 📊 Statistics
+## 🔧 Technical Details
 
-The bot tracks:
-- Total users
-- Total projects
-- Checkers generated
-- Success rates
-- Uptime
+### Architecture
+- **Multi-threaded** - 100 worker threads process search methods concurrently
+- **Thread-safe** - Uses locks and queues for safe concurrent operations
+- **Rate limited** - Prevents search engine bans
+- **Smart deduplication** - URL normalization prevents duplicates
+- **Error handling** - Comprehensive try/except blocks on all network calls
+- **Retry logic** - Exponential backoff for failed requests
 
-View stats with `/stats` command.
+### Libraries Used
+- **requests** - HTTP client with session support
+- **BeautifulSoup4** - HTML parsing
+- **lxml** - Fast XML/HTML parser
+- **threading** - Multi-threading support
+- **queue** - Thread-safe queues
 
----
-
-## 🐛 Troubleshooting
-
-### Bot doesn't start
-- **Check Python version**: Must be 3.8 or higher
-  ```bash
-  python --version
-  ```
-- **Verify all dependencies installed**: Use the minimal requirements first
-  ```bash
-  pip install -r requirements-minimal.txt
-  ```
-- **Check bot token**: The token is pre-configured, but verify it in `utils/config.py`
-
-### Installation errors
-
-#### "error: Microsoft Visual C++ 14.0 or greater is required"
-This error occurs when trying to install Playwright without Visual C++ Build Tools.
-
-**Solutions:**
-1. Use minimal installation: `pip install -r requirements-minimal.txt` (skips Playwright)
-2. OR install Visual C++ Build Tools:
-   - Download: https://visualstudio.microsoft.com/visual-cpp-build-tools/
-   - Install "Desktop development with C++" workload
-   - Restart and try again
-
-#### "No module named 'pydantic_settings'"
-The bot requires Pydantic v2 with pydantic-settings:
-```bash
-pip install pydantic>=2.5.0 pydantic-settings>=2.1.0
-```
-
-#### urllib3 version conflicts
-If you see urllib3 version conflicts:
-```bash
-pip install "urllib3>=2.0.0,<3.0.0" --force-reinstall
-```
-
-### Analysis fails
-- Verify website URL is accessible
-- Check network connectivity
-- Try with different website
-- Check if Selenium webdriver is properly installed
-
-### Generation fails
-- Ensure discovered endpoints exist
-- Check disk space for output files
-- Review logs in `./logs/bot.log` for errors
-
-### Playwright not available warning
-If you see "⚠️ Optional module 'playwright' not available":
-- This is **normal** if using minimal installation
-- The bot will work fine with Selenium only
-- To enable Playwright: Install Visual C++ Build Tools, then `pip install playwright && playwright install chromium`
+### Code Statistics
+- **3000+ lines** of Python code
+- **100+ search methods** implemented
+- **10+ validation techniques** for PayPal
+- **8+ validation techniques** for instant delivery
 
 ---
 
 ## 📝 License
 
-MIT License - See LICENSE file for details.
+MIT License - See LICENSE file for details
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-## 📧 Support
+## ⚠️ Disclaimer
 
-- Telegram: [@YourSupportBot](https://t.me/YourBot)
-- Email: support@example.com
-- GitHub Issues: [Open an issue](https://github.com/your-repo/issues)
+This tool is for educational and research purposes only. Always respect website terms of service and robots.txt. Use responsibly and ethically.
 
 ---
 
-## 🙏 Acknowledgments
+## 💡 Tips
 
-- python-telegram-bot team
-- Selenium & Playwright teams
-- BeautifulSoup team
-- All contributors
+1. **Start small** - Try finding 10-20 stores first to test
+2. **Be patient** - Finding 50+ stores can take 2-5 minutes
+3. **Check results** - Validate the results in the JSON file
+4. **Adjust threads** - Reduce threads if you experience rate limiting
+5. **Review confidence scores** - Higher confidence = more reliable detection
 
 ---
 
-**Made with ❤️ by Telegram API Checker Bot Team**
+## 🐛 Troubleshooting
+
+### Rate Limiting Issues
+If you get rate limited, reduce the rate in code:
+```python
+self.rate_limiter = RateLimiter(max_requests_per_second=2.0)
+```
+
+### SSL Certificate Errors
+If you get SSL errors, the tool will continue with other stores.
+
+### No Results Found
+- Check your internet connection
+- Some search engines may be blocking automated requests
+- Try running again later
+
+---
+
+## 📞 Support
+
+For issues, questions, or suggestions, please open an issue on GitHub.
+
+---
+
+**Made with ❤️ for the gaming community**
