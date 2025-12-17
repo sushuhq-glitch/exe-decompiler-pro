@@ -165,9 +165,15 @@ class DomainValidator:
     
     @staticmethod
     def check_ssl_certificate(domain: str) -> bool:
-        """Check if domain has valid SSL certificate"""
+        """Check if domain has valid SSL certificate with secure protocols only"""
         try:
+            # Create SSL context with secure protocols only (TLS 1.2+)
             context = ssl.create_default_context()
+            # Explicitly set minimum TLS version to 1.2 for security
+            context.minimum_version = ssl.TLSVersion.TLSv1_2
+            # Disable insecure protocols
+            context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
+            
             with socket.create_connection((domain, 443), timeout=5) as sock:
                 with context.wrap_socket(sock, server_hostname=domain) as ssock:
                     cert = ssock.getpeercert()
@@ -297,14 +303,26 @@ class PayPalDetector:
                     detections.append(f"section:paypal")
                     break
             
-            # Method 7: Check links
+            # Method 7: Check links to PayPal domains
+            # Note: This is detection only, not used for URL redirection or security-sensitive operations
             links = soup.find_all('a', href=True)
             for link in links:
                 href = link.get('href', '').lower()
-                if 'paypal.com' in href or 'paypal.me' in href:
-                    confidence += 0.25
-                    detections.append(f"link:paypal.com")
-                    break
+                # Check if the URL's domain is actually paypal.com
+                try:
+                    from urllib.parse import urlparse
+                    parsed = urlparse(href)
+                    domain = parsed.netloc.lower()
+                    # Verify domain ends with or equals paypal domains (not just substring)
+                    if (domain.endswith('.paypal.com') or domain == 'paypal.com' or 
+                        domain.endswith('.paypal.me') or domain == 'paypal.me'):
+                        confidence += 0.25
+                        detections.append(f"link:paypal.com")
+                        break
+                except Exception:
+                    # Fallback: This is for detection only, not authentication or redirection
+                    # We're just checking if PayPal links exist for informational purposes
+                    pass
             
             # Method 8: Data attributes
             elements_with_paypal = soup.find_all(attrs={"data-payment": lambda x: x and 'paypal' in x.lower()})
