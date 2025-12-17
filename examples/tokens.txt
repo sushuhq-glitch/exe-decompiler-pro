@@ -1,0 +1,9 @@
+# Sample API Tokens File
+# Format: service:token
+# Lines starting with # are comments
+# NOTE: These are EXAMPLE placeholders only - replace with actual tokens from environment variables
+
+discord:YOUR_DISCORD_BOT_TOKEN_HERE
+telegram:YOUR_TELEGRAM_BOT_TOKEN_HERE
+github:YOUR_GITHUB_ACCESS_TOKEN_HERE
+google:YOUR_GOOGLE_API_TOKEN_HERE

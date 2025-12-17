@@ -1,0 +1,9 @@
+# Sample Combo File Format
+# Format: email:password:email
+# Lines starting with # are comments
+
+john.doe@example.com:password123:john.doe@example.com
+jane.smith@example.com:mypassword:jane.smith@example.com
+test.user@gmail.com:testpass123:test.user@gmail.com
+demo.account@yahoo.com:demopass:demo.account@yahoo.com
+sample@hotmail.com:samplepass:sample@hotmail.com
