@@ -356,11 +356,14 @@ class APIScanner:
         """Method 12: CORS misconfiguration testing"""
         url = f"https://{self.target}/api"
         try:
-            headers = {'Origin': 'https://evil.com'}
+            # Send test origin to check if server reflects it (CORS vulnerability)
+            test_origin = 'https://evil.com'
+            headers = {'Origin': test_origin}
             resp = self.session.get(url, headers=headers, timeout=10)
             if 'Access-Control-Allow-Origin' in resp.headers:
                 origin = resp.headers['Access-Control-Allow-Origin']
-                if origin == '*' or 'evil.com' in origin:
+                # Check if wildcard or if our test origin is reflected
+                if origin == '*' or origin == test_origin:
                     self.add_endpoint(url, 'cors_testing',
                                     vulnerabilities=['CORS misconfiguration'])
         except:
@@ -463,7 +466,11 @@ class APIScanner:
     def method_019_ssl_certificates(self):
         """Method 19: SSL certificate analysis (extract SANs)"""
         try:
+            # Create SSL context with secure TLS 1.2+ only
             context = ssl.create_default_context()
+            context.minimum_version = ssl.TLSVersion.TLSv1_2
+            context.options |= ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1
+            
             with socket.create_connection((self.target, 443), timeout=10) as sock:
                 with context.wrap_socket(sock, server_hostname=self.target) as ssock:
                     cert = ssock.getpeercert()
