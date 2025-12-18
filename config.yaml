@@ -1,0 +1,38 @@
+# ULTRA API HUNTER v3.0 Configuration File
+
+# Target Configuration
+target: "example.com"
+
+# Scanner Settings
+threads: 50
+timeout: 10
+max_retries: 3
+
+# Output Configuration
+output_format: "json"  # Options: json, html, csv
+output_directory: "./reports"
+
+# API Keys (optional)
+shodan_key: ""
+censys_key: ""
+github_token: ""
+
+# Discovery Options
+enable_dorking: true
+enable_osint: true
+enable_security_testing: true
+
+# Advanced Options
+user_agent: "ULTRA-API-HUNTER/3.0"
+follow_redirects: true
+verify_ssl: true
+
+# Filtering
+exclude_patterns:
+  - "/signin"
+  - "/login"
+  - "/auth"
+  - "/register"
+
+# Rate Limiting
+rate_limit: 10  # requests per second
