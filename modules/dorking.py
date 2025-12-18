@@ -5,7 +5,7 @@ This module implements advanced search engine dorking for API discovery.
 """
 
 import requests
-from typing import List
+from typing import List, Dict
 from urllib.parse import quote_plus
 
 

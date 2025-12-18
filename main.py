@@ -473,6 +473,10 @@ class APIScanner:
                             if san_type == 'DNS' and 'api' in san_value.lower():
                                 url = f"https://{san_value}"
                                 self.add_endpoint(url, 'ssl_certificate_san')
+        except ssl.SSLError as e:
+            self.log(f"SSL error in method_019: {e}", 2)
+        except socket.error as e:
+            self.log(f"Socket error in method_019: {e}", 2)
         except Exception as e:
             self.log(f"Error in method_019: {e}", 2)
     
