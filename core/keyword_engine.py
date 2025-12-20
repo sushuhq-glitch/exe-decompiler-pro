@@ -402,81 +402,98 @@ class KeywordEngine:
         """
         start_time = time.time()
         
-        # Configure random engine
-        if deterministic and seed is not None:
-            self.random_engine.set_seed(seed)
+        # Configure random engine for deterministic mode if requested
+        original_engine = self.random_engine
+        temp_engine = None
         
-        # Load language data
-        dataset = self.language_data.get_dataset(language)
-        if not dataset:
-            raise ValueError(f"Unsupported language: {language}")
+        if deterministic:
+            if seed is not None and self.random_engine.is_deterministic():
+                # Engine is already deterministic, just reseed it
+                self.random_engine.reseed(seed)
+            elif seed is not None:
+                # Engine is not deterministic, create a temporary one
+                temp_engine = RandomEngine(deterministic=True, seed=seed)
+                self.random_engine = temp_engine
+                # Also update template engine to use temp engine
+                self.template_engine.random_engine = temp_engine
         
-        # Load templates into template engine
-        self.template_engine.clear_templates()
-        self.template_engine.add_templates(dataset.templates)
-        
-        keywords = []
-        attempts = 0
-        max_attempts = count * 3  # Allow some retries for duplicates
-        
-        while len(keywords) < count and attempts < max_attempts:
-            attempts += 1
+        try:
+            # Load language data
+            dataset = self.language_data.get_dataset(language)
+            if not dataset:
+                raise ValueError(f"Unsupported language: {language}")
             
-            # Select random data for template
-            data = {
-                'brand': self.random_engine.random_choice(dataset.brands),
-                'product': self.random_engine.random_choice(dataset.products),
-                'intent': self.random_engine.random_choice(dataset.intents),
-                'modifier': self.random_engine.random_choice(dataset.modifiers),
-                'question': self.random_engine.random_choice(dataset.questions),
-                'suffix': self.random_engine.random_choice(dataset.suffixes),
-            }
+            # Load templates into template engine
+            self.template_engine.clear_templates()
+            self.template_engine.add_templates(dataset.templates)
             
-            # Generate keyword from template
-            try:
-                keyword = self.template_engine.render_random(data)
-            except Exception:
-                continue
+            keywords = []
+            attempts = 0
+            max_attempts = count * 3  # Allow some retries for duplicates
             
-            # Validate and normalize
-            normalized = self.validator.validate_and_normalize(keyword)
-            if not normalized:
-                continue
+            while len(keywords) < count and attempts < max_attempts:
+                attempts += 1
+                
+                # Select random data for template
+                data = {
+                    'brand': self.random_engine.random_choice(dataset.brands),
+                    'product': self.random_engine.random_choice(dataset.products),
+                    'intent': self.random_engine.random_choice(dataset.intents),
+                    'modifier': self.random_engine.random_choice(dataset.modifiers),
+                    'question': self.random_engine.random_choice(dataset.questions),
+                    'suffix': self.random_engine.random_choice(dataset.suffixes),
+                }
             
-            # Check for duplicates
-            if self.enable_realtime_dedup:
-                with self._lock:
-                    if normalized in self.seen_keywords:
-                        self.metrics.total_duplicates += 1
-                        continue
-                    
-                    # Add to seen set
-                    self.seen_keywords.add(normalized)
-                    
-                    # Limit seen set size
-                    if len(self.seen_keywords) > self.max_seen_size:
-                        # Remove oldest 10%
-                        remove_count = self.max_seen_size // 10
-                        for _ in range(remove_count):
-                            self.seen_keywords.pop()
+                # Generate keyword from template
+                try:
+                    keyword = self.template_engine.render_random(data)
+                except Exception:
+                    continue
+                
+                # Validate and normalize
+                normalized = self.validator.validate_and_normalize(keyword)
+                if not normalized:
+                    continue
+                
+                # Check for duplicates
+                if self.enable_realtime_dedup:
+                    with self._lock:
+                        if normalized in self.seen_keywords:
+                            self.metrics.total_duplicates += 1
+                            continue
+                        
+                        # Add to seen set
+                        self.seen_keywords.add(normalized)
+                        
+                        # Limit seen set size
+                        if len(self.seen_keywords) > self.max_seen_size:
+                            # Remove oldest 10%
+                            remove_count = self.max_seen_size // 10
+                            for _ in range(remove_count):
+                                self.seen_keywords.pop()
+                
+                keywords.append(normalized)
+                self.metrics.total_generated += 1
+                self.metrics.total_valid += 1
             
-            keywords.append(normalized)
-            self.metrics.total_generated += 1
-            self.metrics.total_valid += 1
-        
-        # Update metrics
-        end_time = time.time()
-        generation_time = end_time - start_time
-        self.metrics.generation_time += generation_time
-        
-        if generation_time > 0:
-            self.metrics.keywords_per_second = len(keywords) / generation_time
-        
-        self.last_generation_time = generation_time
-        self.total_generation_time += generation_time
-        self.generation_count += 1
-        
-        return keywords
+            # Update metrics
+            end_time = time.time()
+            generation_time = end_time - start_time
+            self.metrics.generation_time += generation_time
+            
+            if generation_time > 0:
+                self.metrics.keywords_per_second = len(keywords) / generation_time
+            
+            self.last_generation_time = generation_time
+            self.total_generation_time += generation_time
+            self.generation_count += 1
+            
+            return keywords
+        finally:
+            # Restore original engine if we created a temporary one
+            if temp_engine is not None:
+                self.random_engine = original_engine
+                self.template_engine.random_engine = original_engine
     
     def generate_stream(self, language: str, count: int,
                        deterministic: bool = False,
