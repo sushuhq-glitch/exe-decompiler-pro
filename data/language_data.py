@@ -15,7 +15,7 @@ Example:
     >>> products = data.get_products("MX")
 """
 
-from typing import Dict, List
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 
 
@@ -715,3 +715,238 @@ class LanguageData:
             True
         """
         return self._data[language.upper()]
+    
+    def get_random_brand(self, language: str) -> str:
+        """
+        Get a random brand for a language.
+        
+        Args:
+            language: Language code.
+            
+        Returns:
+            Random brand name.
+        """
+        dataset = self.get_dataset(language)
+        import random
+        return random.choice(dataset.brands)
+    
+    def get_random_product(self, language: str) -> str:
+        """Get random product for a language."""
+        dataset = self.get_dataset(language)
+        import random
+        return random.choice(dataset.products)
+    
+    def get_random_intent(self, language: str) -> str:
+        """Get random intent for a language."""
+        dataset = self.get_dataset(language)
+        import random
+        return random.choice(dataset.intents)
+    
+    def get_random_modifier(self, language: str) -> str:
+        """Get random modifier for a language."""
+        dataset = self.get_dataset(language)
+        import random
+        return random.choice(dataset.modifiers)
+    
+    def get_random_question(self, language: str) -> str:
+        """Get random question for a language."""
+        dataset = self.get_dataset(language)
+        import random
+        return random.choice(dataset.questions)
+    
+    def get_random_suffix(self, language: str) -> str:
+        """Get random suffix for a language."""
+        dataset = self.get_dataset(language)
+        import random
+        return random.choice(dataset.suffixes)
+    
+    def get_random_template(self, language: str) -> str:
+        """Get random template for a language."""
+        dataset = self.get_dataset(language)
+        import random
+        return random.choice(dataset.templates)
+    
+    def search_brands(self, query: str, language: Optional[str] = None) -> List[str]:
+        """
+        Search for brands containing query string.
+        
+        Args:
+            query: Search query.
+            language: Optional language filter.
+            
+        Returns:
+            List of matching brands.
+        """
+        query_lower = query.lower()
+        results = []
+        
+        languages = [language] if language else self.get_supported_languages()
+        
+        for lang in languages:
+            dataset = self.get_dataset(lang)
+            for brand in dataset.brands:
+                if query_lower in brand.lower():
+                    results.append(brand)
+        
+        return list(set(results))
+    
+    def search_products(self, query: str, language: Optional[str] = None) -> List[str]:
+        """Search for products containing query string."""
+        query_lower = query.lower()
+        results = []
+        
+        languages = [language] if language else self.get_supported_languages()
+        
+        for lang in languages:
+            dataset = self.get_dataset(lang)
+            for product in dataset.products:
+                if query_lower in product.lower():
+                    results.append(product)
+        
+        return list(set(results))
+    
+    def get_dataset_stats(self, language: str) -> Dict[str, int]:
+        """
+        Get statistics for a language dataset.
+        
+        Args:
+            language: Language code.
+            
+        Returns:
+            Dictionary of counts.
+        """
+        dataset = self.get_dataset(language)
+        return {
+            'brands': len(dataset.brands),
+            'products': len(dataset.products),
+            'intents': len(dataset.intents),
+            'modifiers': len(dataset.modifiers),
+            'questions': len(dataset.questions),
+            'suffixes': len(dataset.suffixes),
+            'templates': len(dataset.templates),
+        }
+    
+    def get_all_stats(self) -> Dict[str, Dict[str, int]]:
+        """
+        Get statistics for all languages.
+        
+        Returns:
+            Dictionary mapping language to stats.
+        """
+        return {
+            lang: self.get_dataset_stats(lang)
+            for lang in self.get_supported_languages()
+        }
+    
+    def validate_language(self, language: str) -> bool:
+        """
+        Check if a language is supported.
+        
+        Args:
+            language: Language code.
+            
+        Returns:
+            True if supported.
+        """
+        return language.upper() in self._data
+    
+    def get_total_combinations(self, language: str) -> int:
+        """
+        Calculate total possible combinations for a language.
+        
+        Args:
+            language: Language code.
+            
+        Returns:
+            Number of possible combinations.
+        """
+        dataset = self.get_dataset(language)
+        total = (len(dataset.brands) * 
+                len(dataset.products) * 
+                len(dataset.intents) * 
+                len(dataset.modifiers) * 
+                len(dataset.questions) * 
+                len(dataset.suffixes) * 
+                len(dataset.templates))
+        return total
+    
+    def export_to_dict(self) -> Dict[str, Any]:
+        """
+        Export all language data to dictionary.
+        
+        Returns:
+            Dictionary of all data.
+        """
+        result = {}
+        for lang, dataset in self._data.items():
+            result[lang] = {
+                'brands': dataset.brands,
+                'products': dataset.products,
+                'intents': dataset.intents,
+                'modifiers': dataset.modifiers,
+                'questions': dataset.questions,
+                'suffixes': dataset.suffixes,
+                'templates': dataset.templates,
+            }
+        return result
+    
+    def get_language_name(self, language: str) -> str:
+        """
+        Get full language name from code.
+        
+        Args:
+            language: Language code.
+            
+        Returns:
+            Full language name.
+        """
+        names = {
+            'IT': 'Italian',
+            'MX': 'Mexican Spanish',
+            'DE': 'German',
+            'TW': 'Taiwanese Mandarin',
+            'AT': 'Austrian German',
+        }
+        return names.get(language.upper(), 'Unknown')
+    
+    def __repr__(self) -> str:
+        """String representation."""
+        return f"LanguageData(languages={len(self._data)})"
+    
+    def __str__(self) -> str:
+        """Human-readable string."""
+        langs = ', '.join(self.get_supported_languages())
+        return f"LanguageData supporting: {langs}"
+    
+    def __contains__(self, language: str) -> bool:
+        """Check if language is supported."""
+        return language.upper() in self._data
+    
+    def __len__(self) -> int:
+        """Return number of supported languages."""
+        return len(self._data)
+
+
+# Global LANGUAGE_DATA dictionary for backward compatibility
+LANGUAGE_DATA = {}
+_language_data_instance = LanguageData()
+
+for lang_code in _language_data_instance.get_supported_languages():
+    dataset = _language_data_instance.get_dataset(lang_code)
+    LANGUAGE_DATA[lang_code] = {
+        'brands': dataset.brands,
+        'products': dataset.products,
+        'intents': dataset.intents,
+        'modifiers': dataset.modifiers,
+        'questions': dataset.questions,
+        'suffixes': dataset.suffixes,
+    }
+
+# Global TEMPLATES list for backward compatibility
+TEMPLATES = []
+for lang_code in _language_data_instance.get_supported_languages():
+    dataset = _language_data_instance.get_dataset(lang_code)
+    TEMPLATES.extend(dataset.templates)
+
+# Remove duplicates from templates
+TEMPLATES = list(set(TEMPLATES))
