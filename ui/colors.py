@@ -86,6 +86,7 @@ class Colors:
     MAGENTA = '\033[35m' if _supports_color else ''
     CYAN = '\033[36m' if _supports_color else ''
     WHITE = '\033[37m' if _supports_color else ''
+    DARK_GRAY = '\033[90m' if _supports_color else ''  # Alias for BRIGHT_BLACK
     
     # Background colors
     BG_BLACK = '\033[40m' if _supports_color else ''
@@ -301,3 +302,63 @@ class Colors:
             print(f"{code}{Colors.BLACK}{name:15}{Colors.RESET} - Sample Text")
         
         print()
+
+
+class ColorPrinter:
+    """
+    Utility class for printing colored text.
+    
+    This class provides convenient methods for printing text with colors,
+    with optional enable/disable support.
+    
+    Attributes:
+        enabled: Whether colors are enabled.
+    
+    Example:
+        >>> printer = ColorPrinter(enabled=True)
+        >>> printer.print_colored("Success!", Colors.GREEN)
+    """
+    
+    def __init__(self, enabled: bool = True):
+        """
+        Initialize color printer.
+        
+        Args:
+            enabled: Whether to enable colors.
+        """
+        # Check if terminal supports colors
+        import sys
+        supports_color = (
+            hasattr(sys.stdout, 'isatty') and sys.stdout.isatty() and
+            os.environ.get('TERM') != 'dumb'
+        )
+        self.enabled = enabled and supports_color
+    
+    def print_colored(self, text: str, color: str = "", end: str = "\n") -> None:
+        """
+        Print text with optional color.
+        
+        Args:
+            text: Text to print.
+            color: Color code.
+            end: End character (default newline).
+        """
+        if self.enabled and color:
+            print(f"{color}{text}{Colors.RESET}", end=end)
+        else:
+            print(text, end=end)
+    
+    def colorize(self, text: str, color: str = "") -> str:
+        """
+        Colorize text and return the string.
+        
+        Args:
+            text: Text to colorize.
+            color: Color code.
+            
+        Returns:
+            Colored text string.
+        """
+        if self.enabled and color:
+            return f"{color}{text}{Colors.RESET}"
+        return text
