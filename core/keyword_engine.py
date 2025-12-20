@@ -424,12 +424,12 @@ class KeywordEngine:
             
             # Select random data for template
             data = {
-                'brand': self.random_engine.choice(dataset.brands),
-                'product': self.random_engine.choice(dataset.products),
-                'intent': self.random_engine.choice(dataset.intents),
-                'modifier': self.random_engine.choice(dataset.modifiers),
-                'question': self.random_engine.choice(dataset.questions),
-                'suffix': self.random_engine.choice(dataset.suffixes),
+                'brand': self.random_engine.random_choice(dataset.brands),
+                'product': self.random_engine.random_choice(dataset.products),
+                'intent': self.random_engine.random_choice(dataset.intents),
+                'modifier': self.random_engine.random_choice(dataset.modifiers),
+                'question': self.random_engine.random_choice(dataset.questions),
+                'suffix': self.random_engine.random_choice(dataset.suffixes),
             }
             
             # Generate keyword from template
