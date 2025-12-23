@@ -1,22 +1,25 @@
 # IL TOOL DI CARPANO
 
 Una suite professionale di strumenti per la gestione di keyword, password e liste.
+Applicazione desktop moderna costruita con **Electron + Node.js**.
 
 ## Caratteristiche
 
-- **Design Moderno**: Interfaccia grafica con tema rosso e nero
+- **Design Moderno**: Interfaccia grafica con tema giallo/oro (#f0b90b) e nero (#0d0d0f)
 - **5 Strumenti Integrati**: Tutto quello che serve per la gestione dati
 - **Interfaccia Intuitiva**: Sidebar con accesso rapido a tutti gli strumenti
 - **Performance**: Operazioni veloci anche su file di grandi dimensioni
+- **Cross-Platform**: Funziona su Windows, macOS e Linux
 
 ## Strumenti Disponibili
 
 ### 1. Keyword Generator
-Genera keyword casuali per testing e sviluppo.
+Genera keyword usando pattern e traduzioni specifiche per ogni lingua.
 - Supporto multi-lingua (IT, DE, MX, TW, AT)
+- Pattern di generazione ponderati
 - Output in formato TXT/CSV
 - Rimozione automatica duplicati
-- Statistiche in tempo reale
+- Statistiche in tempo reale (keywords, tempo, velocità, dimensione file)
 
 ### 2. Password Strength Checker
 Analizza la forza delle password in file email:password.
@@ -50,41 +53,43 @@ git clone https://github.com/sushuhq-glitch/exe-decompiler-pro.git
 cd exe-decompiler-pro
 
 # Installa le dipendenze
-pip install -r requirements.txt
+npm install
 
 # Avvia l'applicazione
-python main.py
+npm start
 ```
 
 ## Requisiti
 
-- Python 3.10+
-- customtkinter >= 5.2.0
-- Pillow >= 10.0.0
+- Node.js 16+
+- npm o yarn
 
 ## Utilizzo
 
-1. Avvia l'applicazione: `python main.py`
+1. Avvia l'applicazione: `npm start`
 2. Seleziona uno strumento dalla sidebar
 3. Segui le istruzioni per ogni strumento
-4. I file di output verranno salvati nella cartella corrente
+4. I file di output verranno salvati dove scegli
 
 ## Struttura
 
 ```
 /
-├── main.py              # Entry point dell'applicazione
-├── requirements.txt     # Dipendenze Python
+├── package.json         # Configurazione npm e dipendenze
+├── main.js              # Electron main process
+├── preload.js           # Preload script per sicurezza
+├── src/
+│   ├── index.html       # GUI principale
+│   ├── styles.css       # Tema giallo/oro e nero
+│   ├── renderer.js      # Frontend logic
+│   └── tools/           # Moduli degli strumenti
+│       ├── keywordGenerator.js
+│       ├── passwordChecker.js
+│       ├── duplicateRemover.js
+│       ├── emailExtractor.js
+│       └── listSplitter.js
 ├── README.md           # Questa documentazione
-├── LICENSE             # Licenza MIT
-├── assets/             # Risorse (icone, immagini)
-└── tools/              # Moduli degli strumenti
-    ├── __init__.py
-    ├── keyword_generator.py
-    ├── password_checker.py
-    ├── duplicate_remover.py
-    ├── email_extractor.py
-    └── list_splitter.py
+└── LICENSE             # Licenza MIT
 ```
 
 ## Licenza
