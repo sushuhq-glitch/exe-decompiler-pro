@@ -6,15 +6,14 @@ let mainWindow;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 1400,
-        height: 900,
-        minWidth: 1200,
-        minHeight: 700,
+        width: 1000,
+        height: 650,
+        frame: false,
+        resizable: true,
         backgroundColor: '#0d0d0f',
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: true,
-            nodeIntegration: false
+            nodeIntegration: true,
+            contextIsolation: false
         },
         autoHideMenuBar: true,
         icon: path.join(__dirname, 'icon.png')
@@ -112,4 +111,17 @@ ipcMain.handle('save-multiple-files', async (event, files) => {
         }
     }
     return { success: false, error: 'Save cancelled' };
+});
+
+// Window controls for frameless window
+ipcMain.on('minimize-window', () => {
+    if (mainWindow) {
+        mainWindow.minimize();
+    }
+});
+
+ipcMain.on('close-window', () => {
+    if (mainWindow) {
+        mainWindow.close();
+    }
 });

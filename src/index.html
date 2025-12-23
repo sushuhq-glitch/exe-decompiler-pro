@@ -7,117 +7,159 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">TC</div>
-            <div class="logo-text">
-                <div class="logo-title">IL TOOL DI CARPANO</div>
-                <div class="logo-version">v1.0.0</div>
-            </div>
+    <!-- Custom Titlebar -->
+    <div class="titlebar">
+        <div class="titlebar-title">IL TOOL DI CARPANO v1.0.0</div>
+        <div class="titlebar-controls">
+            <button class="titlebar-button minimize" id="minimize-btn">−</button>
+            <button class="titlebar-button close" id="close-btn">×</button>
         </div>
-        
-        <nav class="menu">
-            <a href="#" class="menu-item active" data-page="home">
-                <span class="menu-icon">H</span>
-                <span class="menu-text">Home</span>
-            </a>
-            <a href="#" class="menu-item" data-page="keyword-generator">
-                <span class="menu-icon">K</span>
-                <span class="menu-text">Keyword Generator</span>
-            </a>
-            <a href="#" class="menu-item" data-page="password-checker">
-                <span class="menu-icon">P</span>
-                <span class="menu-text">Password Checker</span>
-            </a>
-            <a href="#" class="menu-item" data-page="duplicate-remover">
-                <span class="menu-icon">D</span>
-                <span class="menu-text">Duplicate Remover</span>
-            </a>
-            <a href="#" class="menu-item" data-page="email-extractor">
-                <span class="menu-icon">E</span>
-                <span class="menu-text">Email Extractor</span>
-            </a>
-            <a href="#" class="menu-item" data-page="list-splitter">
-                <span class="menu-icon">L</span>
-                <span class="menu-text">List Splitter</span>
-            </a>
-            <a href="#" class="menu-item" data-page="settings">
-                <span class="menu-icon">S</span>
-                <span class="menu-text">Settings</span>
-            </a>
-        </nav>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Header -->
-        <header class="header">
-            <h1>IL TOOL DI CARPANO</h1>
-            <div class="header-version">Version 1.0.0</div>
-        </header>
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">TC</div>
+                <div class="logo-text">
+                    <div class="logo-title">IL TOOL DI CARPANO</div>
+                </div>
+            </div>
+            
+            <nav class="menu">
+                <a href="#" class="menu-item active" data-page="home">
+                    <span class="menu-icon">H</span>
+                    <span class="menu-text">Home</span>
+                </a>
+                <a href="#" class="menu-item" data-page="keyword-generator">
+                    <span class="menu-icon">K</span>
+                    <span class="menu-text">Keyword Generator</span>
+                </a>
+                <a href="#" class="menu-item" data-page="password-checker">
+                    <span class="menu-icon">P</span>
+                    <span class="menu-text">Password Checker</span>
+                </a>
+                <a href="#" class="menu-item" data-page="duplicate-remover">
+                    <span class="menu-icon">D</span>
+                    <span class="menu-text">Duplicate Remover</span>
+                </a>
+                <a href="#" class="menu-item" data-page="email-extractor">
+                    <span class="menu-icon">E</span>
+                    <span class="menu-text">Email Extractor</span>
+                </a>
+                <a href="#" class="menu-item" data-page="list-splitter">
+                    <span class="menu-icon">L</span>
+                    <span class="menu-text">List Splitter</span>
+                </a>
+                <a href="#" class="menu-item" data-page="settings">
+                    <span class="menu-icon">S</span>
+                    <span class="menu-text">Settings</span>
+                </a>
+            </nav>
 
-        <!-- Pages -->
-        <div class="content">
-            <!-- Home Page -->
-            <div id="home-page" class="page active">
-                <h2 class="page-title">Benvenuto</h2>
-                <div class="cards-grid">
-                    <div class="card" data-nav="keyword-generator">
-                        <div class="card-header">
-                            <h3>Keyword Generator</h3>
+            <div class="sidebar-footer">
+                Version 1.0.0
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Pages -->
+            <div class="content">
+                <!-- Home Page -->
+                <div id="home-page" class="page active">
+                    <h2 class="page-title">General Tools</h2>
+                    <div class="cards-grid">
+                        <div class="card" data-nav="keyword-generator">
+                            <div class="card-icon">K</div>
+                            <div class="card-header">
+                                <h3>Keyword Generator</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Genera keyword usando pattern e traduzioni per IT, DE, MX, TW, AT</p>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <p>Genera keyword usando pattern e traduzioni per IT, DE, MX, TW, AT</p>
+                        
+                        <div class="card" data-nav="password-checker">
+                            <div class="card-icon">P</div>
+                            <div class="card-header">
+                                <h3>Password Checker</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Analizza la forza delle password e classifica come WEAK, MEDIUM o STRONG</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card" data-nav="duplicate-remover">
+                            <div class="card-icon">D</div>
+                            <div class="card-header">
+                                <h3>Duplicate Remover</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Rimuovi righe duplicate da file di testo</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card" data-nav="email-extractor">
+                            <div class="card-icon">E</div>
+                            <div class="card-header">
+                                <h3>Email Extractor</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Estrai indirizzi email validi da testo o file</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card" data-nav="list-splitter">
+                            <div class="card-icon">L</div>
+                            <div class="card-header">
+                                <h3>List Splitter</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Dividi file grandi in parti più piccole</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card" data-nav="settings">
+                            <div class="card-icon">S</div>
+                            <div class="card-header">
+                                <h3>Settings</h3>
+                            </div>
+                            <div class="card-body">
+                                <p>Configura le preferenze dell'applicazione</p>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="card" data-nav="password-checker">
-                        <div class="card-header">
-                            <h3>Password Checker</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Analizza la forza delle password e classifica come WEAK, MEDIUM o STRONG</p>
-                        </div>
-                    </div>
-                    
-                    <div class="card" data-nav="duplicate-remover">
-                        <div class="card-header">
-                            <h3>Duplicate Remover</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Rimuovi righe duplicate da file di testo</p>
-                        </div>
-                    </div>
-                    
-                    <div class="card" data-nav="email-extractor">
-                        <div class="card-header">
-                            <h3>Email Extractor</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Estrai indirizzi email validi da testo o file</p>
-                        </div>
-                    </div>
-                    
-                    <div class="card" data-nav="list-splitter">
-                        <div class="card-header">
-                            <h3>List Splitter</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Dividi file grandi in parti più piccole</p>
-                        </div>
-                    </div>
-                    
-                    <div class="card" data-nav="settings">
-                        <div class="card-header">
-                            <h3>Settings</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Configura le preferenze dell'applicazione</p>
+
+                    <!-- Stats Section -->
+                    <div class="stats-container">
+                        <h3>Statistiche Applicazione</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <span class="stat-icon">●</span>
+                                    <span>Strumenti Disponibili</span>
+                                </div>
+                                <div class="stat-value">6</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <span class="stat-icon">●</span>
+                                    <span>Lingue Supportate</span>
+                                </div>
+                                <div class="stat-value">5</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">
+                                    <span class="stat-icon">●</span>
+                                    <span>Versione</span>
+                                </div>
+                                <div class="stat-value">1.0</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
             <!-- Keyword Generator Page -->
             <div id="keyword-generator-page" class="page">
@@ -401,11 +443,13 @@
                     <div class="settings-section">
                         <h3>About</h3>
                         <p>Professional toolkit con Electron e Node.js per la gestione di keyword, password e liste.</p>
-                        <p>Design moderno con tema giallo/oro e nero.</p>
+                        <p>Design moderno con tema rosso e nero ispirato ad AleTweak.</p>
                     </div>
                 </div>
             </div>
+            </div>
         </div>
+    </div>
     </div>
 
     <script src="renderer.js"></script>
