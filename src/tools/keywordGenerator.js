@@ -18,7 +18,7 @@ const TRANSLATIONS = {
         "suffixes": ["", " deutschland", " 2025"]
     },
     "IT": {
-        "products": ["scarpe", "sneakers", "stivali", "sandali", "vestito", "camicia", "maglietta", "pantaloni", "jeans", "giacca", "cappotto", "orologio", "occhiali", "borsa", "zaino", "portafoglio", "cintura", "collana", "anillo", "profumo", "crema", "shampoo", "cellulare", "tablet", "cuffie", "laptop", "mouse"],
+        "products": ["scarpe", "sneakers", "stivali", "sandali", "vestito", "camicia", "maglietta", "pantaloni", "jeans", "giacca", "cappotto", "orologio", "occhiali", "borsa", "zaino", "portafoglio", "cintura", "collana", "anello", "profumo", "crema", "shampoo", "cellulare", "tablet", "cuffie", "laptop", "mouse"],
         "modifiers": ["economico", "offerta", "nuovo", "marca", "usato", "originale", "leggero", "resistente", "taglia S", "taglia M", "uomo", "donna", "bambini", "lusso", "bio", "limitato", "spedizione gratis", "promo"],
         "intents": ["comprare", "prezzo", "confronto", "migliore", "recensioni", "dove", "online", "veloce", "sconto"],
         "suffixes": ["", " italia", " 2025"]
