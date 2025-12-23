@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IL TOOL DI CARPANO</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">TC</div>
+            <div class="logo-text">
+                <div class="logo-title">IL TOOL DI CARPANO</div>
+                <div class="logo-version">v1.0.0</div>
+            </div>
+        </div>
+        
+        <nav class="menu">
+            <a href="#" class="menu-item active" data-page="home">
+                <span class="menu-icon">🏠</span>
+                <span class="menu-text">Home</span>
+            </a>
+            <a href="#" class="menu-item" data-page="keyword-generator">
+                <span class="menu-icon">🔑</span>
+                <span class="menu-text">Keyword Generator</span>
+            </a>
+            <a href="#" class="menu-item" data-page="password-checker">
+                <span class="menu-icon">🔒</span>
+                <span class="menu-text">Password Checker</span>
+            </a>
+            <a href="#" class="menu-item" data-page="duplicate-remover">
+                <span class="menu-icon">🗑️</span>
+                <span class="menu-text">Duplicate Remover</span>
+            </a>
+            <a href="#" class="menu-item" data-page="email-extractor">
+                <span class="menu-icon">📧</span>
+                <span class="menu-text">Email Extractor</span>
+            </a>
+            <a href="#" class="menu-item" data-page="list-splitter">
+                <span class="menu-icon">✂️</span>
+                <span class="menu-text">List Splitter</span>
+            </a>
+            <a href="#" class="menu-item" data-page="settings">
+                <span class="menu-icon">⚙️</span>
+                <span class="menu-text">Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <h1>IL TOOL DI CARPANO</h1>
+            <div class="header-version">Version 1.0.0</div>
+        </header>
+
+        <!-- Pages -->
+        <div class="content">
+            <!-- Home Page -->
+            <div id="home-page" class="page active">
+                <h2 class="page-title">Benvenuto</h2>
+                <div class="cards-grid">
+                    <div class="card" data-nav="keyword-generator">
+                        <div class="card-header">
+                            <h3>Keyword Generator</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Genera keyword usando pattern e traduzioni per IT, DE, MX, TW, AT</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card" data-nav="password-checker">
+                        <div class="card-header">
+                            <h3>Password Checker</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Analizza la forza delle password e classifica come WEAK, MEDIUM o STRONG</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card" data-nav="duplicate-remover">
+                        <div class="card-header">
+                            <h3>Duplicate Remover</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Rimuovi righe duplicate da file di testo</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card" data-nav="email-extractor">
+                        <div class="card-header">
+                            <h3>Email Extractor</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Estrai indirizzi email validi da testo o file</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card" data-nav="list-splitter">
+                        <div class="card-header">
+                            <h3>List Splitter</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Dividi file grandi in parti più piccole</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card" data-nav="settings">
+                        <div class="card-header">
+                            <h3>Settings</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>Configura le preferenze dell'applicazione</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keyword Generator Page -->
+            <div id="keyword-generator-page" class="page">
+                <h2 class="page-title">Keyword Generator</h2>
+                
+                <div class="tool-container">
+                    <div class="form-group">
+                        <label>Lingua</label>
+                        <select id="kg-language" class="input-field">
+                            <option value="IT">Italiano</option>
+                            <option value="DE">Deutsch</option>
+                            <option value="MX">Español (México)</option>
+                            <option value="TW">中文 (Taiwan)</option>
+                            <option value="AT">Deutsch (Österreich)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Numero di Keywords</label>
+                        <input type="number" id="kg-count" class="input-field" value="1000" min="1" max="100000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Formato Output</label>
+                        <select id="kg-format" class="input-field">
+                            <option value="txt">TXT</option>
+                            <option value="csv">CSV</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="kg-remove-duplicates" checked>
+                            Rimuovi duplicati
+                        </label>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="kg-generate">Genera Keywords</button>
+                    
+                    <div id="kg-progress" class="progress-container" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="kg-progress-bar"></div>
+                        </div>
+                        <div class="progress-text" id="kg-progress-text">0%</div>
+                    </div>
+                    
+                    <div id="kg-stats" class="stats-container" style="display: none;">
+                        <h3>Statistiche</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">Keywords Generate</div>
+                                <div class="stat-value" id="kg-stat-count">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Tempo</div>
+                                <div class="stat-value" id="kg-stat-time">0s</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Velocità</div>
+                                <div class="stat-value" id="kg-stat-speed">0/s</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Dimensione File</div>
+                                <div class="stat-value" id="kg-stat-size">0 KB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password Checker Page -->
+            <div id="password-checker-page" class="page">
+                <h2 class="page-title">Password Checker</h2>
+                
+                <div class="tool-container">
+                    <div class="form-group">
+                        <label>File Input (email:password)</label>
+                        <button class="btn btn-secondary" id="pc-select-file">Seleziona File</button>
+                        <div id="pc-file-name" class="file-name"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Modalità Output</label>
+                        <select id="pc-output-mode" class="input-field">
+                            <option value="separate">File Separati (WEAK, MEDIUM, STRONG)</option>
+                            <option value="strong-only">Solo STRONG</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="pc-check" disabled>Analizza Password</button>
+                    
+                    <div id="pc-progress" class="progress-container" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="pc-progress-bar"></div>
+                        </div>
+                        <div class="progress-text" id="pc-progress-text">0%</div>
+                    </div>
+                    
+                    <div id="pc-stats" class="stats-container" style="display: none;">
+                        <h3>Risultati</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">Totale</div>
+                                <div class="stat-value" id="pc-stat-total">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">WEAK</div>
+                                <div class="stat-value" id="pc-stat-weak">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">MEDIUM</div>
+                                <div class="stat-value" id="pc-stat-medium">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">STRONG</div>
+                                <div class="stat-value" id="pc-stat-strong">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Duplicate Remover Page -->
+            <div id="duplicate-remover-page" class="page">
+                <h2 class="page-title">Duplicate Remover</h2>
+                
+                <div class="tool-container">
+                    <div class="form-group">
+                        <label>File Input</label>
+                        <button class="btn btn-secondary" id="dr-select-file">Seleziona File</button>
+                        <div id="dr-file-name" class="file-name"></div>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="dr-remove" disabled>Rimuovi Duplicati</button>
+                    
+                    <div id="dr-progress" class="progress-container" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="dr-progress-bar"></div>
+                        </div>
+                        <div class="progress-text" id="dr-progress-text">0%</div>
+                    </div>
+                    
+                    <div id="dr-stats" class="stats-container" style="display: none;">
+                        <h3>Risultati</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">Righe Originali</div>
+                                <div class="stat-value" id="dr-stat-original">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Righe Uniche</div>
+                                <div class="stat-value" id="dr-stat-unique">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Duplicati Rimossi</div>
+                                <div class="stat-value" id="dr-stat-removed">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Extractor Page -->
+            <div id="email-extractor-page" class="page">
+                <h2 class="page-title">Email Extractor</h2>
+                
+                <div class="tool-container">
+                    <div class="form-group">
+                        <label>Sorgente</label>
+                        <select id="ee-source" class="input-field">
+                            <option value="text">Testo</option>
+                            <option value="file">File</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="ee-text-group">
+                        <label>Testo Input</label>
+                        <textarea id="ee-text-input" class="input-field textarea" rows="6" placeholder="Inserisci il testo contenente le email..."></textarea>
+                    </div>
+                    
+                    <div class="form-group" id="ee-file-group" style="display: none;">
+                        <label>File Input</label>
+                        <button class="btn btn-secondary" id="ee-select-file">Seleziona File</button>
+                        <div id="ee-file-name" class="file-name"></div>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="ee-extract">Estrai Email</button>
+                    
+                    <div id="ee-progress" class="progress-container" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ee-progress-bar"></div>
+                        </div>
+                        <div class="progress-text" id="ee-progress-text">0%</div>
+                    </div>
+                    
+                    <div id="ee-stats" class="stats-container" style="display: none;">
+                        <h3>Risultati</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">Email Trovate</div>
+                                <div class="stat-value" id="ee-stat-found">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Email Uniche</div>
+                                <div class="stat-value" id="ee-stat-unique">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List Splitter Page -->
+            <div id="list-splitter-page" class="page">
+                <h2 class="page-title">List Splitter</h2>
+                
+                <div class="tool-container">
+                    <div class="form-group">
+                        <label>File Input</label>
+                        <button class="btn btn-secondary" id="ls-select-file">Seleziona File</button>
+                        <div id="ls-file-name" class="file-name"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Modalità Split</label>
+                        <select id="ls-split-mode" class="input-field">
+                            <option value="parts">Numero di Parti</option>
+                            <option value="lines">Righe per File</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="ls-parts-group">
+                        <label>Numero di Parti</label>
+                        <input type="number" id="ls-parts" class="input-field" value="2" min="2" max="100">
+                    </div>
+                    
+                    <div class="form-group" id="ls-lines-group" style="display: none;">
+                        <label>Righe per File</label>
+                        <input type="number" id="ls-lines" class="input-field" value="1000" min="1">
+                    </div>
+                    
+                    <button class="btn btn-primary" id="ls-split" disabled>Dividi File</button>
+                    
+                    <div id="ls-progress" class="progress-container" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ls-progress-bar"></div>
+                        </div>
+                        <div class="progress-text" id="ls-progress-text">0%</div>
+                    </div>
+                    
+                    <div id="ls-stats" class="stats-container" style="display: none;">
+                        <h3>Risultati</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-label">Righe Totali</div>
+                                <div class="stat-value" id="ls-stat-total">0</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">File Creati</div>
+                                <div class="stat-value" id="ls-stat-files">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings-page" class="page">
+                <h2 class="page-title">Settings</h2>
+                
+                <div class="tool-container">
+                    <div class="settings-section">
+                        <h3>Informazioni</h3>
+                        <div class="settings-info">
+                            <p><strong>Nome:</strong> IL TOOL DI CARPANO</p>
+                            <p><strong>Versione:</strong> 1.0.0</p>
+                            <p><strong>Autore:</strong> @teoo6232-eng</p>
+                            <p><strong>Licenza:</strong> MIT</p>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>About</h3>
+                        <p>Professional toolkit con Electron e Node.js per la gestione di keyword, password e liste.</p>
+                        <p>Design moderno con tema giallo/oro e nero.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>
