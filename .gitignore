@@ -30,6 +30,12 @@ ENV/
 cdkey_stores.txt
 cdkey_stores.json
 stats.json
+keywords_*.txt
+keywords_*.csv
+passwords_*.txt
+unique_*.txt
+emails_*.txt
+split_*_part*.txt
 
 # IDE
 .vscode/
