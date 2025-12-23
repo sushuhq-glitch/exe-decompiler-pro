@@ -82,8 +82,8 @@ function setupKeywordGenerator() {
         const format = document.getElementById('kg-format').value;
         const removeDuplicates = document.getElementById('kg-remove-duplicates').checked;
         
-        if (count < 1 || count > 100000) {
-            alert('Il numero di keywords deve essere tra 1 e 100000');
+        if (count < 1 || count > 200000) {
+            alert('Il numero di keywords deve essere tra 1 e 200000');
             return;
         }
         
@@ -99,41 +99,62 @@ function setupKeywordGenerator() {
         
         const startTime = Date.now();
         
-        // Simulate progress for better UX
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-            progress += Math.random() * 10;
-            if (progress > 90) progress = 90;
-            progressBar.style.width = `${progress}%`;
-            progressText.textContent = `${Math.round(progress)}%`;
-        }, 100);
+        // Generate keywords in chunks for real progress updates
+        const chunkSize = 10000; // Generate 10k at a time
+        const keywords = [];
+        let generated = 0;
         
-        // Generate keywords (run in chunks to avoid blocking)
-        setTimeout(async () => {
+        const generateChunk = () => {
+            const remaining = count - generated;
+            const currentChunk = Math.min(chunkSize, remaining);
+            
+            if (currentChunk > 0) {
+                // Generate chunk
+                for (let i = 0; i < currentChunk; i++) {
+                    keywords.push(KeywordGenerator.generateKeyword(language));
+                }
+                
+                generated += currentChunk;
+                const progress = (generated / count) * 100;
+                progressBar.style.width = `${progress}%`;
+                progressText.textContent = `${Math.round(progress)}%`;
+                
+                // Continue to next chunk
+                setTimeout(generateChunk, 0);
+            } else {
+                // Generation complete
+                completeGeneration();
+            }
+        };
+        
+        const completeGeneration = async () => {
             try {
-                const keywords = KeywordGenerator.generateKeywords(language, count, removeDuplicates);
+                // Apply duplicate removal if needed
+                let finalKeywords = keywords;
+                if (removeDuplicates) {
+                    finalKeywords = [...new Set(keywords)];
+                }
                 
                 let content;
                 let extension;
                 if (format === 'csv') {
-                    content = KeywordGenerator.formatAsCSV(keywords);
+                    content = KeywordGenerator.formatAsCSV(finalKeywords);
                     extension = 'csv';
                 } else {
-                    content = KeywordGenerator.formatAsTXT(keywords);
+                    content = KeywordGenerator.formatAsTXT(finalKeywords);
                     extension = 'txt';
                 }
                 
-                clearInterval(progressInterval);
                 progressBar.style.width = '100%';
                 progressText.textContent = '100%';
                 
                 const endTime = Date.now();
                 const timeTaken = (endTime - startTime) / 1000;
-                const speed = Math.round(keywords.length / timeTaken);
+                const speed = Math.round(finalKeywords.length / timeTaken);
                 const fileSize = (new Blob([content]).size / 1024).toFixed(2);
                 
                 // Update stats
-                document.getElementById('kg-stat-count').textContent = keywords.length;
+                document.getElementById('kg-stat-count').textContent = finalKeywords.length;
                 document.getElementById('kg-stat-time').textContent = `${timeTaken.toFixed(2)}s`;
                 document.getElementById('kg-stat-speed').textContent = `${speed}/s`;
                 document.getElementById('kg-stat-size').textContent = `${fileSize} KB`;
@@ -152,12 +173,14 @@ function setupKeywordGenerator() {
                 generateBtn.disabled = false;
                 progressContainer.style.display = 'none';
             } catch (error) {
-                clearInterval(progressInterval);
                 alert(`Errore: ${error.message}`);
                 generateBtn.disabled = false;
                 progressContainer.style.display = 'none';
             }
-        }, 500);
+        };
+        
+        // Start generation
+        setTimeout(generateChunk, 100);
     });
 }
 

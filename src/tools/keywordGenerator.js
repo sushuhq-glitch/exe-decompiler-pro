@@ -83,18 +83,27 @@ function generateKeyword(language) {
     return keyword.trim();
 }
 
-function generateKeywords(language, count, removeDuplicates = true) {
-    const keywords = [];
-    
-    for (let i = 0; i < count; i++) {
-        keywords.push(generateKeyword(language));
-    }
-    
+function generateKeywords(language, count, removeDuplicates = false) {
     if (removeDuplicates) {
-        return [...new Set(keywords)];
+        // When removing duplicates, generate more than needed and then dedupe
+        const uniqueKeywords = new Set();
+        let attempts = 0;
+        const maxAttempts = count * 3; // Generate up to 3x to get unique keywords
+        
+        while (uniqueKeywords.size < count && attempts < maxAttempts) {
+            uniqueKeywords.add(generateKeyword(language));
+            attempts++;
+        }
+        
+        return Array.from(uniqueKeywords);
+    } else {
+        // Fast generation without deduplication
+        const keywords = [];
+        for (let i = 0; i < count; i++) {
+            keywords.push(generateKeyword(language));
+        }
+        return keywords;
     }
-    
-    return keywords;
 }
 
 function formatAsCSV(keywords) {
@@ -106,6 +115,7 @@ function formatAsTXT(keywords) {
 }
 
 module.exports = {
+    generateKeyword,
     generateKeywords,
     formatAsCSV,
     formatAsTXT
