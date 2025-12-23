@@ -120,10 +120,12 @@ body {
 }
 
 .menu-icon {
-    font-size: 20px;
+    font-size: 18px;
+    font-weight: 700;
     margin-right: 12px;
     width: 24px;
     text-align: center;
+    color: var(--accent-gold);
 }
 
 .menu-text {
