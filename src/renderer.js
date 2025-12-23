@@ -76,6 +76,9 @@ function navigateToPage(pageName) {
 function setupKeywordGenerator() {
     const generateBtn = document.getElementById('kg-generate');
     
+    // Configuration: chunk size for progress updates (keywords per chunk)
+    const GENERATION_CHUNK_SIZE = 10000;
+    
     generateBtn.addEventListener('click', async () => {
         const language = document.getElementById('kg-language').value;
         const count = parseInt(document.getElementById('kg-count').value);
@@ -100,7 +103,7 @@ function setupKeywordGenerator() {
         const startTime = Date.now();
         
         // Generate keywords in chunks for real progress updates
-        const chunkSize = 10000; // Generate 10k at a time
+        const chunkSize = GENERATION_CHUNK_SIZE;
         const keywords = [];
         let generated = 0;
         

@@ -39,6 +39,9 @@ const PATTERNS = [
     {pattern: "{modifier} {product}{suffix}", weight: 0.05}
 ];
 
+// Configuration constants
+const MAX_UNIQUE_ATTEMPTS_MULTIPLIER = 3; // Try up to 3x the requested count to find unique keywords
+
 function getRandomElement(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
@@ -88,7 +91,7 @@ function generateKeywords(language, count, removeDuplicates = false) {
         // When removing duplicates, generate more than needed and then dedupe
         const uniqueKeywords = new Set();
         let attempts = 0;
-        const maxAttempts = count * 3; // Generate up to 3x to get unique keywords
+        const maxAttempts = count * MAX_UNIQUE_ATTEMPTS_MULTIPLIER;
         
         while (uniqueKeywords.size < count && attempts < maxAttempts) {
             uniqueKeywords.add(generateKeyword(language));
