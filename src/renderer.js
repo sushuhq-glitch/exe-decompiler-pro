@@ -1,3 +1,8 @@
+// Import modules using require (nodeIntegration enabled)
+const { ipcRenderer } = require('electron');
+const fs = require('fs');
+const path = require('path');
+
 // Import tool modules
 const KeywordGenerator = require('./tools/keywordGenerator');
 const PasswordChecker = require('./tools/passwordChecker');
@@ -7,6 +12,7 @@ const ListSplitter = require('./tools/listSplitter');
 
 // Navigation
 document.addEventListener('DOMContentLoaded', () => {
+    setupWindowControls();
     setupNavigation();
     setupKeywordGenerator();
     setupPasswordChecker();
@@ -14,6 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEmailExtractor();
     setupListSplitter();
 });
+
+// Window Controls
+function setupWindowControls() {
+    document.getElementById('minimize-btn').addEventListener('click', () => {
+        ipcRenderer.send('minimize-window');
+    });
+    
+    document.getElementById('close-btn').addEventListener('click', () => {
+        ipcRenderer.send('close-window');
+    });
+}
 
 function setupNavigation() {
     const menuItems = document.querySelectorAll('.menu-item');
@@ -92,7 +109,7 @@ function setupKeywordGenerator() {
         }, 100);
         
         // Generate keywords (run in chunks to avoid blocking)
-        setTimeout(() => {
+        setTimeout(async () => {
             try {
                 const keywords = KeywordGenerator.generateKeywords(language, count, removeDuplicates);
                 
@@ -125,15 +142,15 @@ function setupKeywordGenerator() {
                 
                 // Save file
                 const defaultName = `keywords_${language}_${Date.now()}.${extension}`;
-                window.electronAPI.saveFile({ defaultName, content }).then(result => {
-                    if (result.success) {
-                        alert(`Keywords salvate in: ${result.path}`);
-                    } else {
-                        alert(`Errore nel salvataggio: ${result.error}`);
-                    }
-                    generateBtn.disabled = false;
-                    progressContainer.style.display = 'none';
-                });
+                const result = await ipcRenderer.invoke('save-file', { defaultName, content });
+                
+                if (result.success) {
+                    alert(`Keywords salvate in: ${result.path}`);
+                } else {
+                    alert(`Errore nel salvataggio: ${result.error}`);
+                }
+                generateBtn.disabled = false;
+                progressContainer.style.display = 'none';
             } catch (error) {
                 clearInterval(progressInterval);
                 alert(`Errore: ${error.message}`);
@@ -153,7 +170,7 @@ function setupPasswordChecker() {
     const fileName = document.getElementById('pc-file-name');
     
     selectBtn.addEventListener('click', async () => {
-        const filePath = await window.electronAPI.selectFile();
+        const filePath = await ipcRenderer.invoke('select-file');
         if (filePath) {
             pcSelectedFile = filePath;
             fileName.textContent = filePath;
@@ -175,7 +192,7 @@ function setupPasswordChecker() {
         checkBtn.disabled = true;
         
         // Read file
-        const result = await window.electronAPI.readFile(pcSelectedFile);
+        const result = await ipcRenderer.invoke('read-file', pcSelectedFile);
         if (!result.success) {
             alert(`Errore nella lettura del file: ${result.error}`);
             checkBtn.disabled = false;
@@ -218,7 +235,7 @@ function setupPasswordChecker() {
                         { name: 'passwords_STRONG.txt', content: results.STRONG.join('\n') }
                     ];
                     
-                    const saveResult = await window.electronAPI.saveMultipleFiles(files);
+                    const saveResult = await ipcRenderer.invoke('save-multiple-files', files);
                     if (saveResult.success) {
                         alert(`File salvati in: ${saveResult.paths[0].substring(0, saveResult.paths[0].lastIndexOf('/'))}`);
                     } else {
@@ -227,7 +244,7 @@ function setupPasswordChecker() {
                 } else {
                     const content = results.STRONG.join('\n');
                     const defaultName = 'passwords_STRONG.txt';
-                    const saveResult = await window.electronAPI.saveFile({ defaultName, content });
+                    const saveResult = await ipcRenderer.invoke('save-file', { defaultName, content });
                     if (saveResult.success) {
                         alert(`File salvato in: ${saveResult.path}`);
                     } else {
@@ -256,7 +273,7 @@ function setupDuplicateRemover() {
     const fileName = document.getElementById('dr-file-name');
     
     selectBtn.addEventListener('click', async () => {
-        const filePath = await window.electronAPI.selectFile();
+        const filePath = await ipcRenderer.invoke('select-file');
         if (filePath) {
             drSelectedFile = filePath;
             fileName.textContent = filePath;
@@ -277,7 +294,7 @@ function setupDuplicateRemover() {
         removeBtn.disabled = true;
         
         // Read file
-        const result = await window.electronAPI.readFile(drSelectedFile);
+        const result = await ipcRenderer.invoke('read-file', drSelectedFile);
         if (!result.success) {
             alert(`Errore nella lettura del file: ${result.error}`);
             removeBtn.disabled = false;
@@ -311,7 +328,7 @@ function setupDuplicateRemover() {
                 
                 // Save file
                 const defaultName = 'output_no_duplicates.txt';
-                const saveResult = await window.electronAPI.saveFile({ 
+                const saveResult = await ipcRenderer.invoke('save-file', { 
                     defaultName, 
                     content: dupeResult.content 
                 });
@@ -357,7 +374,7 @@ function setupEmailExtractor() {
     });
     
     selectBtn.addEventListener('click', async () => {
-        const filePath = await window.electronAPI.selectFile();
+        const filePath = await ipcRenderer.invoke('select-file');
         if (filePath) {
             eeSelectedFile = filePath;
             fileName.textContent = filePath;
@@ -380,7 +397,7 @@ function setupEmailExtractor() {
                 return;
             }
             
-            const result = await window.electronAPI.readFile(eeSelectedFile);
+            const result = await ipcRenderer.invoke('read-file', eeSelectedFile);
             if (!result.success) {
                 alert(`Errore nella lettura del file: ${result.error}`);
                 return;
@@ -430,7 +447,7 @@ function setupEmailExtractor() {
                 // Save file
                 const content = emails.join('\n');
                 const defaultName = 'extracted_emails.txt';
-                const saveResult = await window.electronAPI.saveFile({ defaultName, content });
+                const saveResult = await ipcRenderer.invoke('save-file', { defaultName, content });
                 
                 if (saveResult.success) {
                     alert(`Email estratte e salvate in: ${saveResult.path}`);
@@ -472,7 +489,7 @@ function setupListSplitter() {
     });
     
     selectBtn.addEventListener('click', async () => {
-        const filePath = await window.electronAPI.selectFile();
+        const filePath = await ipcRenderer.invoke('select-file');
         if (filePath) {
             lsSelectedFile = filePath;
             fileName.textContent = filePath;
@@ -507,7 +524,7 @@ function setupListSplitter() {
         splitBtn.disabled = true;
         
         // Read file
-        const result = await window.electronAPI.readFile(lsSelectedFile);
+        const result = await ipcRenderer.invoke('read-file', lsSelectedFile);
         if (!result.success) {
             alert(`Errore nella lettura del file: ${result.error}`);
             splitBtn.disabled = false;
@@ -551,7 +568,7 @@ function setupListSplitter() {
                     content
                 }));
                 
-                const saveResult = await window.electronAPI.saveMultipleFiles(files);
+                const saveResult = await ipcRenderer.invoke('save-multiple-files', files);
                 if (saveResult.success) {
                     alert(`File divisi e salvati in: ${saveResult.paths[0].substring(0, saveResult.paths[0].lastIndexOf('/'))}`);
                 } else {
