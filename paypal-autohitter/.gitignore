@@ -1,0 +1,22 @@
+# Output files
+output/hits.txt
+output/bad.txt
+output/errors.txt
+output/session.log
+output/*.json
+output/backup_*/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Temporary files
+temp/
+*.tmp
+
+# User data
+combo.txt
+*.txt
+!requirements.txt
